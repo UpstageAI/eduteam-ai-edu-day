@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edu Team Day — Pages Portal</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 920px; padding: 0 16px; color: #111827; }
+      h1 { margin: 0 0 8px; }
+      p { color: #4b5563; }
+      .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-top: 20px; }
+      .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; background: #fff; }
+      .card a { color: #111827; text-decoration: none; font-weight: 600; }
+      .sub { margin-top: 6px; font-size: 12px; color: #6b7280; word-break: break-all; }
+      .note { margin-top: 24px; font-size: 12px; color: #6b7280; }
+      code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>Edu Team Day Pages</h1>
+    <p>Folder-based entry points in this repository.</p>
+
+    <div id="pages" class="grid"></div>
+
+    <p class="note">
+      Add a new folder page by creating <code>&lt;folder&gt;/index.html</code> and pushing to <code>main</code>.
+    </p>
+
+    <script>
+      const owner = 'UpstageAI';
+      const repo = 'eduteam-ai-edu-day';
+
+      const repoBase = (() => {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        if (window.location.hostname.endsWith('github.io') && parts.length > 0) {
+          return '/' + parts[0] + '/';
+        }
+        return '/';
+      })();
+
+      const fallback = [
+        { name: 'gas-tutorial', href: repoBase + 'gas-tutorial/' },
+        { name: 'gas-tutorial presentation', href: repoBase + 'gas-tutorial/slides-gas-tutorial/dist/presentation.html' },
+      ];
+
+      function render(items) {
+        const root = document.getElementById('pages');
+        root.innerHTML = '';
+        items.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `<a href="${item.href}">${item.name}</a><div class="sub">${item.href}</div>`;
+          root.appendChild(card);
+        });
+      }
+
+      async function load() {
+        try {
+          const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`);
+          if (!res.ok) throw new Error('api failed');
+          const data = await res.json();
+          const map = new Map();
+
+          for (const item of data.tree || []) {
+            if (item.type !== 'blob') continue;
+            if (!item.path.endsWith('/index.html')) continue;
+            const folder = item.path.replace(/\/index\.html$/, '');
+            if (!folder) continue;
+            map.set(folder, { name: folder, href: repoBase + folder + '/' });
+          }
+
+          if (!map.has('gas-tutorial')) {
+            map.set('gas-tutorial', { name: 'gas-tutorial', href: repoBase + 'gas-tutorial/' });
+          }
+          map.set('gas-tutorial presentation', {
+            name: 'gas-tutorial presentation',
+            href: repoBase + 'gas-tutorial/slides-gas-tutorial/dist/presentation.html',
+          });
+
+          const items = Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+          render(items.length ? items : fallback);
+        } catch (_) {
+          render(fallback);
+        }
+      }
+
+      load();
+    </script>
+  </body>
+</html>
