@@ -3,27 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Edu Team Day — Pages 목록</title>
+    <title>[Education Team] AI Edu day — Pages 목록</title>
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 920px; padding: 0 16px; color: #111827; }
       h1 { margin: 0 0 8px; }
       p { color: #4b5563; }
       .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-top: 20px; }
       .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; background: #fff; }
+      .label { display: inline-block; margin-bottom: 8px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #374151; background: #f3f4f6; }
       .card a { color: #111827; text-decoration: none; font-weight: 600; }
       .sub { margin-top: 6px; font-size: 12px; color: #6b7280; word-break: break-all; }
+      .actions { display: flex; gap: 10px; margin-top: 10px; font-size: 12px; }
+      .actions a { color: #374151; font-weight: 500; text-decoration: underline; }
       .note { margin-top: 24px; font-size: 12px; color: #6b7280; }
       code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
     </style>
   </head>
   <body>
-    <h1>Edu Team Day Pages</h1>
-    <p>이 저장소의 폴더별 페이지 진입점입니다.</p>
+    <h1>[Education Team] AI Edu day</h1>
+    <p>안녕하세요! 아래에서 각 페이지와 업로드된 자료로 바로 이동하실 수 있어요.</p>
 
     <div id="pages" class="grid"></div>
 
     <p class="note">
-      새 페이지는 <code>&lt;폴더&gt;/index.html</code>을 만들고 <code>main</code> 브랜치에 푸시하면 자동으로 목록에 표시됩니다.
+      새 페이지는 <code>&lt;폴더&gt;/index.html</code>을 만들고 <code>main</code> 브랜치에 푸시하면 자동으로 목록에 표시됩니다. PPTX 파일은 Office 미리보기 또는 원본 파일 링크로 확인할 수 있습니다.
     </p>
 
     <script>
@@ -38,8 +41,22 @@
         return '/';
       })();
 
+      function toRepoHref(path, isDirectory = false) {
+        const encodedPath = path
+          .split('/')
+          .filter(Boolean)
+          .map((segment) => encodeURIComponent(segment))
+          .join('/');
+        return repoBase + encodedPath + (isDirectory ? '/' : '');
+      }
+
+      function toOfficeViewerUrl(fileHref) {
+        const absolute = new URL(fileHref, window.location.origin).href;
+        return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absolute)}`;
+      }
+
       const fallback = [
-        { name: 'gas-tutorial', href: repoBase + 'gas-tutorial/' },
+        { kind: 'page', name: 'gas-tutorial', href: repoBase + 'gas-tutorial/' },
       ];
 
       function render(items) {
@@ -48,7 +65,26 @@
         items.forEach((item) => {
           const card = document.createElement('div');
           card.className = 'card';
-          card.innerHTML = `<a href="${item.href}">${item.name}</a><div class="sub">${item.href}</div>`;
+
+          if (item.kind === 'pptx') {
+            const viewerUrl = toOfficeViewerUrl(item.href);
+            card.innerHTML = `
+              <div class="label">PPTX</div>
+              <a href="${viewerUrl}" target="_blank" rel="noopener noreferrer">${item.name}</a>
+              <div class="sub">${item.href}</div>
+              <div class="actions">
+                <a href="${viewerUrl}" target="_blank" rel="noopener noreferrer">Office 미리보기</a>
+                <a href="${item.href}" target="_blank" rel="noopener noreferrer">원본 파일</a>
+              </div>
+            `;
+          } else {
+            card.innerHTML = `
+              <div class="label">PAGE</div>
+              <a href="${item.href}">${item.name}</a>
+              <div class="sub">${item.href}</div>
+            `;
+          }
+
           root.appendChild(card);
         });
       }
@@ -58,21 +94,32 @@
           const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`);
           if (!res.ok) throw new Error('api failed');
           const data = await res.json();
-          const map = new Map();
+          const pageMap = new Map();
+          const pptxMap = new Map();
 
           for (const item of data.tree || []) {
             if (item.type !== 'blob') continue;
-            if (!item.path.endsWith('/index.html')) continue;
-            const folder = item.path.replace(/\/index\.html$/, '');
-            if (!folder) continue;
-            map.set(folder, { name: folder, href: repoBase + folder + '/' });
+
+            if (item.path.endsWith('/index.html')) {
+              const folder = item.path.replace(/\/index\.html$/, '');
+              if (!folder) continue;
+              pageMap.set(folder, { kind: 'page', name: folder, href: toRepoHref(folder, true) });
+              continue;
+            }
+
+            if (item.path.toLowerCase().endsWith('.pptx')) {
+              const filename = item.path.split('/').pop();
+              pptxMap.set(item.path, { kind: 'pptx', name: filename, href: toRepoHref(item.path) });
+            }
           }
 
-          if (!map.has('gas-tutorial')) {
-            map.set('gas-tutorial', { name: 'gas-tutorial', href: repoBase + 'gas-tutorial/' });
+          if (!pageMap.has('gas-tutorial')) {
+            pageMap.set('gas-tutorial', { kind: 'page', name: 'gas-tutorial', href: repoBase + 'gas-tutorial/' });
           }
 
-          const items = Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+          const pages = Array.from(pageMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+          const pptx = Array.from(pptxMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+          const items = [...pages, ...pptx];
           render(items.length ? items : fallback);
         } catch (_) {
           render(fallback);
