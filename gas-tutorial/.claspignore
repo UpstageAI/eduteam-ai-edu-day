@@ -1,0 +1,13 @@
+# Ignore everything outside src/
+README.md
+tutorial/**
+instructor/**
+config/**
+assets/**
+tools/**
+.omc/**
+.omx/**
+.git/**
+node_modules/**
+Makefile
+.clasp.json.example

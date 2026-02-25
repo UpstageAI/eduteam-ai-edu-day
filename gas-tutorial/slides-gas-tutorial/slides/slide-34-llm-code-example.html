@@ -1,0 +1,24 @@
+<section class="slide slide-content" data-slide-number="34">
+  <span class="section-label">Bonus</span>
+  <h3>GAS에서 LLM API 호출 예시</h3>
+  <pre class="code-block">function callLLM() {
+  var API_KEY = 'your-api-key';
+  var url = 'https://api.upstage.ai/v1/chat/completions';
+
+  var response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { 'Authorization': 'Bearer ' + API_KEY },
+    payload: JSON.stringify({
+      model: 'solar-pro3',
+      messages: [
+        { role: 'user', content: '이 텍스트를 요약해줘: ...' }
+      ]
+    })
+  });
+
+  var result = JSON.parse(response.getContentText());
+  Logger.log(result.choices[0].message.content);
+}</pre>
+  <p class="mt-sm" style="font-size: 14px; color: var(--text-muted);">OpenAI 호환 형식 — endpoint URL과 model만 바꾸면 ChatGPT, Claude, Gemini 등 어디든 동일하게 사용 가능</p>
+</section>

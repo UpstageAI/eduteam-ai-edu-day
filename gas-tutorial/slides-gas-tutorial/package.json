@@ -1,0 +1,10 @@
+{
+  "name": "slide-presentation",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "build:light": "node build.js --no-inline",
+    "build:pptx": "node build.js --pptx"
+  }
+}

@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Google Apps Script로 업무 자동화하기 — AI에게 물어보는 GAS 튜토리얼 워크숍">
+  <meta property="og:title" content="GAS Tutorial Workshop">
+  <meta property="og:description" content="코드를 직접 쓰지 않아도 됩니다 — AI에게 물어보세요">
+  <title>Google Apps Script로 업무 자동화하기 — GAS Tutorial Workshop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap">
+  <style>
+/* ===================================================================
+   GAS Tutorial — Bright Clean Theme
+   Inspired by Upstage Brand Guide: "Visually Relaxing"
+   Light backgrounds, generous white space, minimal color usage
+   =================================================================== */
+
+/* NOTE: Google Fonts loaded via <link> in build.js, not @import */
+
+:root {
+  /* ── Brand Colors ── */
+  --color-accent: #805CFB;
+  --color-accent-light: #9CA7FF;
+  --color-accent-dark: #4F36F5;
+  --color-accent-bg: #C2CBFF;
+
+  /* ── Primary Scale (Jacksons Purple) ── */
+  --jp-50: #ECF0FF;
+  --jp-100: #DDE3FF;
+  --jp-200: #C2CBFF;
+  --jp-300: #9CA7FF;
+  --jp-400: #7578FF;
+  --jp-500: #5B52FF;
+
+  /* ── Backgrounds ── */
+  --bg-primary: #ECF0FF;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-alt: #F8F7FD;
+  --bg-highlight: rgba(128, 92, 251, 0.08);
+  --bg-gradient: linear-gradient(135deg, #ECF0FF 0%, #DDE3FF 50%, #F8F7FD 100%);
+
+  /* ── Text Colors (Gray scale) ── */
+  --text-primary: #1C2537;
+  --text-secondary: #434C60;
+  --text-muted: #979CAE;
+  --text-caption: #979CAE;
+  --text-inverse: #FFFFFF;
+
+  /* ── Borders ── */
+  --border-light: #E9E8F0;
+  --border-subtle: #D1D1DB;
+
+  /* ── Fonts ── */
+  --font-primary: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-heading: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'D2Coding', 'Cascadia Code', monospace;
+
+  /* ── Spacing ── */
+  --slide-padding: 60px 80px;
+  --gap-xs: 4px;
+  --gap-sm: 8px;
+  --gap-md: 16px;
+  --gap-lg: 32px;
+  --gap-xl: 48px;
+  --gap-2xl: 64px;
+
+  /* ── Typography Scale ── */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-2xl: 36px;
+  --text-3xl: 44px;
+  --text-4xl: 56px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ── Shadows (minimal) ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ===================================================================
+   Typography
+   =================================================================== */
+
+h1 {
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+h4 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Slide Content Heading Hierarchy ── */
+.slide-content h4 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  margin-top: var(--gap-lg);
+  margin-bottom: var(--gap-sm);
+  letter-spacing: -0.01em;
+}
+
+p {
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+li {
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+
+/* ===================================================================
+   Slide Type Styles
+   =================================================================== */
+
+/* ── Title Slide ── */
+.slide-title {
+  background: var(--bg-gradient);
+  text-align: left;
+  padding: 80px 100px;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.slide-title h1 {
+  margin-bottom: var(--gap-lg);
+  font-size: var(--text-4xl);
+  color: var(--text-primary);
+}
+.slide-title .subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  font-weight: 400;
+  max-width: 70%;
+}
+.slide-title .author {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  margin-top: var(--gap-xl);
+}
+.slide-title .date {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: var(--gap-sm);
+}
+
+/* ── Section Divider ── */
+.slide-section {
+  background: var(--bg-gradient);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.slide-section .section-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-xl);
+  padding: 60px 80px;
+  max-width: 65%;
+  min-width: 50%;
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+}
+.slide-section h2 {
+  color: var(--text-primary);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+}
+.slide-section .section-number {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--gap-md);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.slide-section .section-subtitle {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin-top: var(--gap-md);
+}
+
+/* ── Content Slide ── */
+.slide-content {
+  background: var(--bg-primary);
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 60px 80px;
+  text-align: left;
+}
+.slide-content .section-label {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: 0.5px;
+  margin-bottom: var(--gap-sm);
+}
+.slide-content h3 {
+  margin-bottom: var(--gap-lg);
+  width: 100%;
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+}
+.slide-content ul,
+.slide-content ol {
+  padding-left: 24px;
+  width: 100%;
+}
+.slide-content li {
+  margin-bottom: var(--gap-sm);
+  color: var(--text-secondary);
+}
+.slide-content li::marker {
+  color: var(--color-accent);
+}
+
+/* ── Agenda Slide ── */
+.slide-agenda {
+  background: var(--bg-primary);
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 60px 80px;
+}
+.slide-agenda h3 {
+  margin-bottom: var(--gap-xl);
+  width: 100%;
+  color: var(--text-primary);
+}
+.slide-agenda .agenda-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+.slide-agenda .agenda-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  padding: var(--gap-md) 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+}
+.slide-agenda .agenda-number {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-accent);
+  min-width: 40px;
+}
+
+/* ── End / Thank You Slide ── */
+.slide-end {
+  background: var(--bg-gradient);
+  text-align: left;
+  padding: 80px 100px;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.slide-end h2 {
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--gap-lg);
+}
+.slide-end .contact {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+}
+
+
+/* ===================================================================
+   Layout Components
+   =================================================================== */
+
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  width: 100%;
+  align-items: start;
+}
+
+.three-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--gap-lg);
+}
+.card h4 {
+  margin-bottom: var(--gap-sm);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.card p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.icon-card {
+  text-align: center;
+  padding: var(--gap-xl) var(--gap-lg);
+}
+.icon-card .icon {
+  font-size: 36px;
+  margin-bottom: var(--gap-md);
+  color: var(--jp-400);
+}
+
+
+/* ===================================================================
+   Content Elements
+   =================================================================== */
+
+.code-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--gap-lg);
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  overflow-x: auto;
+  width: 100%;
+  line-height: 1.7;
+  white-space: pre;
+}
+
+code {
+  background: var(--bg-highlight);
+  color: var(--color-accent-dark);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--bg-highlight);
+  color: var(--color-accent);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.callout {
+  background: var(--bg-card);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--gap-md) var(--gap-lg);
+  width: 100%;
+}
+.callout p {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.quote {
+  font-size: var(--text-lg);
+  font-style: italic;
+  color: var(--text-secondary);
+  border-left: 3px solid var(--color-accent);
+  padding-left: var(--gap-lg);
+  max-width: 80%;
+  line-height: 1.7;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+}
+.comparison-table th,
+.comparison-table td {
+  padding: var(--gap-md) var(--gap-lg);
+  text-align: left;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.comparison-table th {
+  background: var(--color-accent-dark);
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+.comparison-table td {
+  border-bottom: 1px solid var(--border-light);
+  background: #FFFFFF;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--gap-xl);
+  width: 100%;
+}
+.stat {
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--gap-xl) var(--gap-lg);
+}
+.stat-number {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  color: var(--jp-400);
+  line-height: 1;
+}
+.stat-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--gap-sm);
+  letter-spacing: 0.5px;
+}
+
+
+/* ===================================================================
+   Prompt Display (for embedding prompts in slides)
+   =================================================================== */
+
+.prompt-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--gap-md) var(--gap-lg);
+  width: 100%;
+  font-size: var(--text-sm);
+  line-height: 1.8;
+}
+.prompt-block p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}
+.prompt-block ul,
+.prompt-block ol {
+  padding-left: 20px;
+  margin-top: var(--gap-xs);
+}
+.prompt-block li {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+  line-height: 1.6;
+}
+.prompt-label {
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+.blank {
+  color: var(--text-muted);
+  border-bottom: 2px dashed var(--color-accent-light);
+  padding: 0 4px;
+  font-style: italic;
+}
+.prompt-block .constraint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--gap-sm);
+  padding-top: var(--gap-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+/* ── Prompt Split Layout (template + solution side-by-side) ── */
+.prompt-dual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-lg);
+  width: 100%;
+  align-items: start;
+}
+.prompt-dual .prompt-side {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: var(--gap-md) var(--gap-lg);
+  font-size: var(--text-base);
+  line-height: 1.7;
+}
+.prompt-dual .prompt-side p {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}
+.prompt-dual .prompt-side ul,
+.prompt-dual .prompt-side ol {
+  padding-left: 18px;
+  margin-top: var(--gap-xs);
+}
+.prompt-dual .prompt-side li {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+  line-height: 1.6;
+}
+.prompt-dual .prompt-side-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: var(--gap-sm);
+  padding-bottom: var(--gap-xs);
+  border-bottom: 2px solid var(--border-light);
+}
+.prompt-dual .template-side {
+  border-left: 3px solid var(--text-muted);
+}
+.prompt-dual .template-side .prompt-side-label {
+  color: var(--text-muted);
+}
+.prompt-dual .solution-side {
+  border-left: 3px solid var(--color-accent);
+}
+.prompt-dual .solution-side .prompt-side-label {
+  color: var(--color-accent);
+}
+.prompt-dual .constraint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--gap-sm);
+  padding-top: var(--gap-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+/* ── Solution Toggle ── */
+.solution-toggle {
+  display: block;
+  width: 100%;
+  margin-top: var(--gap-sm);
+  padding: 10px var(--gap-md);
+  background: var(--bg-highlight);
+  color: var(--color-accent);
+  border: 1px dashed var(--color-accent-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+.solution-toggle:hover {
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border-style: solid;
+}
+.solution-side.collapsed > *:not(.prompt-side-label):not(.solution-toggle) {
+  display: none;
+}
+
+
+/* ===================================================================
+   Utility Classes
+   =================================================================== */
+
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.w-full      { width: 100%; }
+
+.mt-xs  { margin-top: var(--gap-xs); }
+.mt-sm  { margin-top: var(--gap-sm); }
+.mt-md  { margin-top: var(--gap-md); }
+.mt-lg  { margin-top: var(--gap-lg); }
+.mt-xl  { margin-top: var(--gap-xl); }
+.mt-2xl { margin-top: var(--gap-2xl); }
+
+.mb-xs  { margin-bottom: var(--gap-xs); }
+.mb-sm  { margin-bottom: var(--gap-sm); }
+.mb-md  { margin-bottom: var(--gap-md); }
+.mb-lg  { margin-bottom: var(--gap-lg); }
+
+.flex         { display: flex; }
+.flex-col     { flex-direction: column; }
+.items-center { align-items: center; }
+.items-start  { align-items: flex-start; }
+.justify-center  { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+.gap-sm  { gap: var(--gap-sm); }
+.gap-md  { gap: var(--gap-md); }
+.gap-lg  { gap: var(--gap-lg); }
+.gap-xl  { gap: var(--gap-xl); }
+
+
+/* ===== Presentation Engine ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--font-primary, 'Segoe UI', system-ui, -apple-system, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.presentation {
+  width: 100%; height: 100%;
+  position: relative;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--slide-padding, 60px 80px);
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-primary, #1a1a2e);
+  overflow: hidden;
+}
+
+.slide.active {
+  display: flex;
+  animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Slide transitions */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInReverse {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide.active.reverse {
+  animation-name: slideInReverse;
+}
+
+/* Element entrance stagger */
+.slide.active .animate-in {
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Presenter timer */
+.presenter-timer {
+  position: fixed;
+  bottom: 20px; left: 30px;
+  font-size: 14px;
+  color: var(--text-muted, #666);
+  z-index: 100;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.presenter-timer.visible { opacity: 1; }
+
+/* Help overlay */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-primary, system-ui);
+}
+.help-overlay.visible { display: flex; }
+.help-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 48px;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+}
+.help-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1C2537;
+}
+.help-card table { width: 100%; border-collapse: collapse; }
+.help-card td {
+  padding: 8px 0;
+  font-size: 14px;
+  color: #434C60;
+  border-bottom: 1px solid #f0f0f0;
+}
+.help-card td:first-child {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: var(--color-accent, #805CFB);
+  width: 120px;
+}
+.help-card .help-close {
+  font-size: 12px;
+  color: #979CAE;
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Grid overview */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1500;
+  display: none;
+  overflow-y: auto;
+  padding: 40px;
+}
+.grid-overlay.visible { display: block; }
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.grid-thumb {
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  background: #fff;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.grid-thumb:hover {
+  border-color: var(--color-accent, #805CFB);
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(128,92,251,0.4);
+}
+.grid-thumb.current {
+  border-color: var(--color-accent, #805CFB);
+  box-shadow: 0 0 0 3px var(--color-accent, #805CFB), 0 8px 24px rgba(128,92,251,0.3);
+}
+.grid-thumb-inner {
+  width: 1920px; height: 1080px;
+  transform-origin: top left;
+  pointer-events: none;
+}
+.grid-thumb-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: #fff;
+  padding: 20px 12px 8px;
+  font-size: 13px;
+  font-family: var(--font-mono, monospace);
+  text-align: center;
+}
+
+/* Slide counter */
+.slide-counter {
+  position: fixed;
+  bottom: 20px; right: 30px;
+  font-size: 14px;
+  color: var(--text-muted, #666);
+  z-index: 100;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Progress bar */
+.progress-bar {
+  position: fixed;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: var(--color-accent, #e94560);
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+/* Logo */
+.slide-logo {
+  position: fixed;
+  top: 28px; right: 40px;
+  z-index: 100;
+  pointer-events: none;
+  user-select: none;
+}
+.slide-logo img { height: 28px; }
+.slide-logo span { font-size: 16px; font-weight: 500; color: var(--text-muted, #888); font-family: var(--font-primary, system-ui); }
+
+/* Print styles */
+@media print {
+  .slide { display: flex !important; position: relative; page-break-after: always; min-height: 100vh; }
+  .slide-counter, .progress-bar, .edit-toolbar { display: none; }
+  @page { size: landscape; margin: 0; }
+}
+
+/* ===== Edit Mode ===== */
+.edit-toolbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 48px;
+  background: #1a1a2e; color: #fff; display: none; align-items: center;
+  padding: 0 20px; gap: 8px; z-index: 1000; font-family: system-ui, sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.edit-toolbar.visible { display: flex; }
+.edit-toolbar .edit-label {
+  font-size: 13px; font-weight: 600; color: #ff6b6b; margin-right: 12px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.edit-toolbar .separator { width: 1px; height: 24px; background: #444; margin: 0 8px; }
+.edit-toolbar button {
+  background: transparent; color: #ccc; border: 1px solid #444; border-radius: 4px;
+  padding: 4px 10px; font-size: 13px; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.edit-toolbar button:hover { background: #333; color: #fff; border-color: #666; }
+.edit-toolbar button.active { background: #444; color: #fff; border-color: #888; }
+.edit-toolbar .save-btn { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 600; margin-left: auto; }
+.edit-toolbar .save-btn:hover { background: #1d4ed8; }
+.edit-toolbar .exit-btn { background: #444; color: #fff; border-color: #555; font-weight: 600; }
+.edit-toolbar .exit-btn:hover { background: #555; }
+
+body.edit-mode .slide { cursor: text; }
+body.edit-mode .slide [contenteditable="true"] { outline: none; }
+body.edit-mode .slide [contenteditable="true"]:hover {
+  outline: 2px dashed rgba(37,99,235,0.4); outline-offset: 2px; border-radius: 3px;
+}
+body.edit-mode .slide [contenteditable="true"]:focus {
+  outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 3px;
+  background: rgba(37,99,235,0.03);
+}
+body.edit-mode .slide-counter::before {
+  content: "EDIT MODE"; color: #ff6b6b; font-weight: 600; margin-right: 12px;
+  font-size: 11px; letter-spacing: 0.5px;
+}
+  </style>
+</head>
+<body>
+  <div class="presentation">
+<section class="slide slide-title" data-slide-number="1">
+  <h1>Google Apps Script로<br>업무 자동화하기</h1>
+  <p class="subtitle">코드를 직접 쓰지 않아도 됩니다 — AI에게 물어보세요</p>
+  <p class="date">GAS Tutorial Workshop</p>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="2">
+  <span class="section-label">Introduction</span>
+  <h3>오늘의 목표</h3>
+  <div class="callout">
+    <p>이 수업은 코드 문법을 배우는 수업이 <strong>아닙니다</strong></p>
+  </div>
+  <ul>
+    <li>AI(ChatGPT/Claude)에게 <strong>잘 물어보는 방법</strong>을 배웁니다</li>
+    <li>반복 작업을 자동화하는 경험을 합니다</li>
+    <li>에러가 나면 다시 물어보는 루프를 연습합니다</li>
+  </ul>
+</section>
+
+
+<section class="slide slide-agenda" data-slide-number="3">
+  <h3>수업 흐름</h3>
+  <ul class="agenda-list">
+    <li class="agenda-item">
+      <span class="agenda-number" style="color: var(--text-muted); font-size: var(--text-base);">Intro</span>
+      Google Apps Script란? + AI에게 잘 물어보는 법
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-number">1</span>
+      Practice 1: 스프레드시트 데이터 정리
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-number">2</span>
+      Practice 2: Drive 폴더/문서 자동 생성
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-number">3</span>
+      Practice 3: 폴더 구조 시트에 출력
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-number">4</span>
+      Practice 4: 72개 파일 자동 분류
+    </li>
+  </ul>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="4">
+  <span class="section-label">Introduction</span>
+  <h3>핵심 루프</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>1. 관찰</h4>
+      <p>현재 상태를 확인한다</p>
+    </div>
+    <div class="card">
+      <h4>2. 프롬프트</h4>
+      <p>AI에게 구체적으로 요청한다</p>
+    </div>
+    <div class="card">
+      <h4>3. 실행</h4>
+      <p>받은 코드를 Apps Script에서 실행한다</p>
+    </div>
+    <div class="card">
+      <h4>4. 확인</h4>
+      <p>결과가 맞는지 로그/시트를 본다</p>
+    </div>
+    <div class="card">
+      <h4>5. 개선</h4>
+      <p>틀렸으면 에러/결과를 다시 AI에게 보낸다</p>
+    </div>
+  </div>
+  <div class="callout mt-lg">
+    <p>이 루프를 4번 반복하면서 점점 복잡한 문제를 풉니다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-section" data-slide-number="5">
+  <div class="section-card">
+    <div class="section-number">Part 01</div>
+    <h2>Google Apps Script란?</h2>
+    <p class="section-subtitle">설치 없이 브라우저에서 바로 실행하는 자동화 도구</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="6">
+  <span class="section-label">Google Apps Script</span>
+  <h3>GAS란?</h3>
+  <ul>
+    <li>Google이 만든 클라우드 기반 자동화 도구</li>
+    <li>JavaScript 기반이지만 직접 쓸 필요 없음 — AI가 대신 작성</li>
+    <li>브라우저에서 바로 실행 — 설치 불필요</li>
+    <li>Google 계정만 있으면 무료</li>
+  </ul>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="7">
+  <span class="section-label">Google Apps Script</span>
+  <h3>GAS로 제어할 수 있는 것들</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>Google Drive</h4>
+      <p>파일/폴더 관리</p>
+    </div>
+    <div class="card">
+      <h4>Google Sheets</h4>
+      <p>데이터 읽기/쓰기</p>
+    </div>
+    <div class="card">
+      <h4>Google Docs</h4>
+      <p>문서 자동 생성</p>
+    </div>
+    <div class="card">
+      <h4>Gmail</h4>
+      <p>이메일 자동 발송</p>
+    </div>
+    <div class="card">
+      <h4>Google Calendar</h4>
+      <p>일정 관리</p>
+    </div>
+    <div class="card">
+      <h4>Google Forms</h4>
+      <p>응답 처리</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="8">
+  <span class="section-label">Google Apps Script</span>
+  <h3>Apps Script 에디터 열기</h3>
+  <ol>
+    <li>Google Sheets 열기</li>
+    <li>상단 메뉴 → <strong>확장 프로그램</strong> → <strong>Apps Script</strong></li>
+    <li>에디터가 새 탭에서 열림</li>
+    <li>여기에 코드를 붙여넣고 <strong>▶ 실행</strong> 버튼 클릭</li>
+  </ol>
+  <div class="callout mt-lg">
+    <p>처음 실행하면 권한 승인 팝업이 뜹니다 — '허용'을 누르면 됩니다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="9">
+  <span class="section-label">Google Apps Script</span>
+  <h3>간단한 데모</h3>
+  <pre class="code-block">function hello() {
+  Logger.log('안녕하세요!');
+}</pre>
+  <div class="callout mt-lg">
+    <p>이렇게 생긴 코드를 AI가 대신 만들어줍니다. 여러분은 실행만 하면 됩니다.</p>
+  </div>
+</section>
+
+
+<section class="slide slide-section" data-slide-number="10">
+  <div class="section-card">
+    <div class="section-number">Part 02</div>
+    <h2>AI에게 잘 물어보는 법</h2>
+    <p class="section-subtitle">좋은 프롬프트 = 좋은 결과</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="11">
+  <span class="section-label">프롬프트 작성법</span>
+  <h3>프롬프트 작성 공식</h3>
+  <ol>
+    <li><strong>도구 지정</strong> — "Google Apps Script로"</li>
+    <li><strong>현재 상황</strong> — "내 시트에 ~가 있어"</li>
+    <li><strong>문제점</strong> — "~이 이상해 / ~이 안 맞아"</li>
+    <li><strong>할 일</strong> — 번호로 나열 (1, 2, 3...)</li>
+    <li><strong>제약 조건</strong> — "GAS 문법으로, var 사용"</li>
+  </ol>
+  <div class="callout mt-lg">
+    <p>핵심: 무엇을 하고 싶은지 <strong>구체적으로!</strong></p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="12">
+  <span class="section-label">프롬프트 작성법</span>
+  <h3>프롬프트 템플릿</h3>
+  <div class="prompt-block">
+    <p><span class="prompt-label">도구:</span> Google Apps Script로 <span class="blank">________________</span> 하고 싶어.</p>
+    <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+    <ul>
+      <li><span class="blank">현재 데이터/파일이 어떤 상태인지</span></li>
+    </ul>
+    <p class="mt-sm"><span class="prompt-label">문제점:</span></p>
+    <ul>
+      <li><span class="blank">무엇이 잘못되었는지 / 불편한 점</span></li>
+    </ul>
+    <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+    <ol>
+      <li><span class="blank">구체적인 작업 1</span></li>
+      <li><span class="blank">구체적인 작업 2</span></li>
+      <li><span class="blank">...</span></li>
+    </ol>
+    <p class="constraint">Google Apps Script 문법으로 작성해줘 (var 사용).</p>
+  </div>
+  <div class="callout mt-md">
+    <p>이 형식에 맞춰서 AI에게 보내면 됩니다. 각 Practice에서 이 템플릿을 채워볼 거예요.</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="13">
+  <span class="section-label">프롬프트 작성법</span>
+  <h3>에러가 났을 때 — 당황하지 마세요</h3>
+  <ul>
+    <li>에러는 정상입니다! 프로 개발자도 에러를 냅니다</li>
+    <li>에러 메시지 + 현재 코드를 그대로 복사</li>
+    <li>AI에게 보내면서: <strong>"수정해줘. 뭐가 문제였는지 설명도 해줘"</strong></li>
+  </ul>
+  <div class="callout mt-lg">
+    <p>로그(Logger.log)를 항상 남겨달라고 요청하세요 — 문제 추적이 훨씬 쉬워집니다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="14">
+  <span class="section-label">프롬프트 작성법</span>
+  <h3>개인정보 보호 주의사항</h3>
+  <ul>
+    <li>LLM에 로그를 보낼 때 실제 이름/이메일/전화번호는 마스킹</li>
+    <li>Drive URL이나 폴더 ID도 공유하지 마세요</li>
+    <li>수업 실습 데이터는 샘플 데이터 사용 <span class="badge">오늘 실습 데이터는 모두 가짜입니다</span></li>
+  </ul>
+</section>
+
+
+<section class="slide slide-section" data-slide-number="15">
+  <div class="section-card">
+    <div class="section-number">Practice 01</div>
+    <h2>스프레드시트 정규화</h2>
+    <p class="section-subtitle">50명 지원자 데이터 정리 + 이메일 매칭</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="16">
+  <span class="section-label">Practice 1</span>
+  <h3>Practice 1 소개</h3>
+  <p>Sheet1에 50명의 지원자 데이터가 있고, Sheet2에 이메일 목록이 있습니다.</p>
+  <h4>문제점들</h4>
+  <ul>
+    <li><code>"이  준"</code> — 이름에 불필요한 공백이 들어감</li>
+    <li><code>"010 1234 5678"</code> / <code>"+82-10-..."</code> — 연락처 형식이 제각각</li>
+    <li>Sheet2에 없는 사람 8명 — 이메일 매칭 실패</li>
+  </ul>
+  <h4>기대 결과</h4>
+  <ul>
+    <li>이름 공백 정리, 연락처 010-xxxx-xxxx 통일</li>
+    <li>이메일 매칭 완료, 못 찾은 사람은 "매칭 실패" 표시</li>
+  </ul>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="17">
+  <span class="section-label">Practice 1</span>
+  <h3>프롬프트를 작성해봅시다</h3>
+  <div class="prompt-dual">
+    <div class="prompt-side template-side">
+      <div class="prompt-side-label">Template</div>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 <span class="blank">어떤 작업?</span></p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li><span class="blank">시트가 몇 개? 어떤 데이터?</span></li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">문제점:</span></p>
+      <ul>
+        <li><span class="blank">뭐가 잘못되어 있는지?</span></li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li><span class="blank">첫 번째 작업</span></li>
+        <li><span class="blank">두 번째 작업</span></li>
+        <li><span class="blank">...</span></li>
+      </ol>
+    </div>
+    <div class="prompt-side solution-side">
+      <div class="prompt-side-label">Solution</div>
+      <button class="solution-toggle">프롬프트 예시 보기</button>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 스프레드시트 데이터를 정리하고 싶어.</p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li>내 스프레드시트에 시트가 2개 있어</li>
+        <li>Sheet1: 이름, 나이, 지원트랙, 지원동기, 연락처</li>
+        <li>Sheet2: 이름, 이메일</li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">문제점:</span></p>
+      <ul>
+        <li>이름에 공백이 들어가 있는 경우가 있음</li>
+        <li>연락처 형식이 제각각임</li>
+        <li>Sheet2 이메일을 이름으로 매칭해서 합치고 싶음</li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li>이름 공백 정리</li>
+        <li>연락처를 010-1234-5678 형식으로 통일</li>
+        <li>Sheet2에서 이름으로 이메일 매칭</li>
+        <li>결과를 새 시트에 저장</li>
+        <li>못 찾은 사람 표시</li>
+        <li>처리 통계 로그</li>
+      </ol>
+      <p class="constraint">Google Apps Script 문법으로 작성해줘 (var 사용).</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="18">
+  <span class="section-label">Practice 1</span>
+  <h3>지금 해보세요!</h3>
+  <ol>
+    <li>앞 슬라이드의 프롬프트를 복사하세요</li>
+    <li>ChatGPT 또는 Claude에 붙여넣기</li>
+    <li>받은 코드를 Apps Script 에디터에 붙여넣기</li>
+    <li>▶ 실행 → 결과 시트 확인</li>
+  </ol>
+  <div class="callout mt-lg">
+    <p>예상 소요시간: ~10분 | 막히면 손 들어주세요!</p>
+  </div>
+</section>
+
+
+<section class="slide slide-section" data-slide-number="19">
+  <div class="section-card">
+    <div class="section-number">Practice 02</div>
+    <h2>Drive 폴더/문서 생성</h2>
+    <p class="section-subtitle">지원자 데이터 → 트랙별 폴더 + 문서 자동 생성</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="20">
+  <span class="section-label">Practice 2</span>
+  <h3>Practice 1에서 정리한 데이터를 활용합니다</h3>
+  <pre class="code-block">트랙별_지원자/
+├── SeSAC/
+│   ├── 김민지.docx
+│   ├── 정서윤.docx
+│   └── ...
+├── SSAFY/
+│   ├── 이준.docx
+│   └── ...
+├── KDT/
+├── Hackathon/
+└── BootCamp/</pre>
+  <ul class="mt-lg">
+    <li>각 문서 안에 지원자 이름, 트랙, 지원동기 기록</li>
+    <li>같은 이름 파일이 이미 있으면 건너뛰기</li>
+  </ul>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="21">
+  <span class="section-label">Practice 2</span>
+  <h3>프롬프트를 작성해봅시다</h3>
+  <div class="prompt-dual">
+    <div class="prompt-side template-side">
+      <div class="prompt-side-label">Template</div>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 <span class="blank">어떤 작업?</span></p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li><span class="blank">어떤 데이터를 사용?</span></li>
+        <li><span class="blank">시트에 무슨 정보가 있는지?</span></li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li><span class="blank">폴더 구조는?</span></li>
+        <li><span class="blank">문서에 뭘 넣을지?</span></li>
+        <li><span class="blank">중복 처리는?</span></li>
+        <li><span class="blank">결과 요약은?</span></li>
+      </ol>
+    </div>
+    <div class="prompt-side solution-side">
+      <div class="prompt-side-label">Solution</div>
+      <button class="solution-toggle">프롬프트 예시 보기</button>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 Drive에 폴더와 문서를 자동으로 만들고 싶어.</p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li>아까 정리한 지원자 데이터가 스프레드시트에 있어</li>
+        <li>시트에 이름, 지원트랙, 지원동기 등이 있어</li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li>Drive에 "트랙별_지원자" 폴더를 만들어줘</li>
+        <li>지원트랙별로 하위 폴더 만들기</li>
+        <li>지원자마다 "이름.docx" 문서 생성</li>
+        <li>문서 안에 이름, 트랙, 지원동기 기록</li>
+        <li>같은 이름 파일이 있으면 건너뛰기</li>
+        <li>트랙별 몇 개 만들었는지 요약</li>
+      </ol>
+      <p class="constraint">Google Apps Script 문법으로 작성해줘 (var 사용).</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="22">
+  <span class="section-label">Practice 2</span>
+  <h3>지금 해보세요!</h3>
+  <ol>
+    <li>앞 슬라이드의 프롬프트를 복사하세요</li>
+    <li>LLM에 붙여넣기</li>
+    <li>받은 코드를 Apps Script에서 실행</li>
+    <li>Google Drive에서 "트랙별_지원자" 폴더 확인</li>
+  </ol>
+  <div class="callout mt-lg">
+    <p>예상 소요시간: ~10분 | Drive에서 폴더와 문서가 생겼는지 직접 확인하세요!</p>
+  </div>
+</section>
+
+
+<section class="slide slide-section" data-slide-number="23">
+  <div class="section-card">
+    <div class="section-number">Practice 03</div>
+    <h2>폴더 구조 파악</h2>
+    <p class="section-subtitle">자동화하기 전에, 먼저 뭐가 있는지 봐야 합니다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="24">
+  <span class="section-label">Practice 3</span>
+  <h3>엉망인 폴더를 만났습니다</h3>
+  <p>Google Drive에 <strong>"GAS_Tutorial_Workspace"</strong> 폴더가 있습니다.</p>
+  <ul class="mt-md">
+    <li>72개 파일이 18개 폴더에 뒤섞여 있음</li>
+    <li>파일 이름에 [SeSAC], [SSAFY], [Ext] 같은 태그가 붙어 있음</li>
+    <li>이 엉망인 구조를 먼저 파악해야 정리할 수 있음</li>
+  </ul>
+  <div class="callout mt-lg">
+    <p>정리하기 전에, 우선 전체 구조를 시트에 출력해봅시다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="25">
+  <span class="section-label">Practice 3</span>
+  <h3>프롬프트를 작성해봅시다</h3>
+  <div class="prompt-dual">
+    <div class="prompt-side template-side">
+      <div class="prompt-side-label">Template</div>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 <span class="blank">어떤 작업?</span></p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li><span class="blank">어떤 폴더? 어떤 상태?</span></li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li><span class="blank">어디서 찾을지?</span></li>
+        <li><span class="blank">어떻게 보여줄지?</span></li>
+        <li><span class="blank">구분 방법은?</span></li>
+        <li><span class="blank">요약 정보는?</span></li>
+      </ol>
+    </div>
+    <div class="prompt-side solution-side">
+      <div class="prompt-side-label">Solution</div>
+      <button class="solution-toggle">프롬프트 예시 보기</button>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 Drive 폴더 구조를 Sheet에 정리해서 보고 싶어.</p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li>"GAS_Tutorial_Workspace" 폴더 안에 하위 폴더가 여러 개 있어</li>
+        <li>어떤 구조인지 파악이 안 돼서 시트에 트리 형태로 보고 싶어</li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li>폴더 이름으로 루트 폴더 찾기</li>
+        <li>하위 폴더/파일 전부 탐색 → 시트에 기록</li>
+        <li>들여쓰기로 깊이 표현</li>
+        <li>폴더/파일 구분</li>
+        <li>전체 경로 표시</li>
+        <li>폴더/파일 수 요약</li>
+      </ol>
+      <p class="constraint">Google Apps Script 문법으로 작성해줘 (var 사용).</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="26">
+  <span class="section-label">Practice 3</span>
+  <h3>지금 해보세요!</h3>
+  <ol>
+    <li>앞 슬라이드의 프롬프트를 복사하세요</li>
+    <li>LLM에 보내고 받은 코드 실행</li>
+    <li>생성된 <strong>"폴더_구조"</strong> 시트에서 구조 파악</li>
+  </ol>
+  <h4>구조를 보고 이 질문에 답해보세요</h4>
+  <ul>
+    <li>파일 이름에 어떤 패턴이 보이나요?</li>
+    <li>대괄호 [ ] 안에 어떤 종류의 태그가 있나요?</li>
+    <li>같은 이름의 파일이 여러 개 보이나요?</li>
+  </ul>
+  <div class="callout mt-md">
+    <p>이 관찰이 Practice 4 (최종 과제)의 핵심 힌트입니다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-section" data-slide-number="27">
+  <div class="section-card">
+    <div class="section-number">Practice 04</div>
+    <h2>72개 파일 자동 분류</h2>
+    <p class="section-subtitle">최종 과제 — 엉망인 Drive 폴더를 자동으로 정리</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="28">
+  <span class="section-label">Practice 4</span>
+  <h3>태그 기반 분류 규칙</h3>
+  <ul>
+    <li><strong>[프로젝트 태그]</strong> → Projects/해당프로젝트/ (Hackathon, SeSAC, SSAFY, KDT, BootCamp)</li>
+    <li><strong>[Ext] 태그</strong> → External/ (외부 자료)</li>
+    <li><strong>중복 파일</strong> (같은 이름+같은 타입) → Duplicates/</li>
+    <li><strong>태그 없음 / "Copy of"</strong> → Unsorted/</li>
+  </ul>
+  <pre class="code-block mt-lg">GAS_Tutorial_Workspace/
+├── Projects/
+│   ├── Hackathon/  (10개)
+│   ├── SeSAC/      (8개)
+│   ├── SSAFY/      (9개)
+│   ├── KDT/        (8개)
+│   └── BootCamp/   (6개)
+├── External/       (8개)
+├── Duplicates/     (6개)
+└── Unsorted/       (17개)</pre>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="29">
+  <span class="section-label">Practice 4</span>
+  <h3>프롬프트를 작성해봅시다</h3>
+  <div class="prompt-dual">
+    <div class="prompt-side template-side">
+      <div class="prompt-side-label">Template</div>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 <span class="blank">어떤 작업?</span></p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li><span class="blank">어떤 폴더? 파일이 몇 개?</span></li>
+        <li><span class="blank">파일 이름에 어떤 패턴?</span></li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li><span class="blank">어떤 규칙으로 분류?</span></li>
+        <li><span class="blank">특수한 경우 처리는?</span></li>
+        <li><span class="blank">중복 파일은?</span></li>
+        <li><span class="blank">결과 확인 방법은?</span></li>
+      </ol>
+    </div>
+    <div class="prompt-side solution-side">
+      <div class="prompt-side-label">Solution</div>
+      <button class="solution-toggle">프롬프트 예시 보기</button>
+      <p><span class="prompt-label">도구:</span> Google Apps Script로 엉망인 Drive 폴더를 자동 정리하고 싶어.</p>
+      <p class="mt-sm"><span class="prompt-label">현재 상황:</span></p>
+      <ul>
+        <li>"GAS_Tutorial_Workspace"에 72개 파일이 뒤섞여 있어</li>
+        <li>파일 이름에 태그가 있어. 예: [SeSAC][2024][Final] 프로젝트_계획서</li>
+        <li>태그: 프로젝트([Hackathon] 등), [Ext], [2024]/[2025], [Draft]/[Final] 등</li>
+      </ul>
+      <p class="mt-sm"><span class="prompt-label">할 일:</span></p>
+      <ol>
+        <li>프로젝트 태그 → Projects/해당프로젝트/</li>
+        <li>[Ext] 태그 → External/</li>
+        <li>같은 이름+타입 중복 → Duplicates/</li>
+        <li>태그 없는 파일 → Unsorted/</li>
+        <li>"Copy of" → Unsorted로</li>
+        <li>이미 정리된 건 건너뛰기</li>
+        <li>폴더별 파일 수 요약</li>
+      </ol>
+      <p class="constraint">Google Apps Script 문법으로 작성해줘 (var 사용).</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="30">
+  <span class="section-label">Practice 4</span>
+  <h3>지금 해보세요! (최종 과제)</h3>
+  <ol>
+    <li>앞 슬라이드의 프롬프트를 복사하세요</li>
+    <li>LLM에 보내고 받은 코드 실행</li>
+    <li>Drive에서 정리된 결과 확인</li>
+    <li><strong>verify()</strong> 함수를 실행해서 점수 확인</li>
+  </ol>
+  <div class="callout mt-lg">
+    <p>예상 소요시간: ~15분 | 목표: 72/72 점 — 하지만 완벽하지 않아도 괜찮습니다!</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="31">
+  <span class="section-label">Wrap-up</span>
+  <h3>오늘 배운 것</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>GAS = Google 자동화 도구</h4>
+      <p>코드는 AI가 작성합니다</p>
+    </div>
+    <div class="card">
+      <h4>핵심은 잘 물어보기</h4>
+      <p>현재 상황 + 문제점 + 할 일</p>
+    </div>
+    <div class="card">
+      <h4>에러 대응</h4>
+      <p>에러 메시지를 AI에게 다시 보내기</p>
+    </div>
+    <div class="card">
+      <h4>단계별 해결</h4>
+      <p>복잡한 문제를 쪼개서 풀기</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="32">
+  <span class="section-label">Wrap-up</span>
+  <h3>이걸 업무에 어떻게 쓸 수 있을까?</h3>
+  <ul>
+    <li>매주 반복하는 스프레드시트 작업 → 자동화</li>
+    <li>팀 공유 폴더 정리 → 자동화</li>
+    <li>보고서/문서 생성 → 자동화</li>
+    <li>Google Forms 응답 처리 → 자동화</li>
+  </ul>
+  <div class="callout mt-lg">
+    <p>반복적이고 규칙이 있는 작업이면 GAS로 가능합니다</p>
+  </div>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="33">
+  <span class="section-label">Bonus</span>
+  <h3>GAS에서 LLM API를 쓰고 싶다면?</h3>
+  <div class="callout mt-lg">
+    <p><strong>그냥 LLM에게 물어보세요!</strong></p>
+    <p>"Google Apps Script에서 Solar API를 호출하고 싶어" 라고 말하면, GAS에 맞는 JavaScript 코드를 바로 알려줍니다.</p>
+  </div>
+  <p class="mt-lg">GAS는 JavaScript 기반이기 때문에, LLM이 알아서 <code>UrlFetchApp.fetch()</code> 형태로 코드를 만들어줍니다.</p>
+  <div class="callout mt-lg">
+    <p><strong>더 정확한 코드를 원한다면?</strong></p>
+    <p>공식 문서에서 API 사용법을 복사해서 LLM에게 함께 전달하세요. 문서 기반으로 더 정확한 코드를 생성합니다.</p>
+  </div>
+  <p class="mt-sm" style="font-size: 14px; color: var(--text-muted);">예: "이 API 문서를 참고해서 GAS 코드 만들어줘" + 공식 문서 코드 붙여넣기</p>
+</section>
+
+
+<section class="slide slide-content" data-slide-number="34">
+  <span class="section-label">Bonus</span>
+  <h3>GAS에서 LLM API 호출 예시</h3>
+  <pre class="code-block">function callLLM() {
+  var API_KEY = 'your-api-key';
+  var url = 'https://api.upstage.ai/v1/chat/completions';
+
+  var response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { 'Authorization': 'Bearer ' + API_KEY },
+    payload: JSON.stringify({
+      model: 'solar-pro3',
+      messages: [
+        { role: 'user', content: '이 텍스트를 요약해줘: ...' }
+      ]
+    })
+  });
+
+  var result = JSON.parse(response.getContentText());
+  Logger.log(result.choices[0].message.content);
+}</pre>
+  <p class="mt-sm" style="font-size: 14px; color: var(--text-muted);">OpenAI 호환 형식 — endpoint URL과 model만 바꾸면 ChatGPT, Claude, Gemini 등 어디든 동일하게 사용 가능</p>
+</section>
+
+
+<section class="slide slide-end" data-slide-number="35">
+  <h2>수고하셨습니다!</h2>
+  <p class="contact">질문이 있으면 언제든지 물어보세요</p>
+</section>
+
+  </div>
+
+  <div class="edit-toolbar" id="editToolbar">
+    <span class="edit-label">Edit Mode</span>
+    <div class="separator"></div>
+    <button onclick="document.execCommand('bold')" title="Bold (Ctrl+B)"><strong>B</strong></button>
+    <button onclick="document.execCommand('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
+    <button onclick="document.execCommand('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+    <div class="separator"></div>
+    <button onclick="document.execCommand('insertUnorderedList')" title="Bullet List">List</button>
+    <button onclick="document.execCommand('removeFormat')" title="Clear Formatting">Clear</button>
+    <div class="separator"></div>
+    <button class="save-btn" onclick="savePresentation()" title="Download edited file">Save</button>
+    <button class="exit-btn" onclick="toggleEditMode()" title="Exit edit mode (E)">Exit</button>
+  </div>
+  <div class="slide-counter">
+    <span id="currentSlide">1</span> / <span id="totalSlides">35</span>
+  </div>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="presenter-timer" id="presenterTimer">00:00</div>
+
+  <div class="help-overlay" id="helpOverlay">
+    <div class="help-card">
+      <h3>Keyboard Shortcuts</h3>
+      <table>
+        <tr><td>&rarr; &darr; Space</td><td>Next slide</td></tr>
+        <tr><td>&larr; &uarr;</td><td>Previous slide</td></tr>
+        <tr><td>Home / End</td><td>First / Last slide</td></tr>
+        <tr><td>G</td><td>Grid overview</td></tr>
+        <tr><td>T</td><td>Toggle presenter timer</td></tr>
+        <tr><td>F</td><td>Toggle fullscreen</td></tr>
+        <tr><td>E</td><td>Toggle edit mode</td></tr>
+        <tr><td>?</td><td>This help screen</td></tr>
+        <tr><td>Esc</td><td>Close overlay</td></tr>
+      </table>
+      <div class="help-close">Press <strong>?</strong> or <strong>Esc</strong> to close</div>
+    </div>
+  </div>
+
+  <div class="grid-overlay" id="gridOverlay"></div>
+
+  <script>
+(function() {
+  var slides = document.querySelectorAll('.slide');
+  var current = 0;
+  var total = slides.length;
+  var editMode = false;
+  var gridMode = false;
+  var helpVisible = false;
+  var direction = 1; // 1 = forward, -1 = backward
+
+  // ── Stagger animations ──
+  function animateSlide(slide) {
+    var ANIMATABLE = 'h1,h2,h3,h4,p,li,.card,.callout,.code-block,.prompt-block,.prompt-dual,.badge,.stat,.quote,pre,ol,table';
+    var els = slide.querySelectorAll(ANIMATABLE);
+    els.forEach(function(el, i) {
+      el.classList.remove('animate-in');
+      void el.offsetWidth; // force reflow
+      el.classList.add('animate-in');
+      el.style.animationDelay = (i * 0.06) + 's';
+    });
+  }
+
+  function showSlide(n) {
+    if (n === current) return;
+    direction = n > current ? 1 : -1;
+    slides[current].classList.remove('active', 'reverse');
+    current = ((n % total) + total) % total;
+    slides[current].classList.remove('reverse');
+    if (direction === -1) slides[current].classList.add('reverse');
+    slides[current].classList.add('active');
+    animateSlide(slides[current]);
+    document.getElementById('currentSlide').textContent = current + 1;
+    document.getElementById('progressBar').style.width =
+      ((current + 1) / total * 100) + '%';
+  }
+
+  // Initialize first slide
+  if (slides.length > 0) {
+    slides[0].classList.add('active');
+    animateSlide(slides[0]);
+    document.getElementById('progressBar').style.width = (1 / total * 100) + '%';
+    document.getElementById('totalSlides').textContent = total;
+  }
+
+  // ── Presenter Timer ──
+  var timerEl = document.getElementById('presenterTimer');
+  var timerStart = null;
+  var timerInterval = null;
+  var timerVisible = false;
+
+  function padZero(n) { return n < 10 ? '0' + n : '' + n; }
+  function updateTimer() {
+    if (!timerStart) return;
+    var elapsed = Math.floor((Date.now() - timerStart) / 1000);
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    timerEl.textContent = padZero(m) + ':' + padZero(s);
+  }
+  function toggleTimer() {
+    timerVisible = !timerVisible;
+    timerEl.classList.toggle('visible', timerVisible);
+    if (timerVisible && !timerStart) {
+      timerStart = Date.now();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+  }
+
+  // ── Help Overlay ──
+  var helpOverlay = document.getElementById('helpOverlay');
+  function toggleHelp() {
+    helpVisible = !helpVisible;
+    helpOverlay.classList.toggle('visible', helpVisible);
+  }
+
+  // ── Grid Overview ──
+  var gridOverlay = document.getElementById('gridOverlay');
+  function openGrid() {
+    gridMode = true;
+    var container = document.createElement('div');
+    container.className = 'grid-container';
+    for (var i = 0; i < total; i++) {
+      (function(idx) {
+        var thumb = document.createElement('div');
+        thumb.className = 'grid-thumb' + (idx === current ? ' current' : '');
+        var inner = document.createElement('div');
+        inner.className = 'grid-thumb-inner';
+        inner.innerHTML = slides[idx].innerHTML;
+        // Copy classes for styling
+        inner.className = slides[idx].className.replace('active', '') + ' grid-thumb-inner';
+        inner.style.display = 'flex';
+        thumb.appendChild(inner);
+        var label = document.createElement('div');
+        label.className = 'grid-thumb-label';
+        label.textContent = (idx + 1) + ' / ' + total;
+        thumb.appendChild(label);
+        thumb.addEventListener('click', function(e) {
+          e.stopPropagation();
+          closeGrid();
+          showSlide(idx);
+        });
+        container.appendChild(thumb);
+        // Scale to fit thumbnail
+        requestAnimationFrame(function() {
+          var scale = thumb.offsetWidth / 1920;
+          inner.style.transform = 'scale(' + scale + ')';
+          thumb.style.height = (1080 * scale) + 'px';
+        });
+      })(i);
+    }
+    gridOverlay.innerHTML = '';
+    gridOverlay.appendChild(container);
+    gridOverlay.classList.add('visible');
+  }
+  function closeGrid() {
+    gridMode = false;
+    gridOverlay.classList.remove('visible');
+  }
+
+  // ── Edit Mode ──
+  var EDITABLE = 'h1,h2,h3,h4,h5,h6,p,li,span.badge,blockquote,td,th,figcaption';
+
+  window.toggleEditMode = function() {
+    editMode = !editMode;
+    document.body.classList.toggle('edit-mode', editMode);
+    document.getElementById('editToolbar').classList.toggle('visible', editMode);
+    slides.forEach(function(slide) {
+      slide.querySelectorAll(EDITABLE).forEach(function(el) {
+        if (editMode) { el.setAttribute('contenteditable', 'true'); }
+        else { el.removeAttribute('contenteditable'); }
+      });
+    });
+    if (!editMode) {
+      try { localStorage.setItem('slide-backup', document.querySelector('.presentation').innerHTML); } catch(e) {}
+    }
+  };
+
+  window.savePresentation = function() {
+    var clone = document.documentElement.cloneNode(true);
+    clone.querySelector('body').classList.remove('edit-mode');
+    var tb = clone.querySelector('#editToolbar'); if (tb) tb.classList.remove('visible');
+    clone.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+    var html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    var blob = new Blob([html], { type: 'text/html' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'presentation-edited.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  // Restore from localStorage if available
+  try {
+    var backup = localStorage.getItem('slide-backup');
+    if (backup) {
+      var doRestore = confirm('A previous edit was found. Restore unsaved changes?');
+      if (doRestore) {
+        document.querySelector('.presentation').innerHTML = backup;
+        slides = document.querySelectorAll('.slide');
+        total = slides.length; current = 0;
+        if (slides.length > 0) slides[0].classList.add('active');
+      } else { localStorage.removeItem('slide-backup'); }
+    }
+  } catch(e) {}
+
+  // ── Keyboard Navigation ──
+  document.addEventListener('keydown', function(e) {
+    var ae = document.activeElement;
+    var isEditing = ae && ae.getAttribute('contenteditable') === 'true';
+
+    // Escape closes any overlay
+    if (e.key === 'Escape') {
+      if (helpVisible) { toggleHelp(); e.preventDefault(); return; }
+      if (gridMode) { closeGrid(); e.preventDefault(); return; }
+      if (editMode) { toggleEditMode(); e.preventDefault(); return; }
+      return;
+    }
+
+    // Help overlay
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      if (!isEditing) { toggleHelp(); e.preventDefault(); return; }
+    }
+
+    // Block nav when overlays are open
+    if (helpVisible || gridMode) return;
+
+    if ((e.key === 'e' || e.key === 'E') && !isEditing && !e.ctrlKey && !e.metaKey) { toggleEditMode(); e.preventDefault(); return; }
+    if (editMode && isEditing) return;
+    if (editMode) return;
+
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+        e.preventDefault(); showSlide(current + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+        e.preventDefault(); showSlide(current - 1); break;
+      case 'Home':
+        e.preventDefault(); showSlide(0); break;
+      case 'End':
+        e.preventDefault(); showSlide(total - 1); break;
+      case 'f': case 'F':
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function() {});
+        } else { document.exitFullscreen(); }
+        break;
+      case 'g': case 'G':
+        e.preventDefault(); gridMode ? closeGrid() : openGrid(); break;
+      case 't': case 'T':
+        e.preventDefault(); toggleTimer(); break;
+    }
+  });
+
+  // Touch/swipe navigation
+  var touchStartX = 0;
+  var touchStartY = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (editMode || gridMode || helpVisible) return;
+    var dx = e.changedTouches[0].screenX - touchStartX;
+    var dy = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      dx > 0 ? showSlide(current - 1) : showSlide(current + 1);
+    }
+  }, { passive: true });
+
+  // Click navigation (disabled in edit/grid/help mode)
+  document.addEventListener('click', function(e) {
+    if (editMode || gridMode || helpVisible) return;
+    var tag = e.target.tagName.toLowerCase();
+    if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'textarea') return;
+    if (e.target.closest('.solution-toggle')) return;
+    var x = e.clientX / window.innerWidth;
+    x < 0.15 ? showSlide(current - 1) : showSlide(current + 1);
+  });
+
+  // Solution toggle: collapse by default, click to reveal
+  document.querySelectorAll('.solution-side').forEach(function(side) {
+    side.classList.add('collapsed');
+  });
+  document.querySelectorAll('.solution-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var side = btn.closest('.solution-side');
+      if (!side) return;
+      var isCollapsed = side.classList.toggle('collapsed');
+      btn.textContent = isCollapsed ? '프롬프트 예시 보기' : '프롬프트 예시 숨기';
+    });
+  });
+})();
+  </script>
+</body>
+</html>
