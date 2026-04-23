@@ -9,38 +9,39 @@
 
 ## README for Agents
 
-이 섹션은 Coding Agent(예: Claude Code, Codex, Gemini)가 이 저장소에서 작업할 때 **그대로 따라 하면 되는 결정론적 지침**입니다. 사람 독자는 아래 일반 가이드를 참고하세요.
+Deterministic instructions for Coding Agents (Claude Code, Codex, Gemini, etc.) working in this repo. Human readers can skip to the Korean guide below.
 
-### Repo 역할 (한 줄 요약)
+### Repo role
 
-`https://upstageai.github.io/eduteam-ai-edu-day/<folder>/` 경로로 여러 HTML 슬라이드를 노출하는 **정적 포털**. 각 `<folder>/`는 하나의 발표 자료를 담는 단위.
+A static portal that exposes multiple HTML slide decks under `https://upstageai.github.io/eduteam-ai-edu-day/<folder>/`. Each `<folder>/` is one deck.
 
-### Invariants (반드시 지킬 것)
+### Invariants
 
-- **기본 브랜치는 `main`**. Pages가 `main` + `/ (root)`로 배포되므로, `main`에 푸시해야 반영됨.
-- **각 발표 자료는 반드시 루트의 별도 폴더**에 둔다. 기존 폴더를 수정할 때는 폴더 이름을 유지한다 (URL이 공유된 상태).
-- **폴더 진입점은 `<folder>/index.html`**. 리다이렉트 방식이 표준 (`gas-tutorial/index.html` 참고).
-- **상대경로만 사용**. `/eduteam-ai-edu-day/...` 같은 절대경로는 쓰지 않는다 (로컬/Pages에서 동시 동작 필요).
-- `.omc/`, `.omx/`, `node_modules/`, `.DS_Store`는 커밋하지 않는다.
-- PDF/PPTX는 같은 폴더 안에 함께 두어 Agent가 원본과 변환본을 쉽게 찾게 한다.
+- Default branch is `main`. Pages deploys from `main` + `/ (root)` (legacy `build_type=branch`). Always push to `main`.
+- Each deck lives in its own root-level `<folder>/`. Never rename an existing folder (its URL is shared).
+- Folder entry point is `<folder>/index.html` — a redirect to the actual slide HTML (see `gas-tutorial/index.html`).
+- Use **relative paths only**. Never hardcode `/eduteam-ai-edu-day/...` (must work both locally and on Pages).
+- Do **not** commit `.omc/`, `.omx/`, `node_modules/`, `.DS_Store`.
+- Keep PDF/PPTX next to the source HTML so both originals and exports are discoverable.
+- Avoid rapid back-to-back pushes to `main` — the legacy Pages pipeline can deadlock if a deploy is cancelled mid-flight. Wait for the previous build to finish (`gh api repos/UpstageAI/eduteam-ai-edu-day/pages/builds/latest`) before pushing again.
 
-### Canonical 폴더 구조
+### Canonical layout
 
 ```text
 <folder>/
-  index.html                             # 진입점 — slides/dist/presentation.html로 리다이렉트
+  index.html                           # entry — redirects to slides/dist/presentation.html
   slides-<folder>/
     dist/
-      presentation.html                  # 빌드된 단일 HTML (필수)
-      presentation.pdf                   # PDF 버전 (권장)
+      presentation.html                # built single-file HTML (required)
+      presentation.pdf                 # PDF export (recommended)
 ```
 
-### Playbook: 새 발표 자료 추가
+### Playbook: add a new deck
 
-1. 소스 슬라이드 HTML을 준비 (로컬에서 렌더 확인 완료).
-2. 이 저장소 루트에 폴더 생성: `<folder>/slides-<folder>/dist/`.
-3. `presentation.html`(+ 있으면 `presentation.pdf`) 복사.
-4. `<folder>/index.html` 생성 — 아래 템플릿을 그대로 사용하고 `<folder>` 토큰만 치환.
+1. Prepare the slide HTML locally and verify it renders.
+2. Create `<folder>/slides-<folder>/dist/` at the repo root.
+3. Copy `presentation.html` (and `presentation.pdf` if available).
+4. Create `<folder>/index.html` from this template (replace `<folder>` only):
 
    ```html
    <!doctype html>
@@ -60,16 +61,16 @@
    </html>
    ```
 
-5. 스테이징은 **폴더 단위로만** 한다: `git add <folder>/` (와일드카드 `.`, `-A` 금지).
-6. 커밋 메시지 스타일: `Add <folder> slides` 또는 `Update <folder> ...` (짧은 명령형, 영문).
-7. `git push origin main` 후 1~3분 뒤 Pages URL 접속 검증.
+5. Stage only the new folder: `git add <folder>/` (never `git add .` or `-A`).
+6. Commit message style: `Add <folder> slides` or `Update <folder> ...` (short, imperative, English).
+7. `git push origin main`, then wait 1–3 min for Pages to rebuild and verify the URL.
 
-### PDF 생성 (HTML → PDF)
+### PDF generation (HTML → PDF)
 
-`dist/presentation.html`의 슬라이드 크기(`--slide-w` / `--slide-h`)를 확인 후, 임시 복사본에서 `@page { size: ... }`를 맞추고 Chrome 헤드리스로 렌더:
+Read the slide size from `dist/presentation.html` (`--slide-w` / `--slide-h`), patch `@page { size: ... }` in a temp copy, then render with headless Chrome:
 
 ```bash
-# 슬라이드 크기 예: 960x540
+# Example slide size: 960x540
 SRC=./slides-<folder>/dist/presentation.html
 DST=./slides-<folder>/dist/presentation.pdf
 
@@ -82,26 +83,27 @@ sed -i '' 's/@page { size: landscape; margin: 0; }/@page { size: 960px 540px; ma
   --virtual-time-budget=10000 "file:///tmp/print.html"
 ```
 
-### 검증 체크리스트 (푸시 전)
+### Pre-push checklist
 
-- [ ] `<folder>/index.html` 존재하고 리다이렉트 URL이 실제 파일을 가리키는가
-- [ ] `<folder>/slides-<folder>/dist/presentation.html` 존재
-- [ ] `git status`에 의도한 파일만 스테이지됨 (`.omc/`, `.omx/` 등 미포함)
-- [ ] 로컬에서 `open <folder>/index.html` — 슬라이드가 정상 표시됨
-- [ ] 내부 링크/이미지 경로가 전부 상대경로
+- [ ] `<folder>/index.html` exists and redirects to a real file
+- [ ] `<folder>/slides-<folder>/dist/presentation.html` exists
+- [ ] `git status` shows only intended files (no `.omc/`, `.omx/`)
+- [ ] `open <folder>/index.html` works locally
+- [ ] All internal links/images use relative paths
 
-### 자동 연동
+### Auto-listing
 
-루트 `index.html`은 GitHub API로 `main` 브랜치 트리를 스캔해 `<folder>/index.html`과 `.pptx`를 **자동으로 카드로 렌더**합니다. 푸시만 하면 포털 목록에 반영되므로, 목록 파일을 수동 수정할 필요 없음.
+The root `index.html` scans the `main` branch tree via the GitHub API and renders cards for every `<folder>/index.html` and `.pptx`. Just push — no manual list edit needed.
 
-### 자주 실패하는 지점
+### Common failure modes
 
-| 증상 | 원인 | 해결 |
-|------|------|------|
-| 배포 후 404 | Pages 빌드 중 | 1~3분 대기 후 재시도 |
-| 진입은 되는데 빈 화면 | `index.html` 리다이렉트 경로 오타 | 브라우저 DevTools → Network에서 404 확인 |
-| CSS/이미지 깨짐 | 절대경로 사용 | 상대경로(`./`)로 수정 |
-| 목록에 안 나타남 | `main`에 푸시 안 됨 or `<folder>/index.html` 없음 | 확인 후 재푸시 |
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| 404 after deploy | Pages still building | wait 1–3 min, retry |
+| Page loads but blank | wrong redirect path in `index.html` | check DevTools → Network for 404 |
+| CSS/images broken | absolute paths used | switch to relative (`./`) |
+| Missing from portal list | not pushed to `main` or `<folder>/index.html` missing | check and re-push |
+| Pages stuck at `updating_pages` and times out | a previous deploy was cancelled mid-flight, or `build_type` was changed | revert to `build_type=legacy` (`gh api --method PUT repos/UpstageAI/eduteam-ai-edu-day/pages -f build_type=legacy -f 'source[branch]=main' -f 'source[path]=/'`), remove any custom `.github/workflows/pages.yml`, and push a clean commit |
 
 ---
 
