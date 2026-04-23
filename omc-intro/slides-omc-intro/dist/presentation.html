@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oh-my-claude-code 사용기</title>
+  <style>
+/*
+ * SeSAC Slide Design System v2
+ * Extracted from: (EXT) [SeSAC] PPT 템플릿.pptx
+ *
+ * Canvas: 960px x 540px (16:9, 10in x 5.625in at 96dpi)
+ * Font: Noto Sans KR (fallback: Arial, sans-serif)
+ *
+ * Slide Layouts:
+ *   .slide--title          TITLE (Layout 12)      — Cover slide, BG #F4F4FF, decorative strip at bottom
+ *   .slide--section        CUSTOM_2 (Layout 15)   — Section divider, BG #F9F9FF
+ *   .slide--content        CUSTOM_2_2 (Layout 16) — Content with topic bar, BG #FFFFFF
+ *   .slide--content-notopic CUSTOM_2_2_2 (Layout 17) — Content no topic bar, BG #FFFFFF
+ *   .slide--full-image     CUSTOM_1 (Layout 14)   — Full bg image (lavender gradient)
+ *   .slide--end            CUSTOM_3_1 (Layout 20)  — End slide, BG #F4F4FF
+ *   .slide--thankyou       CUSTOM_3 (Layout 19)   — Thank-you slide, BG #F4F4FF
+ *
+ * Image Assets (in sesac-assets/):
+ *   upstage-logo.png           — Upstage dark logo with icon (1000x324 RGBA)
+ *   upstage-education-logo.png — "Upstage Education" text logo (1125x128 RGBA)
+ *   decorative-strip.png       — Blue/purple gradient horizontal lines (1734x388 RGBA)
+ *   bg-lavender.png            — Soft lavender gradient background (2500x1406 RGB)
+ *   tagline-future.png         — "Building intelligence for the future of work" (888x153 RGBA)
+ *   tagline-beneficial.png     — "Making AI Beneficial" (2500x253 RGBA)
+ *
+ * NOTE: Seoul Software ACademy (SeSAC) logo intentionally removed per requirements.
+ *
+ * Instructor Video Area ("<해당 공간을 비워주세요>"):
+ *   Bottom-right of content slides (744px, 379px) 216x161px.
+ *   This area MUST remain empty — instructor video is overlaid during recording.
+ *   Use .instructor-area class to mark the reserved zone.
+ */
+
+
+/* ═══════════════════════════════════════
+   TOKENS
+   ═══════════════════════════════════════ */
+:root {
+  /* ── Canvas ── */
+  --slide-w: 960px;
+  --slide-h: 540px;
+
+  /* ── Brand colors (Upstage / SeSAC) ── */
+  --c-primary:       #5B52FF;   /* accent purple-blue */
+  --c-primary-light: #9CA7FF;   /* secondary accent */
+  --c-primary-pale:  #C2CBFF;   /* light accent */
+  --c-primary-wash:  #DDE3FF;   /* very light accent */
+
+  /* ── Text ── */
+  --c-text:          #303030;   /* body text */
+  --c-text-dk:       #000000;   /* dk1 - pure black */
+  --c-text-subtle:   #595959;   /* dk2 - subtitles, scheme dark */
+  --c-text-muted:    #787878;   /* muted gray */
+
+  /* ── Neutrals ── */
+  --c-bg:            #FFFFFF;   /* lt1 - slide background */
+  --c-bg-light:      #EEEEEE;  /* lt2 */
+  --c-bg-warm:       #F4F4FF;  /* title/end/thankyou slide background */
+  --c-bg-section:    #F9F9FF;  /* section divider background */
+  --c-separator:     #E5E5EA;  /* horizontal rules */
+  --c-neutral-300:   #D1D1DB;
+  --c-neutral-200:   #E9E8F0;
+
+  /* ── Greens (secondary palette) ── */
+  --c-green:         #8A9F81;
+  --c-green-light:   #BFD0B8;
+  --c-green-pale:    #D9E8D3;
+  --c-green-wash:    #EAEFE7;
+  --c-green-tint:    #E2EDDD;
+
+  /* ── Functional ── */
+  --c-dark:          #434C60;   /* dark blocks */
+  --c-instructor:    #535353;   /* instructor placeholder bg */
+  --c-instructor-border: #FF0000;
+  --c-link:          #0097A7;   /* hlink from theme */
+
+  /* ── Typography scale (pt → px approx) ── */
+  --fs-hero:    40px;    /* 30pt - section titles */
+  --fs-title:   45px;    /* 34pt - cover title */
+  --fs-heading: 27px;    /* 20pt - slide titles / subtitles */
+  --fs-sub:     21px;    /* 16pt - body section headers */
+  --fs-chapter: 24px;    /* 18pt - chapter numbers */
+  --fs-body:    16px;    /* 12pt - body text */
+  --fs-small:   13px;    /* 10pt - meta, prereqs */
+  --fs-micro:    8px;    /* 6pt  - footnotes */
+
+  /* ── Spacing (from template positions) ── */
+  --pad-x:      31px;    /* left/right margin */
+  --pad-top:    14px;    /* top margin to first element */
+
+  /* ── Layout zones (CUSTOM_2_2 content slide) ── */
+  --zone-topic-y:     14px;
+  --zone-topic-h:     24px;
+  --zone-subtitle-y:  48px;
+  --zone-subtitle-h:  48px;
+  --zone-body-y:      126px;
+  --zone-body-h:      368px;
+  --zone-sep-y:       497px;
+  --zone-footnote-y:  501px;
+  --zone-footnote-h:  32px;
+  --zone-pagenum-x:   912px;
+  --zone-pagenum-y:   500px;
+
+  /* ── Instructor video area (MUST remain empty) ── */
+  --zone-instructor-x: 744px;
+  --zone-instructor-y: 379px;
+  --zone-instructor-w: 216px;
+  --zone-instructor-h: 161px;
+
+  /* ── Logo positions ── */
+  --logo-edu-x:   760px;   /* Upstage Education logo left */
+  --logo-edu-y:    24px;   /* Upstage Education logo top */
+  --logo-edu-w:   168px;
+  --logo-edu-h:    19px;
+  --logo-main-x:   46px;   /* Upstage main logo left */
+  --logo-main-y:   38px;   /* Upstage main logo top */
+  --logo-main-w:  155px;
+  --logo-main-h:   50px;
+}
+
+
+/* ═══════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+.slide-deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 40px 0;
+  background: #D0D0D0;
+  min-height: 100vh;
+}
+
+.slide {
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  background: var(--c-bg);
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  color: var(--c-text);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Page number - bottom right */
+.slide__pagenum {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  font-size: var(--fs-micro);
+  color: var(--c-text-subtle);
+  z-index: 5;
+}
+
+
+/* ═══════════════════════════════════════
+   LOGO ELEMENTS
+   Upstage Education logo — top-right on content/section slides
+   Upstage main logo — top-left on title/end/thankyou slides
+   ═══════════════════════════════════════ */
+
+/* Upstage Education logo (content & section slides) */
+.logo-education {
+  position: absolute;
+  top: var(--logo-edu-y);
+  left: var(--logo-edu-x);
+  width: var(--logo-edu-w);
+  height: var(--logo-edu-h);
+  background: url('sesac-assets/upstage-education-logo.png') no-repeat center / contain;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Upstage main logo (title, end, thankyou slides) */
+.logo-upstage {
+  position: absolute;
+  top: var(--logo-main-y);
+  left: var(--logo-main-x);
+  width: var(--logo-main-w);
+  height: var(--logo-main-h);
+  background: url('sesac-assets/upstage-logo.png') no-repeat center / contain;
+  z-index: 10;
+  pointer-events: none;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: TITLE (cover slide — Layout 12)
+   BG: #F4F4FF
+   Top-left: Upstage logo
+   Bottom: decorative gradient strip
+   ═══════════════════════════════════════ */
+.slide--title {
+  background: var(--c-bg-warm);
+}
+
+/* Decorative blue/purple gradient strip at bottom */
+.slide--title::after {
+  content: '';
+  position: absolute;
+  left: 46px;
+  bottom: 0;
+  width: 866px;
+  height: 145px;
+  background: url('sesac-assets/decorative-strip.png') no-repeat center / cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.slide--title .title-main {
+  position: absolute;
+  top: 95px;
+  left: 46px;
+  right: 100px;
+  height: 190px;
+  z-index: 2;
+}
+
+.slide--title .title-main h1 {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--c-text-dk);
+}
+
+.slide--title .title-main .title-sub {
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--c-text);
+  margin-top: 8px;
+}
+
+.slide--title .speaker-name {
+  position: absolute;
+  top: 324px;
+  left: 46px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--c-text);
+  z-index: 2;
+}
+
+.slide--title .speaker-role {
+  position: absolute;
+  top: 352px;
+  left: 46px;
+  font-size: 14px;
+  color: var(--c-text-subtle);
+  z-index: 2;
+}
+
+.slide--title .copyright {
+  position: absolute;
+  right: -95px;
+  top: 384px;
+  width: 272px;
+  font-size: 10px;
+  color: var(--c-text-subtle);
+  text-align: right;
+  transform: rotate(90deg);
+  transform-origin: right top;
+  z-index: 2;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: SECTION DIVIDER (Layout 15 — CUSTOM_2)
+   BG: #F9F9FF
+   Top-right: Upstage Education logo
+   ═══════════════════════════════════════ */
+.slide--section {
+  background: var(--c-bg-section);
+}
+
+.slide--section .chapter-num {
+  position: absolute;
+  top: 36px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: 33px;
+  font-size: var(--fs-chapter);
+  font-weight: 700;
+  color: var(--c-primary);
+  line-height: 33px;
+}
+
+.slide--section .section-title {
+  position: absolute;
+  top: 116px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: 73px;
+  font-size: var(--fs-hero);
+  font-weight: 700;
+  color: var(--c-text-subtle);
+  display: flex;
+  align-items: flex-start;
+}
+
+.slide--section .section-desc {
+  position: absolute;
+  top: 288px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: 206px;
+  font-size: 20px; /* 15pt */
+  color: var(--c-text-subtle);
+  line-height: 1.6;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: CONTENT with topic bar (Layout 16 — CUSTOM_2_2)
+   BG: #FFFFFF
+   Top-right: Upstage Education logo
+   Bottom-right: Instructor video reserved area
+   NOTE: SeSAC logo removed per requirements
+   ═══════════════════════════════════════ */
+.slide--content {
+  background: var(--c-bg);
+}
+
+.slide--content .topic-bar {
+  position: absolute;
+  top: var(--zone-topic-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: var(--zone-topic-h);
+  line-height: var(--zone-topic-h);
+  font-size: var(--fs-body);
+  color: var(--c-primary);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.slide--content .slide-title {
+  position: absolute;
+  top: var(--zone-subtitle-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: var(--zone-subtitle-h);
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  color: var(--c-text-subtle);
+}
+
+.slide--content .body {
+  position: absolute;
+  top: var(--zone-body-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  bottom: 44px; /* above separator */
+  overflow: hidden;
+  line-height: 1.65;
+}
+
+.slide--content .separator {
+  position: absolute;
+  top: var(--zone-sep-y);
+  left: 30px;
+  right: 30px;
+  height: 1px;
+  background: var(--c-separator);
+}
+
+.slide--content .footnote {
+  position: absolute;
+  top: var(--zone-footnote-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: var(--zone-footnote-h);
+  font-size: var(--fs-micro);
+  color: var(--c-text-subtle);
+  line-height: var(--zone-footnote-h);
+}
+
+/* Instructor video reserved area — hidden */
+.slide--content .instructor-area {
+  display: none;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: CONTENT no topic bar (Layout 17 — CUSTOM_2_2_2)
+   Same as CONTENT but without the topic bar line
+   ═══════════════════════════════════════ */
+.slide--content-notopic {
+  background: var(--c-bg);
+}
+
+.slide--content-notopic .slide-title {
+  position: absolute;
+  top: var(--zone-subtitle-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: var(--zone-subtitle-h);
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  color: var(--c-text-subtle);
+}
+
+.slide--content-notopic .body {
+  position: absolute;
+  top: var(--zone-body-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  bottom: 44px;
+  overflow: hidden;
+  line-height: 1.65;
+}
+
+.slide--content-notopic .separator {
+  position: absolute;
+  top: var(--zone-sep-y);
+  left: 30px;
+  right: 30px;
+  height: 1px;
+  background: var(--c-separator);
+}
+
+.slide--content-notopic .footnote {
+  position: absolute;
+  top: var(--zone-footnote-y);
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: var(--zone-footnote-h);
+  font-size: var(--fs-micro);
+  color: var(--c-text-subtle);
+  line-height: var(--zone-footnote-h);
+}
+
+.slide--content-notopic .instructor-area {
+  display: none;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: FULL IMAGE (Layout 14 — CUSTOM_1)
+   BG: lavender gradient image (bg-lavender.png)
+   Used for special highlight/quote slides
+   ═══════════════════════════════════════ */
+.slide--full-image {
+  background: url('sesac-assets/bg-lavender.png') no-repeat center / cover;
+}
+
+.slide--full-image .fi-outer {
+  position: absolute;
+  top: 111px;
+  left: 47px;
+  width: 617px;
+  height: 318px;
+}
+
+.slide--full-image .fi-inner {
+  position: absolute;
+  top: 141px;
+  left: 75px;
+  width: 556px;
+  height: 259px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide--full-image .fi-inner h2 {
+  margin: 0;
+  font-size: var(--fs-hero);
+  font-weight: 700;
+  color: var(--c-text-dk);
+  line-height: 1.3;
+}
+
+.slide--full-image .fi-inner p {
+  margin: 12px 0 0;
+  font-size: var(--fs-body);
+  color: var(--c-text-subtle);
+  line-height: 1.6;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: THANK YOU (Layout 19 — CUSTOM_3)
+   BG: #F4F4FF
+   Top-left: Upstage logo
+   Center: "Making AI Beneficial" tagline image
+   Bottom: footer info
+   ═══════════════════════════════════════ */
+.slide--thankyou {
+  background: var(--c-bg-warm);
+}
+
+.slide--thankyou .tagline {
+  position: absolute;
+  top: 119px;
+  left: 55px;
+  width: 516px;
+  height: 52px;
+  background: url('sesac-assets/tagline-beneficial.png') no-repeat left center / contain;
+  pointer-events: none;
+}
+
+.slide--thankyou .ty-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 55px;
+  right: 55px;
+  display: flex;
+  gap: 0;
+  font-size: var(--fs-small);
+  color: var(--c-text-subtle);
+}
+
+.slide--thankyou .ty-footer .ty-col {
+  flex: 1;
+}
+
+.slide--thankyou .ty-footer .ty-col:first-child {
+  flex: 0 0 180px;
+}
+
+
+/* ═══════════════════════════════════════
+   LAYOUT: END (Layout 20 — CUSTOM_3_1)
+   BG: #F4F4FF
+   Top-left: Upstage logo
+   Center: "Building intelligence for the future of work" tagline image
+   Bottom: footer info
+   ═══════════════════════════════════════ */
+.slide--end {
+  background: var(--c-bg-warm);
+}
+
+.slide--end .tagline {
+  position: absolute;
+  top: 127px;
+  left: 55px;
+  width: 665px;
+  height: 114px;
+  background: url('sesac-assets/tagline-future.png') no-repeat left center / contain;
+  pointer-events: none;
+}
+
+.slide--end .end-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 55px;
+  right: 55px;
+  display: flex;
+  gap: 0;
+  font-size: var(--fs-small);
+  color: var(--c-text-subtle);
+}
+
+.slide--end .end-footer .end-col {
+  flex: 1;
+}
+
+.slide--end .end-footer .end-col:first-child {
+  flex: 0 0 180px;
+}
+
+
+/* ═══════════════════════════════════════
+   TYPOGRAPHY UTILITIES
+   ═══════════════════════════════════════ */
+
+/* Section header in body area (e.g. "학습 목표") */
+.t-section-header {
+  font-size: var(--fs-sub);
+  font-weight: 700;
+  color: var(--c-primary);
+  margin: 10px 0 6px;
+}
+
+/* Description paragraph */
+.t-desc {
+  font-size: var(--fs-body);
+  color: var(--c-text);
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+/* Meta tags line */
+.t-meta {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--c-primary);
+  margin-bottom: 8px;
+}
+
+/* Bullet list item */
+.t-bullet {
+  font-size: var(--fs-body);
+  color: var(--c-text);
+  padding: 2px 0 2px 18px;
+  position: relative;
+}
+.t-bullet::before {
+  content: "\2022";
+  position: absolute;
+  left: 2px;
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+/* Prerequisite / audience line */
+.t-prereq {
+  font-size: var(--fs-small);
+  color: var(--c-text-muted);
+  margin-top: 8px;
+}
+.t-prereq .label {
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+/* Step items in learning paths */
+.t-step {
+  padding: 6px 0;
+  font-size: var(--fs-body);
+}
+.t-step .step-num {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--c-primary);
+}
+.t-step .step-course {
+  font-weight: 500;
+  color: var(--c-text);
+}
+.t-step .step-desc {
+  color: var(--c-text-muted);
+}
+
+/* Bold accent text */
+.t-accent {
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+/* Large stat number */
+.t-stat-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--c-primary);
+}
+.t-stat-label {
+  font-size: var(--fs-body);
+  color: var(--c-text);
+}
+
+/* Code block */
+.t-code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  background: #F5F5F5;
+  border: 1px solid var(--c-separator);
+  border-radius: 4px;
+  padding: 8px 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Color block palette (for diagrams/graphics, from slide 8) */
+.color-block {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  text-align: center;
+}
+.color-block--primary   { background: var(--c-primary);       color: #fff; }
+.color-block--light     { background: var(--c-primary-light); color: #fff; }
+.color-block--pale      { background: var(--c-primary-pale);  color: var(--c-text); }
+.color-block--wash      { background: var(--c-primary-wash);  color: var(--c-text); }
+.color-block--green     { background: var(--c-green);         color: #fff; }
+.color-block--green-lt  { background: var(--c-green-light);   color: var(--c-text); }
+.color-block--dark      { background: var(--c-dark);          color: #fff; }
+.color-block--neutral   { background: var(--c-neutral-200);   color: var(--c-text); }
+
+
+/* ═══════════════════════════════════════
+   PRINT
+   ═══════════════════════════════════════ */
+@media print {
+  .slide-deck { background: none; padding: 0; gap: 0; }
+  .slide {
+    box-shadow: none;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+}
+
+
+/* ===== Presentation Engine ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--font-primary, 'Segoe UI', system-ui, -apple-system, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.presentation {
+  width: 100%; height: 100%;
+  position: relative;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--slide-padding, 60px 80px);
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-primary, #1a1a2e);
+  overflow: hidden;
+}
+
+.slide.active {
+  display: flex;
+  animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Slide transitions */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInReverse {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide.active.reverse {
+  animation-name: slideInReverse;
+}
+
+/* Element entrance stagger */
+.slide.active .animate-in {
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Presenter timer */
+.presenter-timer {
+  position: fixed;
+  bottom: 20px; left: 30px;
+  font-size: 14px;
+  color: var(--text-muted, #666);
+  z-index: 100;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.presenter-timer.visible { opacity: 1; }
+
+/* Help overlay */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-primary, system-ui);
+}
+.help-overlay.visible { display: flex; }
+.help-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 48px;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+}
+.help-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1C2537;
+}
+.help-card table { width: 100%; border-collapse: collapse; }
+.help-card td {
+  padding: 8px 0;
+  font-size: 14px;
+  color: #434C60;
+  border-bottom: 1px solid #f0f0f0;
+}
+.help-card td:first-child {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: var(--color-accent, #805CFB);
+  width: 120px;
+}
+.help-card .help-close {
+  font-size: 12px;
+  color: #979CAE;
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Grid overview */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1500;
+  display: none;
+  overflow-y: auto;
+  padding: 40px;
+}
+.grid-overlay.visible { display: block; }
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.grid-thumb {
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  background: #fff;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.grid-thumb:hover {
+  border-color: var(--color-accent, #805CFB);
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(128,92,251,0.4);
+}
+.grid-thumb.current {
+  border-color: var(--color-accent, #805CFB);
+  box-shadow: 0 0 0 3px var(--color-accent, #805CFB), 0 8px 24px rgba(128,92,251,0.3);
+}
+.grid-thumb-inner {
+  width: 1920px; height: 1080px;
+  transform-origin: top left;
+  pointer-events: none;
+}
+.grid-thumb-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: #fff;
+  padding: 20px 12px 8px;
+  font-size: 13px;
+  font-family: var(--font-mono, monospace);
+  text-align: center;
+}
+
+/* Slide counter */
+.slide-counter {
+  position: fixed;
+  bottom: 20px; right: 30px;
+  font-size: 14px;
+  color: var(--text-muted, #666);
+  z-index: 100;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Progress bar */
+.progress-bar {
+  position: fixed;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: var(--color-accent, #e94560);
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+/* Logo */
+.slide-logo {
+  position: fixed;
+  top: 28px; right: 40px;
+  z-index: 100;
+  pointer-events: none;
+  user-select: none;
+}
+.slide-logo img { height: 28px; }
+.slide-logo span { font-size: 16px; font-weight: 500; color: var(--text-muted, #888); font-family: var(--font-primary, system-ui); }
+
+/* Print styles */
+@media print {
+  .slide { display: flex !important; position: relative; page-break-after: always; min-height: 100vh; }
+  .slide-counter, .progress-bar, .edit-toolbar { display: none; }
+  @page { size: landscape; margin: 0; }
+}
+
+/* ===== Edit Mode ===== */
+.edit-toolbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 48px;
+  background: #1a1a2e; color: #fff; display: none; align-items: center;
+  padding: 0 20px; gap: 8px; z-index: 1000; font-family: system-ui, sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.edit-toolbar.visible { display: flex; }
+.edit-toolbar .edit-label {
+  font-size: 13px; font-weight: 600; color: #ff6b6b; margin-right: 12px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.edit-toolbar .separator { width: 1px; height: 24px; background: #444; margin: 0 8px; }
+.edit-toolbar button {
+  background: transparent; color: #ccc; border: 1px solid #444; border-radius: 4px;
+  padding: 4px 10px; font-size: 13px; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.edit-toolbar button:hover { background: #333; color: #fff; border-color: #666; }
+.edit-toolbar button.active { background: #444; color: #fff; border-color: #888; }
+.edit-toolbar .save-btn { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 600; margin-left: auto; }
+.edit-toolbar .save-btn:hover { background: #1d4ed8; }
+.edit-toolbar .exit-btn { background: #444; color: #fff; border-color: #555; font-weight: 600; }
+.edit-toolbar .exit-btn:hover { background: #555; }
+
+body.edit-mode .slide { cursor: text; }
+body.edit-mode .slide [contenteditable="true"] { outline: none; }
+body.edit-mode .slide [contenteditable="true"]:hover {
+  outline: 2px dashed rgba(37,99,235,0.4); outline-offset: 2px; border-radius: 3px;
+}
+body.edit-mode .slide [contenteditable="true"]:focus {
+  outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 3px;
+  background: rgba(37,99,235,0.03);
+}
+body.edit-mode .slide-counter::before {
+  content: "EDIT MODE"; color: #ff6b6b; font-weight: 600; margin-right: 12px;
+  font-size: 11px; letter-spacing: 0.5px;
+}
+
+/* ===== Speaker Notes ===== */
+.slide aside.notes { display: none; }
+.notes-panel {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 30vh;
+  background: #1a1a2e; color: #edf2f7; padding: 20px 30px;
+  overflow-y: auto; display: none; z-index: 200;
+  font-family: var(--font-primary, system-ui); font-size: 16px; line-height: 1.6;
+  border-top: 2px solid var(--color-accent, #e94560);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+.notes-panel.visible { display: block; }
+.notes-panel h4 { color: var(--color-accent, #e94560); margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+body.notes-visible .slide { height: 70vh; }
+body.notes-visible .slide-counter { bottom: calc(30vh + 20px); }
+body.notes-visible .progress-bar { bottom: 30vh; }
+  </style>
+</head>
+<body>
+  <div class="presentation">
+<section class="slide slide--title" data-slide-number="1">
+  <div class="logo-upstage"></div>
+  <div class="title-main">
+    <h1>Oh-my-claude-code 사용기</h1>
+    <div class="title-sub">10x 생산성의 비밀 — 잘 만들어진 하네스를 쓰자</div>
+  </div>
+  <div class="speaker-name">speaker</div>
+  <div class="speaker-role">Jul 2025 updated</div>
+  <div class="copyright">© 2025 Upstage Co., Ltd.</div>
+</section>
+
+
+<section class="slide slide--section" data-slide-number="2">
+  <div class="logo-education"></div>
+  <div class="chapter-num">PART 01</div>
+  <div class="section-title">Harness Engineering</div>
+  <div class="section-desc">Prompt Engineering에서 Harness Engineering까지,<br>AI 활용 패러다임의 진화를 살펴봅니다.</div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="3">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 01 — Harness Engineering</div>
+  <div class="slide-title">Engineering의 진화</div>
+  <div class="body">
+    <div class="t-section-header">각 단계는 어떤 문제를 해결하기 위해 등장했는가?</div>
+    <div style="display: flex; align-items: center; gap: 12px; margin: 14px 0;">
+      <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 15px;">Prompt<br>Engineering</div>
+        <div style="font-size: 12px; margin-top: 6px; color: var(--c-text-subtle);">"어떻게 물어볼까?"<br>입력을 잘 다듬는 기술</div>
+      </div>
+      <div style="font-size: 24px; color: var(--c-primary); font-weight: 700;">→</div>
+      <div style="flex: 1; background: var(--c-green-wash); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-green); font-size: 15px;">Context<br>Engineering</div>
+        <div style="font-size: 12px; margin-top: 6px; color: var(--c-text-subtle);">"어떤 맥락을 줄까?"<br>정보를 잘 구성하는 기술</div>
+      </div>
+      <div style="font-size: 24px; color: var(--c-primary); font-weight: 700;">→</div>
+      <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 15px;">Harness<br>Engineering</div>
+        <div style="font-size: 12px; margin-top: 6px; color: var(--c-text-subtle);">"어떤 환경을 만들까?"<br>AI 작동 환경을 설계하는 기술</div>
+      </div>
+    </div>
+    <div class="t-section-header">비유로 이해하기</div>
+    <div class="t-bullet"><span class="t-accent">Prompt</span> = 말(馬)에게 "왼쪽으로 가!" 라고 외치는 것</div>
+    <div class="t-bullet"><span class="t-accent">Context</span> = 말에게 지도와 목적지를 보여주는 것</div>
+    <div class="t-bullet"><span class="t-accent">Harness</span> = 말이 달릴 수 있는 길, 울타리, 마구(馬具)를 설계하는 것</div>
+    <div class="t-prereq" style="margin-top: 8px;"><span class="label">핵심</span> — 프롬프트만 잘 쓰는 시대는 끝났습니다. 이제는 <span class="t-accent">환경을 설계</span>해야 합니다.</div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="4">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 01 — Harness Engineering</div>
+  <div class="slide-title">Harness Engineering이란?</div>
+  <div class="body">
+    <div style="display: flex; gap: 24px; align-items: center; margin-bottom: 14px;">
+      <div class="color-block color-block--primary" style="padding: 12px 20px; font-size: 18px; white-space: nowrap;">AI 모델</div>
+      <div style="font-size: 28px; color: var(--c-primary); font-weight: 700;">+</div>
+      <div class="color-block color-block--dark" style="padding: 12px 20px; font-size: 18px; white-space: nowrap;">하네스</div>
+      <div style="font-size: 28px; color: var(--c-primary); font-weight: 700;">=</div>
+      <div class="color-block color-block--green" style="padding: 12px 20px; font-size: 18px; white-space: nowrap;">코딩 에이전트</div>
+    </div>
+    <div class="t-section-header">Anthropic이 공개한 설계 방법들</div>
+    <div style="display: flex; gap: 10px; margin-top: 6px;">
+      <div class="color-block color-block--wash" style="flex: 1; padding: 10px; font-size: 13px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary);">CLAUDE.md</div>AI 행동 지침서
+      </div>
+      <div class="color-block color-block--wash" style="flex: 1; padding: 10px; font-size: 13px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary);">settings.json</div>권한 및 설정
+      </div>
+      <div class="color-block color-block--wash" style="flex: 1; padding: 10px; font-size: 13px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary);">Hooks</div>생명주기 자동화
+      </div>
+      <div class="color-block color-block--wash" style="flex: 1; padding: 10px; font-size: 13px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary);">Skills</div>재사용 가능 지침
+      </div>
+      <div class="color-block color-block--wash" style="flex: 1; padding: 10px; font-size: 13px; text-align: center;">
+        <div style="font-weight: 700; color: var(--c-primary);">MCP</div>외부 서비스 연동
+      </div>
+    </div>
+    <div style="margin-top: 14px; background: var(--c-bg-section); border-radius: 8px; padding: 12px;">
+      <div class="t-desc" style="font-size: 14px; color: var(--c-text-subtle);">
+        CLAUDE.md, settings.json, Hooks, Skills, MCP Servers, Agents...<br>
+        <span style="font-weight: 700; color: var(--c-primary);">이 모든 것들을 알기에는 너무 복잡합니다.</span>
+      </div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--full-image" data-slide-number="5">
+  <div class="fi-inner">
+    <h2>실제로 다 뜯어보고<br>Harness Engineering을<br>하기보다는...</h2>
+    <p>우선은 잘 Engineered된 Harness를 써보자!<br><br><span style="font-size: 24px; font-weight: 700;">→ Oh-my-Claude-Code</span></p>
+  </div>
+</section>
+
+
+<section class="slide slide--section" data-slide-number="6">
+  <div class="logo-education"></div>
+  <div class="chapter-num">PART 02</div>
+  <div class="section-title">Oh-my-Claude-Code</div>
+  <div class="section-desc">잘 Engineered된 Harness,<br>OMC의 주요 기능과 철학을 소개합니다.</div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="7">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 02 — Oh-my-Claude-Code</div>
+  <div class="slide-title">OMC란 무엇인가?</div>
+  <div class="body">
+    <div class="t-section-header">Claude Code의 멀티 에이전트 오케스트레이션 레이어</div>
+    <div class="t-desc">복잡한 Harness Engineering을 이미 해놓은 플러그인.<br>설치만 하면 바로 강력한 AI 에이전트 환경이 완성됩니다.</div>
+    <div style="margin-top: 12px; display: flex; gap: 16px;">
+      <div style="flex: 1; text-align: center;">
+        <div class="t-stat-num">29</div>
+        <div class="t-stat-label">전문 에이전트</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="t-stat-num">32+</div>
+        <div class="t-stat-label">슬래시 커맨드</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="t-stat-num">31</div>
+        <div class="t-stat-label">자동화 훅</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="t-stat-num">3</div>
+        <div class="t-stat-label">모델 티어</div>
+      </div>
+    </div>
+    <div style="margin-top: 12px;">
+      <div class="t-section-header">OMC의 철학</div>
+      <div class="t-bullet"><span class="t-accent">전문 에이전트에게 위임</span> — 작업에 맞는 에이전트가 자동 선택</div>
+      <div class="t-bullet"><span class="t-accent">증거 기반 검증</span> — 가정보다 확인, 결과를 검증한 후 완료</div>
+      <div class="t-bullet"><span class="t-accent">최소 무게 경로</span> — 품질을 유지하면서 가장 가벼운 방법 선택</div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="8">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 02 — Oh-my-Claude-Code</div>
+  <div class="slide-title">주요 기능과 Skill</div>
+  <div class="body">
+    <div class="t-section-header">가장 활발하게 쓰고 있는 Skill</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 14px;">Ralplan</div>
+        <div style="font-size: 12px; margin-top: 4px;">전략적 계획 수립 + 합의 기반 PRD 생성</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 700; color: var(--c-green); font-size: 14px;">Autopilot</div>
+        <div style="font-size: 12px; margin-top: 4px;">아이디어 → 완성 코드까지 자율 실행</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 700; color: var(--c-green); font-size: 14px;">Deep-Interview</div>
+        <div style="font-size: 12px; margin-top: 4px;">소크라테스식 질문으로 요구조건 명확화</div>
+      </div>
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 14px;">External-Context</div>
+        <div style="font-size: 12px; margin-top: 4px;">병렬 웹 리서치로 외부 정보 수집</div>
+      </div>
+    </div>
+    <div style="margin-top: 14px;">
+      <div class="t-section-header">실전 워크플로우</div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+        <div class="color-block color-block--primary" style="padding: 8px 14px; font-size: 13px;">Deep-Interview<br><span style="font-size: 11px; font-weight: 400;">요구조건 명확화</span></div>
+        <div style="font-size: 20px; color: var(--c-primary); font-weight: 700;">→</div>
+        <div class="color-block color-block--dark" style="padding: 8px 14px; font-size: 13px;">Ralplan<br><span style="font-size: 11px; font-weight: 400;">PRD 수립</span></div>
+        <div style="font-size: 20px; color: var(--c-primary); font-weight: 700;">→</div>
+        <div class="color-block color-block--green" style="padding: 8px 14px; font-size: 13px;">Autopilot<br><span style="font-size: 11px; font-weight: 400;">자율 실행</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--section" data-slide-number="9">
+  <div class="logo-education"></div>
+  <div class="chapter-num">PART 03</div>
+  <div class="section-title">왜 OMC는<br>쉽게 쓸 수 있는가?</div>
+  <div class="section-desc">내부적으로 skill이 많아서 필요한대로 쓸 수 있고,<br>잘 모르면 OMC에게 물어보면 됩니다.</div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="10">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 03 — 왜 OMC는 쉽게 쓸 수 있는가?</div>
+  <div class="slide-title">OMC가 쉬운 이유</div>
+  <div class="body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 14px; margin-bottom: 6px;">① Skill이 이미 많다</div>
+        <div style="font-size: 13px; color: var(--c-text);">32개 이상의 내장 스킬이<br>필요한대로 바로 사용 가능합니다.</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-weight: 700; color: var(--c-green); font-size: 14px; margin-bottom: 6px;">② 모르면 OMC에게 물어보면 됨</div>
+        <div style="font-size: 13px; color: var(--c-text);">"OMC에게 설명해보라고 물어보면 된다."<br>OMC 자체가 가이드 역할을 합니다.</div>
+      </div>
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 14px; margin-bottom: 6px;">③ 다 모르겠으면 Autopilot</div>
+        <div style="font-size: 13px; color: var(--c-text);">"다 모르겠으면 autopilot 시키면 된다."<br>자연어 한 마디로 전체 자동 실행.</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-weight: 700; color: var(--c-green); font-size: 14px; margin-bottom: 6px;">④ 매직 키워드 = 자연어 트리거</div>
+        <div style="font-size: 13px; color: var(--c-text);">"autopilot", "ralph", "deep interview"<br>키워드만 말하면 모드가 활성화됩니다.</div>
+      </div>
+    </div>
+    <div style="margin-top: 14px; background: var(--c-bg-section); border-radius: 8px; padding: 12px; text-align: center;">
+      <div style="font-size: 15px; font-weight: 500; color: var(--c-text-subtle);">
+        💡 <span class="t-accent">복잡한 설정 없이 대화만으로</span> 29개 전문 에이전트의 힘을 활용합니다
+      </div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--section" data-slide-number="11">
+  <div class="logo-education"></div>
+  <div class="chapter-num">PART 04</div>
+  <div class="section-title">OMC 활용 사례</div>
+  <div class="section-desc">실제로 어디에 쉽게 쓰고 있는지,<br>비개발 업무에서의 활용 사례를 공유합니다.</div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="12">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 04 — OMC 활용 사례</div>
+  <div class="slide-title">어디에 쉽게 썼는가? = Use Case</div>
+  <div class="body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 16px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">📊</div>
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 15px;">발표자료 제작</div>
+        <div style="font-size: 13px; margin-top: 6px; color: var(--c-text);">Google Apps Script 팀 내 세션 때 활용<br>주제만 말하면 슬라이드 자동 생성</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 16px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">📚</div>
+        <div style="font-weight: 700; color: var(--c-green); font-size: 15px;">강의자료 초안 제작</div>
+        <div style="font-size: 13px; margin-top: 6px; color: var(--c-text);">강의자료 기반으로 코드 생성<br>→ 코드 기반으로 가이드 생성</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 16px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">📝</div>
+        <div style="font-weight: 700; color: var(--c-green); font-size: 15px;">문서 작성</div>
+        <div style="font-size: 13px; margin-top: 6px; color: var(--c-text);">메모/회의록 → 깔끔한 문서 변환<br>PRD, 제안서, 사업 계획서 자동 생성</div>
+      </div>
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 16px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">⚡</div>
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 15px;">반복 업무 자동화</div>
+        <div style="font-size: 13px; margin-top: 6px; color: var(--c-text);">폴더 정리, 파일 이름 변경<br>주간 보고서, 일일 요약 자동 생성</div>
+      </div>
+    </div>
+    <div class="t-prereq" style="margin-top: 10px;"><span class="label">핵심</span> — 코딩이 아닌 업무에서도 OMC는 강력한 생산성 도구입니다</div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="13">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 04 — OMC 활용 사례</div>
+  <div class="slide-title">중요한 건 요구조건을 명확하게 하는 것</div>
+  <div class="body">
+    <div style="background: #FFF3F3; border-radius: 8px; padding: 16px; border-left: 4px solid #E85A4F; margin-bottom: 14px;">
+      <div style="font-weight: 700; color: #E85A4F; font-size: 16px; margin-bottom: 8px;">"생산성 함정"에 빠지지 마세요</div>
+      <div class="t-bullet" style="font-size: 13px;">요구조건이 명확하지 않으면 "생산성 함정"에 빠져버리는 경험이 많았음</div>
+      <div class="t-bullet" style="font-size: 13px;">무언가 결과물은 계속 나오는데, <span class="t-accent">만족스럽지는 않음</span></div>
+      <div class="t-bullet" style="font-size: 13px;">스스로도 뭐가 만족스러운지 기준이 안 잡힌 경우가 많았음</div>
+    </div>
+    <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 16px; margin-bottom: 14px;">
+      <div style="font-weight: 700; color: var(--c-primary); font-size: 16px; margin-bottom: 8px;">"AI Burnout"</div>
+      <div class="t-desc" style="font-size: 13px;">AI가 빠르게 결과를 쏟아내지만, 원하는 것이 아닌 결과물에<br>끝없이 수정을 반복하며 지치는 현상.</div>
+    </div>
+    <div style="background: var(--c-green-wash); border-radius: 8px; padding: 14px; text-align: center;">
+      <div style="font-size: 15px; font-weight: 700; color: var(--c-green);">해결책: Deep-Interview로 요구조건을 먼저 명확하게!</div>
+      <div style="font-size: 13px; margin-top: 4px; color: var(--c-text-subtle);">deep-interview → ralplan → autopilot 순서로 진행하면 함정을 피할 수 있습니다</div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--section" data-slide-number="14">
+  <div class="logo-education"></div>
+  <div class="chapter-num">PART 05</div>
+  <div class="section-title">스킬 만들기 &<br>미래 비전</div>
+  <div class="section-desc">나만의 스킬을 만들어 재사용하고,<br>교육팀에서 AI-Native하게 일하는 방법을 제안합니다.</div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="15">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 05 — 스킬 만들기 & 미래 비전</div>
+  <div class="slide-title">스킬(Skill) 시스템</div>
+  <div class="body">
+    <div class="t-section-header">스킬 = 재사용 가능한 AI 지침 세트</div>
+    <div class="t-desc">SKILL.md 파일 하나로 나만의 슬래시 커맨드를 만들 수 있습니다.</div>
+    <div style="margin-top: 12px;">
+      <div class="t-section-header">3가지 생성 방법</div>
+      <div style="display: flex; gap: 10px; margin-top: 6px;">
+        <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 4px;">✍️</div>
+          <div style="font-weight: 700; color: var(--c-primary); font-size: 13px;">직접 작성</div>
+          <div style="font-size: 12px; margin-top: 4px; color: var(--c-text-subtle);">SKILL.md 파일을<br>직접 작성</div>
+        </div>
+        <div style="flex: 1; background: var(--c-green-wash); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 4px;">🧙</div>
+          <div style="font-weight: 700; color: var(--c-green); font-size: 13px;">/skill add 마법사</div>
+          <div style="font-size: 12px; margin-top: 4px; color: var(--c-text-subtle);">대화형 위저드로<br>쉽게 생성</div>
+        </div>
+        <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 4px;">🤖</div>
+          <div style="font-weight: 700; color: var(--c-primary); font-size: 13px;">/learner 자동 추출</div>
+          <div style="font-size: 12px; margin-top: 4px; color: var(--c-text-subtle);">대화에서 패턴을<br>자동 학습</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 12px;">
+      <div class="t-section-header">한 번 만들면 영원히 재사용</div>
+      <div class="t-bullet"><span style="font-family: monospace; font-size: 13px;">/skill-name</span> 한 번 입력이면 언제든 실행</div>
+      <div class="t-bullet">개인 스킬(<span style="font-family: monospace;">~/.claude/skills/</span>) + 프로젝트 스킬(<span style="font-family: monospace;">.claude/skills/</span>)</div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="16">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 05 — 스킬 만들기 & 미래 비전</div>
+  <div class="slide-title">스킬 예시: /weekly-report</div>
+  <div class="body">
+    <div class="t-section-header">SKILL.md 파일 구조</div>
+    <div class="t-code" style="font-size: 11px; line-height: 1.5;">---
+name: weekly-report
+description: 주간 보고서를 자동으로 생성합니다.
+  "주간 보고서", "weekly report"라고 하면 실행됩니다.
+argument-hint: "[기간]"
+---
+
+# 주간 보고서 생성
+
+## 작업 순서
+1. 이번 주 git log를 확인하세요
+2. 변경된 파일과 커밋 메시지를 분석하세요
+3. 다음 형식으로 보고서를 작성하세요:
+   - 완료한 작업
+   - 진행 중인 작업
+   - 다음 주 계획
+4. reports/ 폴더에 마크다운으로 저장하세요</div>
+    <div style="margin-top: 10px; display: flex; gap: 10px;">
+      <div style="flex: 1; background: var(--c-primary-wash); border-radius: 6px; padding: 10px;">
+        <div style="font-size: 13px; font-weight: 700; color: var(--c-primary);">사용법</div>
+        <div style="font-size: 12px; font-family: monospace; margin-top: 4px;">/weekly-report 3월 3주차</div>
+      </div>
+      <div style="flex: 1; background: var(--c-green-wash); border-radius: 6px; padding: 10px;">
+        <div style="font-size: 13px; font-weight: 700; color: var(--c-green);">핵심 포인트</div>
+        <div style="font-size: 12px; margin-top: 4px;">한 번 만들면 <span class="t-accent">영원히</span> 재사용!</div>
+      </div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="17">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 05 — 스킬 만들기 & 미래 비전</div>
+  <div class="slide-title">교육팀에서 AI-Native하게 일할 수 있을까?</div>
+  <div class="body">
+    <div class="t-section-header">꿈과 희망: /edu-office-setup 스킬</div>
+    <div class="t-bullet">교육 대상, 교육 기간, 필요한 강의 수, ... 등을 입력하면 알아서 <span class="t-accent">폴더 생성</span></div>
+    <div class="t-bullet">이를 바탕으로 해당 교육 프로그램에 대한 질문도 해결할 수 있는 <span class="t-accent">프로젝트 구조</span>를 만들 수 있지 않을까?</div>
+    <div style="margin-top: 14px;">
+      <div class="t-section-header">개발의 이점을 비개발 업무에 적용</div>
+      <div style="display: flex; gap: 10px; margin-top: 6px;">
+        <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 12px;">
+          <div style="font-weight: 700; color: var(--c-primary); font-size: 13px;">git history</div>
+          <div style="font-size: 12px; margin-top: 4px;">모든 변경 이력 추적<br>누가, 언제, 왜 바꿨는지 기록</div>
+        </div>
+        <div style="flex: 1; background: var(--c-green-wash); border-radius: 8px; padding: 12px;">
+          <div style="font-weight: 700; color: var(--c-green); font-size: 13px;">worktree</div>
+          <div style="font-size: 12px; margin-top: 4px;">여러 버전을 동시에 관리<br>실험적 변경도 안전하게</div>
+        </div>
+        <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 12px;">
+          <div style="font-weight: 700; color: var(--c-primary); font-size: 13px;">구조화된 관리</div>
+          <div style="font-size: 12px; margin-top: 4px;">교육 프로그램별 체계적 구조<br>AI가 맥락을 이해하고 지원</div>
+        </div>
+      </div>
+    </div>
+    <div class="t-prereq" style="margin-top: 10px;"><span class="label">질문</span> — 개발을 할 때는 git 기반으로 작업을 하니까 관리가 되는 이점들을 적용해볼 수 있지 않을까?</div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="18">
+  <div class="logo-education"></div>
+  <div class="topic-bar">PART 05 — 스킬 만들기 & 미래 비전</div>
+  <div class="slide-title">앞으로 무엇을 교육해야 할까?</div>
+  <div class="body">
+    <div class="t-section-header">Skill, Hooks, Harness, ...</div>
+    <div class="t-bullet">개발자가 되고 싶은 학생들에게는 무엇을 교육해야할까?</div>
+    <div class="t-bullet">무엇이 필요하게 될까? → <span class="t-accent">명확한 지시만 내릴 수 있으면 "코딩" 자체는 금방</span>할 수 있다.</div>
+    <div style="margin-top: 16px;">
+      <div class="t-section-header">새로운 교육 형태의 제안</div>
+      <div style="display: flex; gap: 12px; margin-top: 8px; align-items: center;">
+        <div style="flex: 1; background: var(--c-primary-wash); border-radius: 8px; padding: 16px; text-align: center;">
+          <div style="font-size: 20px; margin-bottom: 4px;">🏃</div>
+          <div style="font-weight: 700; color: var(--c-primary); font-size: 16px;">Hackathon</div>
+          <div style="font-size: 12px; margin-top: 4px; color: var(--c-text-subtle);">기존 방식</div>
+        </div>
+        <div style="font-size: 24px; color: var(--c-primary); font-weight: 700;">→</div>
+        <div style="flex: 1; background: var(--c-green-wash); border-radius: 8px; padding: 16px; text-align: center;">
+          <div style="font-size: 20px; margin-bottom: 4px;">🔧</div>
+          <div style="font-weight: 700; color: var(--c-green); font-size: 16px;">Skill-thon</div>
+          <div style="font-size: 12px; margin-top: 4px; color: var(--c-text-subtle);">스킬 만들기 대회</div>
+        </div>
+        <div style="font-size: 24px; color: var(--c-primary); font-weight: 700;">→</div>
+        <div style="flex: 1; background: var(--c-primary); border-radius: 8px; padding: 16px; text-align: center; color: #fff;">
+          <div style="font-size: 20px; margin-bottom: 4px;">🏗️</div>
+          <div style="font-weight: 700; font-size: 16px;">Harness-thon?</div>
+          <div style="font-size: 12px; margin-top: 4px; opacity: 0.8;">하네스 설계 대회</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 14px; background: var(--c-bg-section); border-radius: 8px; padding: 10px; text-align: center;">
+      <div style="font-size: 14px; color: var(--c-text-subtle);">
+        🎯 <span class="t-accent">Ralphthon</span> — ralph 모드로 끝까지 완주하는 대회도 재미있지 않을까?
+      </div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--content" data-slide-number="19">
+  <div class="logo-education"></div>
+  <div class="topic-bar">정리</div>
+  <div class="slide-title">요약</div>
+  <div class="body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">🏗️</div>
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 15px;">Harness Engineering</div>
+        <div style="font-size: 13px; margin-top: 4px; color: var(--c-text);">Prompt → Context → Harness<br>AI 환경을 설계하는 시대</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">⚡</div>
+        <div style="font-weight: 700; color: var(--c-green); font-size: 15px;">OMC = 잘 만들어진 하네스</div>
+        <div style="font-size: 13px; margin-top: 4px; color: var(--c-text);">직접 만들기보다<br>잘 만들어진 것을 쓰자</div>
+      </div>
+      <div style="background: var(--c-green-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">🎯</div>
+        <div style="font-weight: 700; color: var(--c-green); font-size: 15px;">요구조건이 핵심</div>
+        <div style="font-size: 13px; margin-top: 4px; color: var(--c-text);">명확한 요구조건 없이는<br>"생산성 함정"에 빠진다</div>
+      </div>
+      <div style="background: var(--c-primary-wash); border-radius: 8px; padding: 14px;">
+        <div style="font-size: 22px; margin-bottom: 4px;">🔧</div>
+        <div style="font-weight: 700; color: var(--c-primary); font-size: 15px;">스킬 = 영원한 재사용</div>
+        <div style="font-size: 13px; margin-top: 4px; color: var(--c-text);">한 번 만든 스킬은<br>언제든 호출하여 재사용</div>
+      </div>
+    </div>
+    <div style="margin-top: 14px; background: var(--c-dark); border-radius: 8px; padding: 14px; text-align: center; color: #fff;">
+      <div style="font-size: 14px; font-family: monospace; color: var(--c-primary-pale);">
+        deep-interview → ralplan → autopilot → 완성!
+      </div>
+    </div>
+  </div>
+  <div class="separator"></div>
+</section>
+
+
+<section class="slide slide--end" data-slide-number="20">
+  <div class="logo-upstage"></div>
+  <div class="tagline"></div>
+  <div class="end-footer">
+    <div class="end-col">© 2025 Upstage Co., Ltd.</div>
+    <div class="end-col">github.com/Yeachan-Heo/oh-my-claudecode</div>
+  </div>
+</section>
+
+  </div>
+
+  <div class="edit-toolbar" id="editToolbar">
+    <span class="edit-label">Edit Mode</span>
+    <div class="separator"></div>
+    <button onclick="document.execCommand('bold')" title="Bold (Ctrl+B)"><strong>B</strong></button>
+    <button onclick="document.execCommand('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
+    <button onclick="document.execCommand('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+    <div class="separator"></div>
+    <button onclick="document.execCommand('insertUnorderedList')" title="Bullet List">List</button>
+    <button onclick="document.execCommand('removeFormat')" title="Clear Formatting">Clear</button>
+    <div class="separator"></div>
+    <button class="save-btn" onclick="savePresentation()" title="Download edited file">Save</button>
+    <button class="exit-btn" onclick="toggleEditMode()" title="Exit edit mode (E)">Exit</button>
+  </div>
+  <div class="slide-counter">
+    <span id="currentSlide">1</span> / <span id="totalSlides">20</span>
+  </div>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="presenter-timer" id="presenterTimer">00:00</div>
+
+  <div class="help-overlay" id="helpOverlay">
+    <div class="help-card">
+      <h3>Keyboard Shortcuts</h3>
+      <table>
+        <tr><td>&rarr; &darr; Space</td><td>Next slide</td></tr>
+        <tr><td>&larr; &uarr;</td><td>Previous slide</td></tr>
+        <tr><td>Home / End</td><td>First / Last slide</td></tr>
+        <tr><td>G</td><td>Grid overview</td></tr>
+        <tr><td>T</td><td>Toggle presenter timer</td></tr>
+        <tr><td>F</td><td>Toggle fullscreen</td></tr>
+        <tr><td>E</td><td>Toggle edit mode</td></tr>
+        <tr><td>?</td><td>This help screen</td></tr>
+        <tr><td>Esc</td><td>Close overlay</td></tr>
+      </table>
+      <div class="help-close">Press <strong>?</strong> or <strong>Esc</strong> to close</div>
+    </div>
+  </div>
+
+  <div class="grid-overlay" id="gridOverlay"></div>
+
+  <script>
+(function() {
+  var slides = document.querySelectorAll('.slide');
+  var current = 0;
+  var total = slides.length;
+  var editMode = false;
+  var gridMode = false;
+  var helpVisible = false;
+  var direction = 1;
+
+  // Stagger animations
+  function animateSlide(slide) {
+    var ANIMATABLE = 'h1,h2,h3,h4,p,li,.card,.callout,.code-block,.prompt-block,.prompt-dual,.badge,.stat,.quote,pre,ol,table';
+    var els = slide.querySelectorAll(ANIMATABLE);
+    els.forEach(function(el, i) {
+      el.classList.remove('animate-in');
+      void el.offsetWidth;
+      el.classList.add('animate-in');
+      el.style.animationDelay = (i * 0.06) + 's';
+    });
+  }
+
+  function showSlide(n) {
+    if (n === current) return;
+    direction = n > current ? 1 : -1;
+    slides[current].classList.remove('active', 'reverse');
+    current = ((n % total) + total) % total;
+    slides[current].classList.remove('reverse');
+    if (direction === -1) slides[current].classList.add('reverse');
+    slides[current].classList.add('active');
+    animateSlide(slides[current]);
+    document.getElementById('currentSlide').textContent = current + 1;
+    document.getElementById('progressBar').style.width =
+      ((current + 1) / total * 100) + '%';
+  }
+
+  if (slides.length > 0) {
+    slides[0].classList.add('active');
+    animateSlide(slides[0]);
+    document.getElementById('progressBar').style.width = (1 / total * 100) + '%';
+    document.getElementById('totalSlides').textContent = total;
+  }
+
+  // Presenter Timer
+  var timerEl = document.getElementById('presenterTimer');
+  var timerStart = null;
+  var timerInterval = null;
+  var timerVisible = false;
+
+  function padZero(n) { return n < 10 ? '0' + n : '' + n; }
+  function updateTimer() {
+    if (!timerStart) return;
+    var elapsed = Math.floor((Date.now() - timerStart) / 1000);
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    timerEl.textContent = padZero(m) + ':' + padZero(s);
+  }
+  function toggleTimer() {
+    timerVisible = !timerVisible;
+    timerEl.classList.toggle('visible', timerVisible);
+    if (timerVisible && !timerStart) {
+      timerStart = Date.now();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+  }
+
+  // Help Overlay
+  var helpOverlay = document.getElementById('helpOverlay');
+  function toggleHelp() {
+    helpVisible = !helpVisible;
+    helpOverlay.classList.toggle('visible', helpVisible);
+  }
+
+  // Grid Overview
+  var gridOverlay = document.getElementById('gridOverlay');
+  function openGrid() {
+    gridMode = true;
+    var container = document.createElement('div');
+    container.className = 'grid-container';
+    for (var i = 0; i < total; i++) {
+      (function(idx) {
+        var thumb = document.createElement('div');
+        thumb.className = 'grid-thumb' + (idx === current ? ' current' : '');
+        var inner = document.createElement('div');
+        inner.className = 'grid-thumb-inner';
+        inner.innerHTML = slides[idx].innerHTML;
+        inner.className = slides[idx].className.replace('active', '') + ' grid-thumb-inner';
+        inner.style.display = 'flex';
+        thumb.appendChild(inner);
+        var label = document.createElement('div');
+        label.className = 'grid-thumb-label';
+        label.textContent = (idx + 1) + ' / ' + total;
+        thumb.appendChild(label);
+        thumb.addEventListener('click', function(e) {
+          e.stopPropagation();
+          closeGrid();
+          showSlide(idx);
+        });
+        container.appendChild(thumb);
+        requestAnimationFrame(function() {
+          var scale = thumb.offsetWidth / 1920;
+          inner.style.transform = 'scale(' + scale + ')';
+          thumb.style.height = (1080 * scale) + 'px';
+        });
+      })(i);
+    }
+    gridOverlay.innerHTML = '';
+    gridOverlay.appendChild(container);
+    gridOverlay.classList.add('visible');
+  }
+  function closeGrid() {
+    gridMode = false;
+    gridOverlay.classList.remove('visible');
+  }
+
+  // Edit Mode
+  var EDITABLE = 'h1,h2,h3,h4,h5,h6,p,li,span.badge,blockquote,td,th,figcaption';
+
+  window.toggleEditMode = function() {
+    editMode = !editMode;
+    document.body.classList.toggle('edit-mode', editMode);
+    document.getElementById('editToolbar').classList.toggle('visible', editMode);
+    slides.forEach(function(slide) {
+      slide.querySelectorAll(EDITABLE).forEach(function(el) {
+        if (editMode) { el.setAttribute('contenteditable', 'true'); }
+        else { el.removeAttribute('contenteditable'); }
+      });
+    });
+    if (!editMode) {
+      try { localStorage.setItem('slide-backup', document.querySelector('.presentation').innerHTML); } catch(e) {}
+    }
+  };
+
+  window.savePresentation = function() {
+    var clone = document.documentElement.cloneNode(true);
+    clone.querySelector('body').classList.remove('edit-mode');
+    var tb = clone.querySelector('#editToolbar'); if (tb) tb.classList.remove('visible');
+    clone.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+    var html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    var blob = new Blob([html], { type: 'text/html' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'presentation-edited.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  try {
+    var backup = localStorage.getItem('slide-backup');
+    if (backup) {
+      var doRestore = confirm('A previous edit was found. Restore unsaved changes?');
+      if (doRestore) {
+        document.querySelector('.presentation').innerHTML = backup;
+        slides = document.querySelectorAll('.slide');
+        total = slides.length; current = 0;
+        if (slides.length > 0) slides[0].classList.add('active');
+      } else { localStorage.removeItem('slide-backup'); }
+    }
+  } catch(e) {}
+
+  // Keyboard Navigation
+  document.addEventListener('keydown', function(e) {
+    var ae = document.activeElement;
+    var isEditing = ae && ae.getAttribute('contenteditable') === 'true';
+
+    if (e.key === 'Escape') {
+      if (helpVisible) { toggleHelp(); e.preventDefault(); return; }
+      if (gridMode) { closeGrid(); e.preventDefault(); return; }
+      if (editMode) { toggleEditMode(); e.preventDefault(); return; }
+      return;
+    }
+
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      if (!isEditing) { toggleHelp(); e.preventDefault(); return; }
+    }
+
+    if (helpVisible || gridMode) return;
+
+    if ((e.key === 'e' || e.key === 'E') && !isEditing && !e.ctrlKey && !e.metaKey) { toggleEditMode(); e.preventDefault(); return; }
+    if (editMode && isEditing) return;
+    if (editMode) return;
+
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+        e.preventDefault(); showSlide(current + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+        e.preventDefault(); showSlide(current - 1); break;
+      case 'Home':
+        e.preventDefault(); showSlide(0); break;
+      case 'End':
+        e.preventDefault(); showSlide(total - 1); break;
+      case 'f': case 'F':
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function() {});
+        } else { document.exitFullscreen(); }
+        break;
+      case 'g': case 'G':
+        e.preventDefault(); gridMode ? closeGrid() : openGrid(); break;
+      case 't': case 'T':
+        e.preventDefault(); toggleTimer(); break;
+    }
+  });
+
+  var touchStartX = 0;
+  var touchStartY = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (editMode || gridMode || helpVisible) return;
+    var dx = e.changedTouches[0].screenX - touchStartX;
+    var dy = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      dx > 0 ? showSlide(current - 1) : showSlide(current + 1);
+    }
+  }, { passive: true });
+
+  document.addEventListener('click', function(e) {
+    if (editMode || gridMode || helpVisible) return;
+    var tag = e.target.tagName.toLowerCase();
+    if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'textarea') return;
+    if (e.target.closest('.solution-toggle')) return;
+    var x = e.clientX / window.innerWidth;
+    x < 0.15 ? showSlide(current - 1) : showSlide(current + 1);
+  });
+})();
+  </script>
+</body>
+</html>
