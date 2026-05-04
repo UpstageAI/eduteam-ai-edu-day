@@ -211,19 +211,27 @@
     blockquote .src { display: block; font-style: normal; text-align: right; font-size: 12px; color: var(--c-muted); margin-top: 4px; }
 
     .figure {
-      margin: 16px 0;
-      padding: 12px 16px;
+      margin: 18px 0;
+      padding: 14px 16px;
       background: #fff;
       border: 1px solid var(--c-rule);
       border-radius: 4px;
       font-size: 13px;
     }
+    .figure img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 8px auto 4px;
+      border: 1px solid #eee;
+      border-radius: 2px;
+    }
     .figure .cap {
       font-size: 12px;
       color: var(--c-muted);
       margin-top: 8px;
-      text-align: center;
-      font-style: italic;
+      text-align: left;
+      line-height: 1.6;
     }
     .figure-title {
       font-weight: 700;
@@ -389,10 +397,8 @@
 
 <div class="figure">
   <div class="figure-title">Figure 1 · Externalization as the organizing principle of LLM agent design.</div>
-  <p><strong>Upper panel:</strong> 인간 인지 외재화의 흐름 — 사고 → 언어(말로 표현) → 글쓰기(기록된 상징) → 인쇄(대량 복제된 텍스트) → 디지털 계산(자동화된 조작이 가능한 데이터).<br>
-  <strong>Middle panel:</strong> 이에 대응하는 LLM 에이전트의 외재화 흐름 — 가중치(Weights) → 세 가지 외재화 차원 [메모리(외재화된 상태) · 스킬(외재화된 전문성) · 프로토콜(외재화된 상호작용)] → 하니스(외재화된 에이전시를 통합하는 층).<br>
-  <strong>Lower panel:</strong> 대표적인 연구들을 세 가지 능력 층(Weights / Context / Harness)에 매핑한 문헌 풍경. Weights 층에는 PaLM, InstructGPT, RLHF Assistant, Constitutional AI, ROME, MEMIT, DOC fine-tuning, Logits Replay+ MoClip 등이; Context/Memory 층에는 CoT, Zero-shot CoT, Self-Consistency, RAG, Self-Refine, RETRO, IC-RALM, Synapse, TED, Early Experience, Mem-α, Mem-R1, GraphRAG, MemGPT, Mem0, UMEM, InfiAgent, A-MEM, Mirix, ShardMemo, Generative Agents, Lost in the Middle, Memento, MemoryBank, Memory OS, MemEvolve, MemorySharing 등이; Harness 층에는 Toolformer, Function Calling, Gorilla, ToolLLM, ToolNet, ToolScope, AutoTool, Voyager, TxAgent, ToolUniverse, MCP, OS-Copilot, SWE-Exp, SWE-Agent, COALA, LangGraph, CrewAI, Agent Skills, SkillOrchestra, SOP-Agent, CUA-Skill, ACP, PolySkill, MemSkill, SkillFlow, Safety Case Construction, SkillsBench, Skillweaver, Programmatic Skills, OpenEarth Agent, ReAct, When2Call 등이 대응한다.</p>
-  <p class="cap">두 흐름 사이의 평행 구조는 하나의 재귀적 주장을 함축한다 — LLM 에이전트는 인간 인지 역사를 이끌어 온 것과 똑같은 표상 차원들을 따라 인지적 부담을 외재화함으로써 신뢰할 수 있는 에이전시에 도달한다.</p>
+  <img src="figures/figure-1.png" alt="Figure 1 — externalization as the organizing principle of LLM agent design (three panels: human cognitive externalization arc, LLM agent externalization arc, and literature landscape across Weights/Context/Harness).">
+  <p class="cap"><strong>위 패널:</strong> 인간 인지 외재화의 흐름 — 사고 → 언어 → 글쓰기 → 인쇄 → 디지털 계산. <strong>중간 패널:</strong> 이에 대응하는 LLM 에이전트의 외재화 흐름 — 가중치(Weights) → 메모리·스킬·프로토콜의 세 외재화 차원 → 이를 통합하는 하니스(Harness). <strong>아래 패널:</strong> 대표적인 연구들을 Weights · Context · Harness 세 층에 매핑한 문헌 풍경. 두 흐름의 평행 구조는 LLM 에이전트가 인간 인지 역사를 이끌어 온 것과 같은 표상 차원을 따라 인지적 부담을 외재화함으로써 신뢰할 수 있는 에이전시에 도달한다는 재귀적 주장을 담고 있다.</p>
 </div>
 
 <p>이 렌즈는 현재의 실무를 이해하는 데 특히 명료하다. 동시대의 진보는 흔히 더 큰 모델, 더 나은 학습 절차, 더 정교한 추론 흔적을 향한 경주로 서술된다. 그러나 그러한 요인들만으로는 실제 시스템에서 관찰되는 신뢰성 향상을 모두 설명할 수 없다. <em class="kw">신뢰성에서 가장 큰 향상의 상당수는 베이스 모델을 전혀 바꾸지 않은 채 일어났다.</em> 그러한 향상은 영속적인 메모리를 더하고, 재사용 가능한 스킬을 조직하고, 도구 인터페이스를 표준화하고, 명시적인 제어 로직을 통해 작업을 라우팅하는 등, 모델을 둘러싼 환경을 바꾼 결과로 나타났다 [Sumers et al., 2024; Wang et al., 2024a; Li, 2025; Luo et al., 2025]. 실무의 질문은 점점 "모델이 얼마나 유능한가?"만이 아니라 "<em class="kw">어떤 부담이 외부로 떠넘겨졌기에 모델이 매번 내부에서 그것을 풀지 않아도 되게 되었는가?</em>"로 옮겨가고 있다.</p>
@@ -438,6 +444,12 @@
 
 <p>LLM 에이전트의 최근 역사는 모델 자체로부터 점차 바깥으로 향하는 흐름으로 이해할 수 있다. 능력은 처음에는 가중치의 속성으로, 이어서 프롬프트와 컨텍스트 윈도우의 속성으로, 그리고 이제는 모델이 그 안에서 동작하는 더 넓은 인프라의 속성으로 다루어진다. Figure 2는 이 궤적을 Weights · Context · Harness라는 세 개의 층으로 시각화하며, 2022년부터 2026년까지의 흐름을 따라 학계·산업계의 연구 주제가 어떻게 이동해 왔는지를 보여 준다. 이 단계들은 서로 배타적이라기보다 층층이 쌓여 있는 관계에 가깝다 — 가중치는 가장 인프라가 두꺼운 시스템에서도 여전히 중요하지만, 각 단계마다 시스템에서 수정 가능한 지능이 어디에 놓이는지, 그리고 그 결과로 엔지니어링의 노력이 어디에 가장 많이 투입되는지가 달라진다.</p>
 
+<div class="figure">
+  <div class="figure-title">Figure 2 · Community theme evolution across three capability layers.</div>
+  <img src="figures/figure-2.png" alt="Figure 2 — community theme evolution across Weights, Context, and Harness layers from 2022 to 2026.">
+  <p class="cap">Weights · Context · Harness 세 층이 위로 쌓여 가는 모습을, 2022–2026년 타임라인을 따라 시각화한 그림. 커뮤니티의 무게중심이 사전학습·정렬과 같은 매개변수 차원에서 출발해 프롬프팅·RAG·컨텍스트 엔지니어링을 거쳐, 지금은 도구 생태계·프로토콜·스킬·다중 에이전트 오케스트레이션과 같은 하니스 차원의 인프라로 옮겨가고 있음을 보여 준다.</p>
+</div>
+
 <h3 class="subsec" id="s2-1"><span class="num">2.1</span>Capability in Weights</h3>
 <p><em class="kw">가중치 층</em>은 현대 LLM 배포의 가장 초기 흐름에 해당한다. 능력이 거의 전적으로 모델 파라미터로 식별되던 시기다. 대규모 코퍼스에 대한 사전학습은 광범위한 통계적 규칙성, 세계 지식, 잠재적인 추론 습관을 가중치 안으로 압축해 넣었다 [Brown et al., 2020; Chowdhery et al., 2023; Touvron et al., 2023]. 스케일링 법칙은 파라미터 수, 데이터 양, 손실 사이의 예측 가능한 관계를 드러내면서, "발전은 모델 크기를 따라간다"라는 직관을 강화해 주었다 [Kaplan et al., 2020; Hoffmann et al., 2022]. GPT-4, Gemini, DeepSeek-V3, Qwen2.5와 같은 시스템들이 광범위한 다중 작업 능력을 보여 주자, 분야의 지배적인 이야기 또한 "더 좋은 에이전트 = 더 크고 더 잘 학습된 모델"이라는 등식으로 굳어졌다. 지도학습 미세조정(SFT)과 선호도 최적화는 지시 따르기, 대화 스타일, 거절 행동, 도메인 컨벤션을 가르치며 이 모델들을 더 쓸 만한 어시스턴트로 다듬었고 [Ouyang et al., 2022; Bai et al., 2022a], DPO는 별도의 보상 모델 없이 정렬 단계를 단순화했다 [Rafailov et al., 2023]. 이러한 관점에서 발전이란 곧 모델 자체를 수정하거나 교체하는 것을 의미했다.</p>
 
@@ -467,7 +479,8 @@
 
 <div class="figure">
   <div class="figure-title">Figure 3 · Externalization architecture of a harnessed LLM agent.</div>
-  <p>중앙에 하니스(Harness)가 자리 잡고, 그 주위를 세 가지 외재화 차원이 둘러싼다 — <strong>메모리(Memory)</strong>: 작업 컨텍스트, 의미 지식, 에피소드 경험, 개인화 메모리. <strong>스킬(Skills)</strong>: 운영 절차, 결정 휴리스틱, 규범적 제약. <strong>프로토콜(Protocols)</strong>: 에이전트–사용자, 에이전트–에이전트, 에이전트–도구. 샌드박싱, 관측 가능성, 압축, 평가, 승인 루프, 하위 에이전트 오케스트레이션 같은 운영 요소들이 하니스의 중심부와 외재화 모듈들 사이의 상호작용을 매개한다.</p>
+  <img src="figures/figure-3.png" alt="Figure 3 — externalization architecture of a harnessed LLM agent. The Harness sits at the center; three externalization dimensions (Memory, Skills, Protocols) orbit around it.">
+  <p class="cap">중앙에 하니스(Harness)가 자리 잡고, 그 주위를 세 가지 외재화 차원이 둘러싼다 — <strong>메모리(Memory)</strong>: 작업 컨텍스트, 의미 지식, 에피소드 경험, 개인화 메모리. <strong>스킬(Skills)</strong>: 운영 절차, 결정 휴리스틱, 규범적 제약. <strong>프로토콜(Protocols)</strong>: 에이전트–사용자, 에이전트–에이전트, 에이전트–도구. 샌드박싱, 관측 가능성, 압축, 평가, 승인 루프, 하위 에이전트 오케스트레이션 같은 운영 요소들이 하니스의 중심부와 외재화 모듈들 사이의 상호작용을 매개한다.</p>
 </div>
 
 <p>이러한 틀에서 보면 "에이전트 엔지니어링"은 점점 "<em class="kw">하니스 엔지니어링</em>"의 모습을 띠게 된다. 모델은 여전히 핵심 추론 엔진이지만, 더 이상 지능이 자리 잡는 유일한 장소가 아니다. 능력은 모델이 무엇을 보고, 기억하고, 호출하고, 어떤 행동이 허용되는지를 결정하는 구조 전체에 분산되어 있다.</p>
@@ -483,6 +496,12 @@
 <h2 class="section"><span class="num">3</span>Externalized State: Memory</h2>
 
 <p>메모리의 외재화는 에이전시가 짊어진 <em class="kw">시간의 부담(temporal burden)</em>을 다룬다. 맨몸의 언어 모델은 연속성, 사전 경험, 사용자 고유의 사실, 부분적으로 마무리된 작업을 모두 일시적인 프롬프트 안에 끌어안고 있어야 한다. 작업이 세션과 분기, 중단을 가로질러 길게 이어지면 그 부담은 불안정해지고 비싸진다. 메모리는 이 부담을 모델 외부에서 쓰고, 갱신하고, 다시 꺼내어 쓸 수 있는 영속적인 상태로 외재화한다. 하니스가 갖춰진 에이전트에서 메모리는 단순한 보관소 이상의 역할을 한다 — 작업을 이어 가기 위한 체크포인트, 스킬로 정제될 수 있는 흔적, 프로토콜의 라우팅에 영향을 주는 통계, 거버넌스 메커니즘이 점검하고 제약할 수 있는 영속 상태를 함께 공급한다. 이 역할을 정확히 그려 내기 위해, 본 절은 세 가지 연결된 질문을 던진다 — 메모리가 어떤 종류의 상태를 외재화하는가(3.1), 그 설계 공간이 어떻게 진화해 왔는가(3.2), 메모리가 더 큰 하니스와 어떻게 결합되는가(3.3). 마지막으로 3.4는 인지적 인공물의 관점에서 메모리를 다시 해석한다.</p>
+
+<div class="figure">
+  <div class="figure-title">Figure 4 · Memory as externalized state.</div>
+  <img src="figures/figure-4.png" alt="Figure 4 — memory as externalized state. Raw context flows into four memory dimensions, organized through progressively more managed architectures, and integrated back into the agent core.">
+  <p class="cap">일시적인 컨텍스트 윈도우와 환경 피드백으로부터 들어오는 원자료가, 영속적인 네 가지 메모리 차원 — 작업 컨텍스트(working context), 에피소드 경험, 의미 지식, 개인화 메모리 — 으로 변환된다. 이 차원들은 점차 더 적극적으로 관리되는 아키텍처로 조직된다 — 일체형 컨텍스트, 검색 저장소, 계층형(추출·통합·망각, OS 스타일의 핫/콜드 스왑), 그리고 적응형 메모리 시스템(MoE·RL 등을 통한 피드백 기반 검색 전략 최적화)이 그것이다. 하니스 쪽에서는, 스킬과 프로토콜이 만들어 내는 실행 흔적이 외재화된 메모리로 흘러 들어가고, 그 메모리는 다시 직접 회상이나 큐레이팅된 스냅샷의 형태로 작업과 관련된 메모리 콘텐츠를 에이전트 코어(LLM)에 공급한다.</p>
+</div>
 
 <h3 class="subsec" id="s3-1"><span class="num">3.1</span>What Is Externalized: The Content of State</h3>
 <p>메모리의 본질은 시간을 가로지르는 에이전트의 상태를, 일시적인 컨텍스트로부터 떼어내는 데 있다. 여기서 관련된 내용은 하니스의 모든 외부 산출물이 아니라, 연속성을 보존하는 기록들이다 — 현재의 작업 상태, 지난 실행 경험, 추상화된 지식, 사용자 또는 환경에 관한 영속적인 맥락이다. 장기 상호작용에서 일관된 행동을 유지하려면, 메모리 시스템은 이 기록들을 시간적 속성과 검색 필요에 따라 분류하고 관리해야 한다. 인간 기억의 고전적 분류를 LLM 에이전트에 맞춰 적용하여, 저자들은 외재화된 상태의 다음 네 가지 차원을 구분한다.</p>
@@ -564,6 +583,12 @@
 <p>스킬이 도입하는 표상적 전환은 <em class="kw">반복적인 즉석 합성에서 재사용 가능한 절차로</em>이다. 모델에게 매 실행마다 가중치나 즉흥적인 프롬프트로부터 작업별 노하우를 다시 만들어 내라고 요구하는 대신, 스킬 시스템은 그 노하우를 발견·로딩·수정·합성이 가능한 명시적인 산출물로 패키지화한다. 이는 에이전트가 쓸 수 있는 행동 집합을 늘리는 일이라기보다, 모델이 런타임에 마주하는 과제를 "워크플로를 새로 만들어 내는 일"에서 "이미 만들어진 워크플로를 골라 따라가는 일"로 바꾸어 놓는 일에 가깝다 [Xu and Yan, 2026b; Wang et al., 2026a].</p>
 
 <p>하니스를 갖춘 에이전트에서 스킬은 메모리와 행동 사이에 자리한다. 스킬은 보통 검색해 낸 상태에 비추어 선택되고, 프로토콜화된 인터페이스를 거쳐 도구와 하위 에이전트에 묶이며, 실행 흔적과 사후 회고로부터 갱신된다. 3절에서 이미 보았듯, 메모리는 시간에 걸쳐 무엇이 학습되었는지를 외재화하고, 스킬은 누적된 경험이 어떻게 재사용 가능한 운영 구조로 자리 잡는지를 외재화한다 [Sumers et al., 2024; Wu and Zhang, 2026]. 따라서 본 장은 세 가지 연결된 질문에 초점을 둔다 — 스킬이 어떤 부담을 외재화하는가, 스킬이 작업 실행을 어떻게 다시 짜는가, 그리고 더 큰 하니스 안에서 어떻게 실행 가능한 단위로 자리 잡는가.</p>
+
+<div class="figure">
+  <div class="figure-title">Figure 5 · Skills as externalized expertise.</div>
+  <img src="figures/figure-5.png" alt="Figure 5 — skills as externalized expertise. The figure traces the full lifecycle of a skill through three phases: invocation, selection, and procedure.">
+  <p class="cap">스킬의 라이프사이클은 호출(invocation) → 선택(selection) → 절차(procedure)의 세 국면을 거친다. <em>스킬 획득(skill acquisition)</em>은 절차적 노하우가 시스템에 들어오는 네 가지 경로 — 전문가가 직접 작성하는 authored, 에피소드 기억·궤적에서 정제되는 distilled, 환경 탐험과 자기 유도를 통한 discovered, 기존 단위들의 합성으로 만들어지는 composed — 를 보여 준다. <em>스킬 산출물(skill artifact)</em>은 그 노하우를 운영 절차, 결정 휴리스틱, 규범적 제약, 그리고 능력·전제 조건·범위를 선언하는 매니페스트로 패키지화한다. <em>활성화 파이프라인(activation pipeline)</em>은 의미적 추상을 거쳐 발견되고, 매니페스트 요약에서 본 가이드까지의 점진적 공개로 노출되며, 도구·API·파일·에이전트·프로토콜에 묶이는 합성으로 이어진다. <em>런타임</em>에서는 활성 컨텍스트와 LLM이 선택된 스킬을 실행하며, 정합성 어긋남, 노후화·이식성 한계, 컨텍스트 의존적 성능 저하, 안전하지 않은 합성 같은 경계 조건이 신뢰성을 제약한다.</p>
+</div>
 
 <h3 class="subsec" id="s4-1"><span class="num">4.1</span>What is Externalized: Procedural Expertise</h3>
 <p>스킬의 외재화는 고립된 행동 인터페이스가 아니라 <em class="kw">절차적 전문성(procedural expertise)</em>에 관한 일이다. 여기서 전문성이란 모델이 어떤 일을 "할 수 있다"는 막연한 주장이 아니라, 반복되는 가정과 제약 조건 아래에서 같은 일을 안정적으로 수행하는 방식을 말한다. 여기서 자연스러운 경계가 따라 나온다 — 도구는 연산을 노출하고, 프로토콜은 그 연산이 어떻게 기술되고 호출되는지를 규정하며, 스킬은 그 도구·프로토콜을 가지고 어떤 부류의 과제를 수행해야 하는지를 인코딩한다. 실무에서 이 전문성은 서로 맞물려 있는 세 가지 구성 요소를 갖는다 — <em class="kw">운영 절차(operational procedure), 결정 휴리스틱(decision heuristics), 규범적 제약(normative constraints)</em>이다. 이 세 가지가 함께 모여 비로소 하니스가 외재화할 수 있는 재사용 가능한 노하우 단위를 이룬다.</p>
@@ -706,6 +731,12 @@
 
 <p>메모리가 시간적 상태를 외재화하고 스킬이 절차적 전문성을 외재화한다면, 프로토콜은 에이전트가 자신의 외부에 있는 객체와 정보·행위를 어떻게 주고받는지를 규율하는 계약을 외재화한다. 이때 표상의 전환은 <em class="kw">자유 형식의 의사소통적 추론에서 구조화된 교환(structured exchange)으로</em> 일어난다. 런타임에 상호작용의 통사와 의미론을 모델이 매번 발명하도록 요구하는 대신, 프로토콜은 모델이 채우고 따르기만 하면 되는 타입화된 표면(typed surface), 상태 전이, 기계가 읽을 수 있는 제약을 제공한다. 그런 의미에서 프로토콜은 단순히 의사소통을 가속하는 것이 아니다. 프로토콜은 임시방편적인 인터페이스를 협상하는 작업을 명시적 계약 안에서 동작하는 작업으로 바꾸어 놓는다.</p>
 
+<div class="figure">
+  <div class="figure-title">Figure 6 · Protocols as externalized interaction.</div>
+  <img src="figures/figure-6.png" alt="Figure 6 — protocols as externalized interaction. Upper panel: evolutionary trajectory from isolated model calls through API hardcoding to standardized protocols and decentralized agentic web. Lower panel: harness implements externalized interaction management through Interact / Perceive / Collaborate surfaces.">
+  <p class="cap"><strong>위 패널:</strong> 에이전트 상호작용의 진화 궤적 — 모델끼리의 통신이 거의 없던 고립된 호출에서, 직접적인 API 하드코딩을 거쳐, 통합된 상호작용·작업 분배·도구 통합·안전한 접근을 제공하는 표준화된 프로토콜로, 그리고 결국 분산되고 네트워크화된 에이전틱 웹(agentic web)으로 이어진다. <strong>아래 패널:</strong> 하니스는 외재화된 상호작용 관리를 세 가지 기능 표면으로 구현한다 — <em>Interact</em>(외부 API·도구·환경과의 상호작용), <em>Perceive</em>(환경·맥락·메모리·피드백의 지각), <em>Collaborate</em>(다른 LLM·에이전트·사람과의 협업).</p>
+</div>
+
 <p>좀 더 구체적으로, 프로토콜이 외재화하는 것은 다음 네 가지 차원으로 정리할 수 있다.</p>
 
 <h4 class="subsubsec">호출 문법(invocation grammar).</h4>
@@ -805,6 +836,12 @@
 
 <p>Figure 7은 전체 그림을 한눈에 보여 준다 — 가운데에 foundation model이 자리하고, 외재화된 인지를 일관된 에이전시로 조율하는 여섯 하니스 차원이 그것을 둘러싼다. 그 가운데 셋 — Memory, Skill, Protocol — 은 앞선 장(3–5절)에서 분석한 외재화 모듈이다. 나머지 셋 — <em class="kw">Permission, Control, Observability</em> — 은 그 모듈이 어떻게 접근되고, 제약되며, 관찰되는지를 다스리는 운영 표면이다. 본 장은 이 세 표면을 하니스 설계를 특징짓는 <em class="kw">여섯 개의 더 세분된 분석 차원</em>으로 풀어낸다. 앞선 각 장은, 모듈이 더 큰 런타임에 끼워 넣어졌을 때에야 비로소 온전히 작동한다는 점을 짚으며 마무리되었다. 3.3, 4.6, 5.3절은 각 모듈의 시각에서 구체적인 하니스 요구를 짚어 두었다. 본 장은 그 갈래들을 하나로 묶는다 — 외재화된 메모리, 스킬, 프로토콜을 일관된 에이전시로 합쳐 내려면 어떤 종류의 시스템이 필요한지, 그리고 그 시스템을 분석적으로 어떻게 이해해야 하는지를 묻는다.</p>
 
+<div class="figure">
+  <div class="figure-title">Figure 7 · The harness as cognitive environment.</div>
+  <img src="figures/figure-7.png" alt="Figure 7 — the harness as cognitive environment. Foundation Model (Agent Core) sits at the center; six harness dimensions form a coordinated ring around it.">
+  <p class="cap">가운데에 Foundation Model(Agent Core)이 자리하고, 그 둘레를 여섯 개의 하니스 차원이 조율된 고리(ring)처럼 둘러싼다. 외재화된 인지의 내용을 공급하는 세 외재화 모듈은 — <strong>Memory</strong>(상태 영속, 실패 기록, 세션 간 맥락), <strong>Skill</strong>(재사용 가능한 루틴, 단계적 로딩, 실패 기반 수정), <strong>Protocol</strong>(결정론적 인터페이스, 구조화된 호출, 스키마 계약). 그 콘텐츠가 런타임에 어떻게 접근되고, 제약되며, 관찰되는지를 다스리는 세 운영 표면은 — <strong>Permission</strong>(샌드박싱, 파일시스템 격리, 네트워크 제한), <strong>Control</strong>(재귀 한계, 비용 상한, 타임아웃), <strong>Observability</strong>(구조화된 로깅, 실행 흔적, 집계 지표). 화살표는 하니스 루프 안에서 차원들 사이를 흐르는 연속적인 정보 흐름을 가리킨다.</p>
+</div>
+
 <p>중심 주장은, 하니스가 단지 능력 있는 모델 위에 얹는 구현상의 편의가 아니라는 것이다. 그것은 외재화된 모듈이 함께 어우러져 비로소 효과를 내는 <em class="kw">설계된 인지 환경(designed cognitive environment)</em>이다. 이 틀이 본 장의 구성을 떠받친다. 6.1은 하니스 개념을 정의하고, 앞선 장의 모듈 단위 분석에 비추어 그것의 자리를 잡는다. 6.2는 하니스 설계가 갈리는 지점이 되는 반복적인 분석 차원을 추려 낸다. 6.3은 그 차원들이 동시대 에이전트 시스템에서 어떻게 모습을 드러내는지를 살핀다. 6.4는 분산 인지(distributed cognition)와 인지적 인공물(cognitive artifact) 이론의 렌즈로 하니스를 인지 환경으로 다시 해석하며 본 장을 닫는다.</p>
 
 <h3 class="subsec" id="s6-1"><span class="num">6.1</span>What is a Harness?</h3>
@@ -894,6 +931,12 @@
 
 <h3 class="subsec" id="s7-1"><span class="num">7.1</span>Module Interaction Map</h3>
 <p>이 분석에 동기를 부여하기 위해, Figure 8은 세 모듈 사이에서 일어나는 여섯 가지 짝지은 흐름을 요약한다. 각 흐름은 한 모듈이 다른 모듈을 어떻게 알리고, 제약하고, 떠받치는지를 포착한다. 이들은 따로따로 읽혀서는 안 된다 — 함께 묶여 자기강화적인 순환을 이룬다.</p>
+
+<div class="figure">
+  <div class="figure-title">Figure 8 · Couplings among memory, skills, and protocols.</div>
+  <img src="figures/figure-8.png" alt="Figure 8 — couplings among memory, skills, and protocols. Six arrows summarize how the three externalization modules reinforce one another inside a harness.">
+  <p class="cap">세 외재화 모듈이 하니스 안에서 서로를 어떻게 보강하는지를 여섯 개의 화살표로 요약한 그림. <strong>Memory→Skill</strong>은 누적된 경험을 정제(experience distillation)하여 재사용 가능한 절차로 끌어올리고, <strong>Skill→Memory</strong>는 실행 흔적을 다시 기록(execution recording)한다. <strong>Skill→Protocol</strong>은 능력 호출(capability invocation)을 통해 추상 절차를 다스려지는 행동으로 옮기고, <strong>Protocol→Skill</strong>은 표준화된 인터페이스로부터 새로운 능력을 길어 낸다(capability generation). <strong>Memory→Protocol</strong>은 과거의 경험을 바탕으로 라우팅 전략을 고르고(strategy selection), <strong>Protocol→Memory</strong>는 도구 결과를 정규화하여 메모리에 동화(result assimilation)시킨다.</p>
+</div>
 
 <h4 class="subsubsec">메모리 → 스킬: 경험 정제(experience distillation).</h4>
 <p>반복된 궤적은 재사용 가능한 절차로 정제될 수 있으며, 이것이 누적된 경험이 성문화된 전문성으로 자라나는 주된 경로가 된다. <em>TED</em>와 <em>UMEM</em> 같은 시스템은 기반 모델의 가중치를 손대지 않고도 일화적 흔적을 어떻게 군집화하고 추상화하여 스킬 산출물로 끌어올릴 수 있는지를 보여 준다 [Yuan et al., 2026; Ye et al., 2026]. <em>Voyager</em>는 평생 학습의 맥락에서 같은 논리를 구체화한다 — 성공적인 행동이 나중에 다시 조합될 수 있는 재사용 가능한 코드 수준의 스킬로 보존된다 [Wang et al., 2023a; Zhang et al., 2025b].</p>
