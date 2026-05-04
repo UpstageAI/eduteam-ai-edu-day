@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM 에이전트의 외재화(Externalization) — 한국어 심층 요약</title>
+  <style>
+:root {
+  --slide-w: 960px;
+  --slide-h: 540px;
+
+  --c-primary:       #5B52FF;
+  --c-primary-light: #9CA7FF;
+  --c-primary-pale:  #C2CBFF;
+  --c-primary-wash:  #DDE3FF;
+
+  --c-text:          #303030;
+  --c-text-dk:       #000000;
+  --c-text-subtle:   #595959;
+  --c-text-muted:    #787878;
+
+  --c-bg:            #FFFFFF;
+  --c-bg-warm:       #F4F4FF;
+  --c-bg-section:    #F9F9FF;
+  --c-separator:     #E5E5EA;
+
+  --c-accent-mem:    #2D7CDB;
+  --c-accent-skill:  #B6347C;
+  --c-accent-proto:  #1A8C7C;
+  --c-accent-harn:   #E07B00;
+
+  --fs-title:   38px;
+  --fs-hero:    32px;
+  --fs-heading: 22px;
+  --fs-sub:     17px;
+  --fs-body:    14px;
+  --fs-small:   12px;
+  --fs-micro:   10px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  color: var(--c-text);
+  background: #D0D0D0;
+}
+
+.slide-deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 36px 0;
+}
+
+.slide {
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  background: var(--c-bg);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 30px 36px 30px 36px;
+}
+
+.slide__pagenum {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  font-size: var(--fs-micro);
+  color: var(--c-text-subtle);
+  z-index: 5;
+}
+
+.slide__chip {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.05em;
+  color: var(--c-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.slide h1 {
+  margin: 0 0 6px 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.18;
+  color: var(--c-text-dk);
+}
+.slide h2 {
+  margin: 0 0 6px 0;
+  font-size: var(--fs-hero);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--c-text-dk);
+}
+.slide h3 {
+  margin: 14px 0 6px 0;
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--c-primary);
+  border-bottom: 2px solid var(--c-primary-pale);
+  padding-bottom: 4px;
+  display: inline-block;
+}
+.slide h4 {
+  margin: 8px 0 4px 0;
+  font-size: var(--fs-sub);
+  font-weight: 700;
+  color: var(--c-text-dk);
+}
+.slide p, .slide li {
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  margin: 4px 0;
+}
+.slide ul, .slide ol {
+  margin: 4px 0 6px 0;
+  padding-left: 18px;
+}
+.slide ul li::marker { color: var(--c-primary); }
+
+.slide--title {
+  background: var(--c-bg-warm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.slide--title .eyebrow {
+  font-size: var(--fs-small);
+  letter-spacing: 0.12em;
+  color: var(--c-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.slide--title h1 {
+  font-size: 40px;
+  line-height: 1.18;
+  margin-bottom: 10px;
+  color: #1A1A1A;
+}
+.slide--title .subtitle {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--c-text-subtle);
+  max-width: 760px;
+}
+.slide--title .meta {
+  position: absolute;
+  bottom: 38px;
+  left: 36px;
+  right: 36px;
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-small);
+  color: var(--c-text-subtle);
+}
+.slide--title::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 8px;
+  background: linear-gradient(90deg, #5B52FF, #9CA7FF, #B6347C);
+}
+
+.slide--section {
+  background: var(--c-bg-section);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.slide--section .chapnum {
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--c-primary-light);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.slide--section h2 {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+.slide--section .lede {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--c-text-subtle);
+  max-width: 720px;
+  margin-top: 6px;
+}
+
+.callout {
+  background: #F6F4FF;
+  border-left: 4px solid var(--c-primary);
+  padding: 8px 12px;
+  margin: 8px 0;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+.callout--mem    { background: #EEF4FB; border-color: var(--c-accent-mem); }
+.callout--skill  { background: #FBEEF4; border-color: var(--c-accent-skill); }
+.callout--proto  { background: #EAF6F2; border-color: var(--c-accent-proto); }
+.callout--harn   { background: #FBF2E6; border-color: var(--c-accent-harn); }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin-right: 4px;
+}
+.tag--mem    { background: #DCEBFB; color: #1F5D9F; }
+.tag--skill  { background: #FADCE8; color: #8E2360; }
+.tag--proto  { background: #D8EFEA; color: #126859; }
+.tag--harn   { background: #F8E2C2; color: #A85D00; }
+
+.cite {
+  color: var(--c-text-muted);
+  font-size: var(--fs-small);
+  font-style: italic;
+}
+
+.kw { color: var(--c-primary); font-weight: 700; }
+.en { color: var(--c-text-muted); font-size: 0.92em; font-style: italic; }
+
+table.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+  margin-top: 6px;
+}
+table.compare th, table.compare td {
+  border-bottom: 1px solid var(--c-separator);
+  padding: 5px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+table.compare th {
+  background: var(--c-bg-section);
+  color: var(--c-text-dk);
+  font-weight: 700;
+}
+
+.diagram {
+  border: 1px dashed var(--c-primary-light);
+  background: #FCFCFF;
+  padding: 8px;
+  font-size: var(--fs-small);
+  border-radius: 6px;
+  margin: 6px 0;
+}
+.diagram-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+.box {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--c-primary-wash);
+  color: var(--c-text-dk);
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.arrow { color: var(--c-primary); font-weight: 900; }
+  </style>
+</head>
+<body>
+<div class="slide-deck">
+
+<!-- ============== 1. TITLE ============== -->
+<section class="slide slide--title">
+  <div class="eyebrow">arXiv:2604.08224 · 한국어 심층 요약</div>
+  <h1>LLM 에이전트의 외재화 (Externalization)</h1>
+  <h1 style="font-size:26px; font-weight:500; color:#444;">메모리, 스킬, 프로토콜, 그리고 하니스 엔지니어링에 대한 통합적 리뷰</h1>
+  <p class="subtitle">"Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering" — Chenyu Zhou 외, 2026년 4월 9일 (Shanghai Jiao Tong University, Sun Yat-Sen University, Shanghai Innovation Institute, Carnegie Mellon University, OPPO)</p>
+  <div class="meta">
+    <span>Eduteam AI Edu Day · Upstage Education</span>
+    <span>이 요약은 <strong>Claude Code</strong>의 <code>/writing-team</code> 스킬로 작성되었습니다.</span>
+  </div>
+</section>
+
+<!-- ============== 2. ABSTRACT ============== -->
+<section class="slide">
+  <div class="slide__chip">Abstract · 초록</div>
+  <h2>한 줄 요약</h2>
+  <p style="font-size:16px; margin-top:6px;">"좋은 LLM 에이전트는 더 큰 모델이 아니라, <span class="kw">모델 주변의 인지적 부담을 외부 인프라로 옮긴(externalize) 시스템</span>이다."</p>
+
+  <h3>핵심 주장</h3>
+  <p>대규모 언어 모델(LLM) 에이전트는 점차 <em>가중치(weights)를 바꾸는 방식</em>이 아니라, <em>모델 주변의 런타임을 재조직하는 방식</em>으로 만들어진다. 이전 시스템이 모델 내부에서 회복하기를 기대했던 능력들이 이제는 외부의 <span class="kw">메모리 저장소, 재사용 가능한 스킬, 상호작용 프로토콜, 그리고 이들을 신뢰성 있게 묶어 주는 하니스(harness)</span>로 옮겨지고 있다.</p>
+
+  <h3>분석 프레임</h3>
+  <ul>
+    <li><strong>인지적 인공물(cognitive artifact)</strong> 이론(Norman, 1991/1993)을 차용하여, 외재화는 보조 부품을 추가하는 것이 아니라 <strong>모델이 직면하는 과제 자체를 변형</strong>하는 것이라고 본다.</li>
+    <li><strong>3가지 외재화 차원</strong>: 메모리는 <em>시간에 걸친 상태</em>를, 스킬은 <em>절차적 전문성</em>을, 프로토콜은 <em>상호작용 구조</em>를 외재화한다.</li>
+    <li><strong>하니스 엔지니어링</strong>은 이 셋을 통일된 실행 환경으로 결합한다.</li>
+  </ul>
+
+  <h3>이 논문이 제공하는 것</h3>
+  <p>가중치 → 컨텍스트 → 하니스로 이어지는 역사적 흐름의 추적, 메모리·스킬·프로토콜의 연결된 분석, 파라메트릭 능력과 외재화된 능력의 트레이드오프, 그리고 자가 진화 하니스, 공유 인프라, 평가 거버넌스 등의 미래 방향에 대한 시스템 차원 프레임워크.</p>
+  <div class="slide__pagenum">2</div>
+</section>
+
+<!-- ============== 3. WHY THIS PAPER ============== -->
+<section class="slide">
+  <div class="slide__chip">왜 이 논문이 중요한가</div>
+  <h2>"더 큰 모델"의 시대를 넘어서</h2>
+
+  <div class="callout">
+    인용 — Donald A. Norman: <em>"인지적 인공물의 힘은 표상(representation)으로서의 기능에서 나온다… 인지적 인공물은 인간의 능력을 바꾸는 것이 아니라 과제를 바꾼다."</em>
+  </div>
+
+  <h3>지금의 흐름</h3>
+  <ul>
+    <li>"실용 시스템에서 가장 큰 신뢰성 향상은 <strong>베이스 모델을 바꾼 데서 나온 것이 아니다</strong>". 영구 메모리 추가, 재사용 스킬의 조직화, 도구 인터페이스 표준화, 명시적 제어 로직을 통한 작업 라우팅 등 <strong>모델 주변 환경의 변화</strong>가 더 큰 차이를 만든다.</li>
+    <li>실무의 질문은 더 이상 "모델이 얼마나 강한가?"만이 아니라, "<strong>어떤 부담을 외부로 옮겨, 모델이 매번 내부에서 풀지 않아도 되게 했는가?</strong>"로 옮겨가고 있다.</li>
+  </ul>
+
+  <h3>맨몸의 LLM이 마주하는 세 가지 만성적 미스매치</h3>
+  <table class="compare">
+    <tr><th>문제</th><th>현상</th><th>해결 방향</th></tr>
+    <tr><td>연속성(continuity)</td><td>유한한 컨텍스트, 약하거나 부재한 세션 메모리</td><td><span class="tag tag--mem">메모리 외재화</span></td></tr>
+    <tr><td>변동성(variance)</td><td>긴 다단계 절차가 매번 재발명되어 일관성이 없음</td><td><span class="tag tag--skill">스킬 외재화</span></td></tr>
+    <tr><td>조정(coordination)</td><td>외부 도구·서비스·다른 에이전트와의 상호작용이 자유 형식 프롬프트 만으로는 깨지기 쉬움</td><td><span class="tag tag--proto">프로토콜 외재화</span></td></tr>
+  </table>
+  <div class="slide__pagenum">3</div>
+</section>
+
+<!-- ============== 4. SECTION INTRO: HUMAN-AGENT PARALLEL ============== -->
+<section class="slide">
+  <div class="slide__chip">Section 1 · Introduction</div>
+  <h2>인간 인지의 외재화 호(arc)와 LLM 에이전트의 평행</h2>
+
+  <h3>인간 외재화의 역사</h3>
+  <p>구어 → 문자 → 인쇄 → 디지털 계산. 각 전환에서 사적 사고는 공유 가능한 형태로 옮겨졌고, 기억·복제·조작은 <em>외부 매체</em>로 위임되었다. 인간이 약해진 것이 아니라 <strong>과제 자체가 재구조화</strong>된 것이다.</p>
+
+  <h3>LLM 에이전트의 평행 호</h3>
+  <ul>
+    <li><strong>가중치(Weights)</strong> — 능력이 모델 파라미터 안에 압축되어 있던 시기 (PaLM, InstructGPT, ROME 등)</li>
+    <li><strong>컨텍스트(Context)</strong> — 입력 설계로 행동을 바꾸던 시기 (CoT, RAG, Self-Refine 등)</li>
+    <li><strong>하니스(Harness)</strong> — 영속적 인프라가 능력을 분배하는 현재 (Auto-GPT, MetaGPT, AutoGen, MCP, A2A, Voyager 등)</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Norman의 표상적 변형(representational transformation):</strong>
+    회상(recall) → 인식(recognition), 즉흥적 생성 → 합성(composition), 임시방편 조정 → 구조화된 계약(contract). 이것이 메모리·스킬·프로토콜이 각각 수행하는 표상적 변형이다.
+  </div>
+
+  <h3>구체적 예시 — 소프트웨어 엔지니어링 에이전트</h3>
+  <p>외재화 없이는 모델이 저장소 구조, 프로젝트 컨벤션, 워크플로 상태, 도구 호출 상태 모두를 깨지기 쉬운 프롬프트 안에 들고 있어야 한다. 외재화하면, 영구 프로젝트 메모리가 컨텍스트를 공급하고, 재사용 가능한 스킬 문서가 컨벤션과 워크플로를 인코딩하며, 프로토콜화된 도구 인터페이스가 올바른 스키마를 강제하고, 하니스가 단계를 시퀀싱·검증·실패 처리한다. <strong>베이스 모델은 그대로지만, 모델이 풀어야 할 과제의 표상이 달라진다.</strong></p>
+  <div class="slide__pagenum">4</div>
+</section>
+
+<!-- ============== 5. FOUR CLAIMS ============== -->
+<section class="slide">
+  <div class="slide__chip">논문의 네 가지 주장</div>
+  <h2>네 가지 시스템 차원 주장</h2>
+
+  <div class="two-col">
+    <div>
+      <div class="callout callout--mem">
+        <span class="tag tag--mem">메모리</span><br>
+        <strong>시간을 가로질러 상태를 외재화하고, 장기 연속성을 선택적 검색(selective retrieval)으로 변환한다.</strong>
+      </div>
+      <div class="callout callout--skill">
+        <span class="tag tag--skill">스킬</span><br>
+        <strong>절차적 전문성을 외재화하고, 암묵적 노하우를 명시적·재사용 가능한 운영 지침으로 변환한다.</strong>
+      </div>
+    </div>
+    <div>
+      <div class="callout callout--proto">
+        <span class="tag tag--proto">프로토콜</span><br>
+        <strong>상호작용 구조를 외재화하고, 모호한 의사소통을 상호운용 가능한 기계 판독 계약으로 변환한다.</strong>
+      </div>
+      <div class="callout callout--harn">
+        <span class="tag tag--harn">하니스</span><br>
+        <strong>위 세 가지 외재화 모듈을 제약, 관찰가능성, 피드백 루프, 제어점을 갖는 일관된 런타임 환경으로 통합한다.</strong>
+      </div>
+    </div>
+  </div>
+
+  <h3>본 요약의 구조</h3>
+  <p>이하의 슬라이드에서는 이 네 가지 차원을 각각 (1) 무엇을 외재화하는가, (2) 어떻게 구조화되었는가, (3) 하니스 안에서 어떻게 결합되는가, (4) 인지적 인공물 관점에서의 해석 순으로 추적한다. 마지막으로 외재화의 트레이드오프, 자가 진화 하니스, 공유 인프라, 그리고 측정·거버넌스 문제를 다룬다.</p>
+  <div class="slide__pagenum">5</div>
+</section>
+
+<!-- ============== 6. SECTION 2: WEIGHTS → CONTEXT → HARNESS ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">02</div>
+  <h2>가중치에서 컨텍스트, 하니스로</h2>
+  <p class="lede">LLM 에이전트의 최근 역사는 모델 자체로부터 점차 바깥으로 향하는 진보적 운동으로 읽을 수 있다. 능력이 처음에는 가중치의 속성으로, 다음에는 프롬프트와 컨텍스트의 속성으로, 그리고 이제는 모델이 동작하는 더 넓은 인프라의 속성으로 다루어진다.</p>
+</section>
+
+<!-- ============== 7. CAPABILITY IN WEIGHTS ============== -->
+<section class="slide">
+  <div class="slide__chip">2.1 Capability in Weights</div>
+  <h2>가중치 속의 능력 — 그리고 그 한계</h2>
+
+  <h3>가중치 시대의 강점</h3>
+  <p>대규모 코퍼스에 대한 사전학습은 광범위한 통계적 규칙성, 세계 지식, 잠재적 추론 습관을 모델 파라미터에 압축했다. 스케일링 법칙은 파라미터·데이터·손실 사이의 예측 가능한 관계를 보였고, GPT-4·Gemini·DeepSeek-V3·Qwen2.5는 광범위한 다중 작업 능력을 보여주었다. SFT·RLHF·DPO를 통한 정렬도 이 시대의 일부다. <strong>"더 좋은 에이전트 = 더 좋은 모델"</strong>이라는 서사가 지배했다.</p>
+
+  <h3>가중치 시대의 한계</h3>
+  <ul>
+    <li><strong>지식·절차·정책의 강결합</strong>: 단일 사실(예: 한 나라의 현 국가원수)도 갱신하려면 재학습이나 지식 편집(knowledge editing)이 필요하고 부작용 위험이 크다.</li>
+    <li><strong>감사 가능성의 부재</strong>: 왜 모델이 그렇게 행동했는지를 수십억 파라미터에 분산된 형태로 추적하기 어렵다.</li>
+    <li><strong>개인화의 어색함</strong>: 단일 가중치가 수백만 사용자의 다른 이력·선호·제약을 동시에 반영해야 한다.</li>
+  </ul>
+
+  <h3>왜 이것이 외재화로 이어졌는가</h3>
+  <p>에이전트가 단발성 단일 턴 응답에서 <strong>장기 과제 실행</strong>으로 옮겨가자, 가중치 안에서 지식·스킬·상호작용 규칙을 모듈식으로 관리하는 일이 운영적으로 부담이 되었다. 이는 일부 부담을 다음 층(컨텍스트)으로 옮기게 만든다.</p>
+  <div class="slide__pagenum">7</div>
+</section>
+
+<!-- ============== 8. CAPABILITY IN CONTEXT ============== -->
+<section class="slide">
+  <div class="slide__chip">2.2 Capability in Context</div>
+  <h2>컨텍스트 속의 능력</h2>
+
+  <h3>주요 기법들</h3>
+  <ul>
+    <li><strong>Prompt Engineering</strong>: Few-shot, 역할 부여, Self-Consistency.</li>
+    <li><strong>Chain-of-Thought / ReAct / Tree-of-Thoughts</strong>: 추론 흔적과 행동을 단일 생성 루프 안에 엮음. 모델 변경 없이 에이전트 같은 행동을 산출.</li>
+    <li><strong>Self-Refine, APE, OPRO</strong>: 모델 스스로가 프롬프트 공간을 탐색하도록.</li>
+    <li><strong>Retrieval-Augmented Generation (RAG)</strong>: 질의 시점에 외부 문서를 컨텍스트에 동적으로 주입함으로써 외재화의 보다 체계적 형태를 도입.</li>
+  </ul>
+
+  <h3>표상적 해석</h3>
+  <p>컨텍스트 단계는 <strong>회상(recall)을 인식(recognition)으로</strong> 변환한다. "모델이 사실 X를 아는가?"가 "사실 X가 컨텍스트에 놓였을 때 모델이 사용할 수 있는가?"로 바뀐다. 이는 인간 외재화 호의 글쓰기 단계와 평행하다.</p>
+
+  <h3>컨텍스트의 한계</h3>
+  <ul>
+    <li><strong>유한·고비용</strong>이고 잡음에 취약. "Lost in the middle" 현상.</li>
+    <li><strong>일시적</strong>: 외부 어딘가에 명시적으로 외재화하지 않는 한, 새 세션은 부분적 기억상실로 시작.</li>
+    <li>단발 프롬프트만으로는 다단계 워크플로 스케줄링, 서브에이전트 조정, 부분 실패 복구, 시간에 걸친 행동 제약을 시스템 차원에서 보장할 수 없다.</li>
+  </ul>
+  <div class="slide__pagenum">8</div>
+</section>
+
+<!-- ============== 9. CAPABILITY THROUGH INFRASTRUCTURE ============== -->
+<section class="slide">
+  <div class="slide__chip">2.3 Capability through Infrastructure</div>
+  <h2>인프라로서의 능력 — 하니스의 등장</h2>
+
+  <h3>핵심 변화</h3>
+  <p>"모델에게 무엇을 말할까?"에서 "<strong>모델이 어떤 환경에서 동작해야 할까?</strong>"로 엔지니어링의 무게중심이 이동. 영구적 메모리 저장소, 도구 레지스트리, 프로토콜 정의, 샌드박스, 서브에이전트 오케스트레이션, 압축 파이프라인, 평가자(evaluator), 테스트 하니스, 승인 루프 등이 신뢰성을 만든다.</p>
+
+  <h3>대표 시스템</h3>
+  <ul>
+    <li><strong>초기</strong>: Auto-GPT, BabyAGI — 작업 큐 + 영속 메모리 + 웹 접근으로 단일 프롬프트로는 불가능한 행동을 지탱.</li>
+    <li><strong>프레임워크</strong>: AutoGen(다중 에이전트 메시지 교환), MetaGPT(역할 기반 협업·명시적 절차), CAMEL(작업 분해 대화), Reflexion(에피소드를 가로지르는 피드백).</li>
+    <li><strong>코드 에이전트</strong>: SWE-Agent, OpenHands — 파일/쉘/버전관리·테스트·재사용 스킬을 갖춘 개발 하니스에 모델을 임베드.</li>
+    <li><strong>리서치/엔터프라이즈</strong>: Deep Research 스타일 시스템 — 검색·승인·장기 오케스트레이션.</li>
+    <li><strong>임베디드/워크플로</strong>: Voyager, LangGraph, CrewAI, OS-Copilot — 제어 흐름·환경 접근·재사용을 명시적으로.</li>
+  </ul>
+
+  <div class="callout callout--harn">
+    핵심 관찰: 신뢰성 문제는 점점 <strong>프롬프트가 아니라 환경을 바꿔서</strong> 풀린다. "에이전트 엔지니어링"이 점점 "<strong>하니스 엔지니어링</strong>"의 형태를 띤다.
+  </div>
+  <div class="slide__pagenum">9</div>
+</section>
+
+<!-- ============== 10. EXTERNALIZATION AS TRANSITION LOGIC ============== -->
+<section class="slide">
+  <div class="slide__chip">2.4 Externalization as the Transition Logic</div>
+  <h2>전이 논리(transition logic)로서의 외재화</h2>
+
+  <h3>요약</h3>
+  <table class="compare">
+    <tr><th>차원</th><th>외재화 결과(Norman의 변환)</th></tr>
+    <tr><td>가변 지식</td><td>가중치 → 검색 시스템과 런타임 컨텍스트로. <strong>회상 → 인식</strong>.</td></tr>
+    <tr><td>재사용 절차</td><td>암묵적 습관 → 명시적 스킬로. <strong>즉흥 생성 → 구조화된 합성</strong>.</td></tr>
+    <tr><td>상호작용 규칙</td><td>임시방편 프롬프트 → 프로토콜로. <strong>모호한 조정 → 통제된 계약</strong>.</td></tr>
+    <tr><td>런타임 신뢰성</td><td>모델 내부 → 하니스 로직으로 (제약, 관찰가능성, 피드백 루프).</td></tr>
+  </table>
+
+  <h3>왜 외재화인가</h3>
+  <p>LLM은 제공된 정보 위에서의 유연한 합성과 추론에 강하지만, <strong>안정적 장기 메모리, 절차의 반복가능성, 외부 시스템과의 통제된 상호작용</strong>에서는 약하다. 외재화는 모델을 대체하는 것이 아니라 모델을 둘러싼 <strong>더 큰 인지 시스템</strong>을 구성한다 (CoALA의 관점과 일치).</p>
+
+  <h3>본 절의 결론</h3>
+  <p>메모리는 <strong>시간에 걸친 연속성</strong>을, 스킬은 <strong>절차의 일관성</strong>을, 프로토콜은 <strong>상호작용의 구조</strong>를 다룬다. 다음 세 절(3·4·5)은 각각을 자세히 분석하고, 6절은 이들을 묶는 하니스를 다룬다.</p>
+  <div class="slide__pagenum">10</div>
+</section>
+
+<!-- ============== 11. SECTION 3: MEMORY ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">03</div>
+  <h2>외재화된 상태: 메모리</h2>
+  <p class="lede">메모리 외재화는 에이전시의 <strong>시간적 부담(temporal burden)</strong>을 다룬다. 맨몸의 언어 모델은 연속성, 사전 경험, 사용자 특화 사실, 부분 완료 작업을 모두 일시적 프롬프트 안에 떠안아야 한다. 메모리는 이 부담을 모델 외부의 <strong>쓰기·갱신·검색이 가능한 영구 상태</strong>로 옮긴다.</p>
+</section>
+
+<!-- ============== 12. WHAT IS EXTERNALIZED IN MEMORY ============== -->
+<section class="slide">
+  <div class="slide__chip">3.1 What Is Externalized: 상태의 내용</div>
+  <h2>외재화되는 4가지 상태 차원</h2>
+
+  <div class="two-col">
+    <div>
+      <h4 style="color:var(--c-accent-mem);">① 작업 컨텍스트(Working context)</h4>
+      <p>현재 과제의 <em>라이브 중간 상태</em>. 열린 파일, 임시 변수, 활성 가설, 부분 계획, 실행 체크포인트. 외재화하지 않으면 컨텍스트 윈도우 리셋과 함께 사라진다. OpenHands·SWE-스타일 에이전트는 초안·터미널 상태·워크스페이스 산출물을 프롬프트 밖에 물질화하여 처음부터 재구성하지 않고 재개한다.</p>
+
+      <h4 style="color:var(--c-accent-mem);">② 에피소드 경험(Episodic experience)</h4>
+      <p>과거 실행에서 <em>실제로 일어난 일</em>의 기록 — 결정점, 도구 호출, 실패, 결과, 반성. Reflexion은 실패한 시도의 반성 요약을 재사용 경험으로 저장. AriGraph는 미지의 환경에서의 로컬 상호작용 궤적을 에피소드 메모리로 다룬다.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--c-accent-mem);">③ 의미 지식(Semantic knowledge)</h4>
+      <p>한 에피소드를 넘어서 살아남는 <em>추상</em> — 도메인 사실, 일반 휴리스틱, 프로젝트 컨벤션, 안정된 세계 지식. 현재는 KB와 RAG 코퍼스가 가장 흔한 형태. 점차 누적된 궤적으로부터 의미적 지침을 증류하는 방향으로 진화 중.</p>
+
+      <h4 style="color:var(--c-accent-mem);">④ 개인화 메모리(Personalized memory)</h4>
+      <p>특정 사용자·팀·환경에 대한 안정 정보 — 선호, 습관, 반복 제약, 사전 상호작용. 일반 자기 개선 저장소와 합치지 말아야 한다. IFRAgent는 모바일 환경에서의 시연으로부터 사용자 습관 저장소를 구축. VARS는 세션 간 선호 카드를 격리된 사용자 메모리 공간에 저장.</p>
+    </div>
+  </div>
+
+  <p style="margin-top:8px;"><span class="cite">반복적 절차 규칙성은 처음에는 에피소드 흔적의 패턴으로 보이지만, 하니스가 그것을 명시적 재사용 지침으로 승격(promote)하는 순간 메모리가 아니라 스킬 층에 속하게 된다.</span></p>
+  <div class="slide__pagenum">12</div>
+</section>
+
+<!-- ============== 13. MEMORY ARCHITECTURES ============== -->
+<section class="slide">
+  <div class="slide__chip">3.2 How It Is Externalized: 메모리 아키텍처</div>
+  <h2>4가지 아키텍처 패러다임 — 저장에서 제어로</h2>
+
+  <h3>① Monolithic Context (단일체 컨텍스트)</h3>
+  <p>모든 관련 이력 또는 그 요약이 프롬프트 안에 직접 잔류. 프로토타이핑 쉬움. 한계: 용량 확장 불가, 요약 드리프트, 세션 종료시 상태 소실.</p>
+
+  <h3>② Context with Retrieval Storage (컨텍스트 + 검색 저장)</h3>
+  <p>근접 작업 상태만 컨텍스트에 두고, 장기 흔적은 외부에 저장 후 필요 시 검색. 대부분의 코파일럿·코딩 에이전트의 지배적 패턴. 검색 품질 문제로 전이됨. <strong>GraphRAG</strong>(그래프 구조와 커뮤니티 검색), <strong>ENGRAM</strong>(잠재 상태 표상으로의 압축), <strong>SYNAPSE</strong>(에피소드-의미 그래프 위의 활성화 확산) 등이 이 병목을 공격.</p>
+
+  <h3>③ Hierarchical Memory and Orchestration (계층적 메모리·오케스트레이션)</h3>
+  <ul>
+    <li><strong>Mem0, Memory-R1, Mem-α</strong>: 추출·통합·망각의 명시적 연산을 도입, 메모리를 수동 저장소가 아닌 <em>관리되는 라이프사이클</em>로 전환.</li>
+    <li><strong>시공간 차원 자원 분리</strong>: MemGPT, MemoryOS — 핫 작업 상태와 콜드 장기 저장 분리, 컨텍스트 예산을 동적으로 스왑.</li>
+    <li><strong>인지 기능 차원 의미 분리</strong>: MemoryBank, MIRIX — 사건·사용자 프로필·세계 지식을 분리. MemOS — 명시·암묵 메모리 구분. xMemory — 토픽-사건 계층.</li>
+  </ul>
+
+  <h3>④ Adaptive Memory Systems (적응형 메모리)</h3>
+  <ul>
+    <li><strong>Dynamic modules</strong>: MemEvolve — 인코딩·저장·검색·관리 모듈 분리·동적 진화. MemVerse — 단기 캐시 + 다중모달 지식그래프 + 주기적 증류.</li>
+    <li><strong>Feedback-based strategy</strong>: MemRL — 비파라메트릭 RL로 검색 행동 갱신. Zhang et al. 2025c — MoE 게이팅으로 동적 라우팅. GAM — 다중 라운드 상호작용으로 검색 조건 정련.</li>
+  </ul>
+  <div class="slide__pagenum">13</div>
+</section>
+
+<!-- ============== 14. MEMORY DEMANDS / COGNITIVE ARTIFACT ============== -->
+<section class="slide">
+  <div class="slide__chip">3.3–3.4 메모리의 하니스 요구 · 인지적 인공물</div>
+  <h2>메모리는 결국 "관리되는 상태 인프라"이다</h2>
+
+  <h3>하니스 시대의 메모리 요구</h3>
+  <ul>
+    <li><strong>상태와 컨텍스트의 명시적 분리</strong> 필요. 매우 긴 시간 지평에서 무제한 누적은 주의 메커니즘을 흐트러트린다. <strong>InfiAgent</strong>는 파일 시스템을 권위 있는 상태 기록으로 사용 — 매 결정 단계에서 모델은 긴 이력을 읽는 게 아니라 <em>워크스페이스 큐레이팅 스냅샷</em>과 최근 행동만 읽음.</li>
+    <li><strong>스킬 시스템과 통합</strong>: 메모리는 사전 실행의 증거를 저장; 스킬은 그 증거 일부가 명시적 재사용 절차로 <em>승격</em>될 때 시작. 반대로 모든 스킬 실행은 메모리에 기록되어야 한다.</li>
+    <li><strong>프로토콜과의 결합</strong>: 도구 결과·승인 이벤트·위임 결과는 정규화·검증되어 영속 상태로 쓰여질 때만 메모리가 된다. 반대로 메모리 검색은 다음 프로토콜 경로 선택에 영향.</li>
+    <li><strong>공유와 거버넌스</strong>: 다중 에이전트가 공통 외재 상태에 의존하면 읽기/쓰기 권한, 충돌 해소, 접근 쿼터 같은 OS 수준의 제어가 필수가 된다.</li>
+  </ul>
+
+  <h3>3.4 인지적 인공물로서의 메모리</h3>
+  <div class="callout callout--mem">
+    "성공 기준은 더 이상 '얼마나 많이 저장했는가?'가 아니라 '<strong>현재 결정을 더 명료하게 만들었는가?</strong>'이다."
+  </div>
+  <p>방대하지만 검색이 약한 시스템은 잘못된 표상으로 모델을 마주치게 한다. 적당한 저장이라도 강한 인덱싱·요약·문맥 선택을 갖추면 하류 추론이 실질적으로 쉬워진다. <strong>실패 모드</strong>는 표상 설계의 실패다 — stale memory(과제 표상이 낡음), over-abstracted, under-abstracted, poisoned/conflicting memory.</p>
+  <div class="slide__pagenum">14</div>
+</section>
+
+<!-- ============== 15. SECTION 4: SKILLS ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">04</div>
+  <h2>외재화된 전문성: 스킬</h2>
+  <p class="lede">스킬 외재화는 에이전시의 <strong>절차적 부담(procedural burden)</strong>을 다룬다. 모델은 원리적으로는 작업을 풀 줄 알지만, 신뢰성 있는 실행은 매번 워크플로·기본값·제약을 재구성해야 한다. 이 부담은 작업 길이·환경 특수성·분기 의사결정 수에 따라 커지며, 단계 누락·불안정한 도구 사용·일관성 없는 종료 조건으로 드러난다.</p>
+</section>
+
+<!-- ============== 16. WHAT IS EXTERNALIZED IN SKILLS ============== -->
+<section class="slide">
+  <div class="slide__chip">4.1 What is Externalized: 절차적 전문성</div>
+  <h2>스킬의 3가지 결합 구성요소</h2>
+
+  <h3>① Operational Procedure (운영 절차)</h3>
+  <p>복잡한 작업의 <em>스켈레톤</em>: 단계·국면·의존성·종료 조건의 분해. LLM 에이전트의 흔한 실패는 행동 수준 무능이 아니라, <strong>절차 수준의 불안정</strong>(누락된 단계, 잘못된 순서, 조기 종료)이다. CoT는 추론을 명시화했고, ReAct는 추론과 행동을 결합했지만, 어느 것도 <em>지속성</em>을 갖지 못했다 — 그 절차는 현재 실행 안에만 존재. 스킬 시스템은 이를 저장·수정·재적용 가능한 산출물로 전환한다.</p>
+
+  <h3>② Decision Heuristics (결정 휴리스틱)</h3>
+  <p>분기에서 <em>무엇을 할지 결정</em>하는 규칙. 도구 실패·관찰 잡음·여러 선택지가 모두 그럴듯한 상황에서 좋은 성능은 <strong>경험에서 도출된 실용적 경험칙</strong>에 의존한다. 외재화하면 매 분기마다 모델이 로컬 선택을 재발견할 필요가 없어진다. <strong>휴리스틱은 부수적 편의가 아니라, 스킬이 전문가 스타일을 포착하는 핵심 수단</strong>이다.</p>
+
+  <h3>③ Normative Constraints (규범 제약)</h3>
+  <p>절차가 <em>수용 가능한 것으로 간주되는 조건</em>. 워크플로가 기술적으로 작동해도 비준수·비안전·운영 잘못일 수 있다. 테스트 요구, 범위 제한, 접근 제한, 추적성 기대, 도메인별 운영 규칙. 외재화 후에는 단순한 사후 평가 기준이 아니라 <strong>스킬 자체의 일부</strong>가 된다 — 전제조건 형성, 위험 분기 차단, 중간 검증 요구. <em>스킬은 능력의 운반자만이 아니라 거버넌스의 운반자가 된다.</em></p>
+  <div class="slide__pagenum">16</div>
+</section>
+
+<!-- ============== 17. EXECUTION → SKILL EVOLUTION ============== -->
+<section class="slide">
+  <div class="slide__chip">4.2 From Execution Primitives to Capability Packages</div>
+  <h2>도구 사용에서 스킬로의 3단계 진화</h2>
+
+  <div class="diagram">
+    <div class="diagram-row">
+      <span class="box">Stage 1<br>원자적 실행 프리미티브</span>
+      <span class="arrow">→</span>
+      <span class="box">Stage 2<br>대규모 프리미티브 선택</span>
+      <span class="arrow">→</span>
+      <span class="box">Stage 3<br>패키지화된 전문성</span>
+    </div>
+  </div>
+
+  <h3>Stage 1 — 원자적 실행 프리미티브</h3>
+  <p>구조화된 도구 호출, 함수 호출 인터페이스. <strong>Toolformer</strong>가 대표적: 모델이 도구를 언제 호출할지, 인자를 어떻게 만들지, 결과를 어떻게 통합할지 학습. 안정적 <em>원자적 행동 단위</em>가 핵심 성취. 그러나 이는 <strong>스킬이 아니다</strong> — 단위가 행동 프리미티브이지 절차가 아니다.</p>
+
+  <h3>Stage 2 — 대규모 프리미티브 선택</h3>
+  <p><strong>Gorilla, ToolLLM, ToolNet, ToolScope, AutoTool</strong>: 거대한 도구 컬렉션에서 검색·랭킹·동적 선택. 확장 가능한 행동 선택의 큰 진보. 그러나 단위는 여전히 <strong>도구</strong>이지 절차가 아니다. 다단계 행동이 보이기 시작해도, 노하우는 프롬프트나 파라미터에 암묵적으로 머문다.</p>
+
+  <h3>Stage 3 — 패키지화된 전문성</h3>
+  <p>중심 질문이 "모델이 적절한 API를 호출/검색할 수 있는가?"가 아니라 "<strong>한 부류의 작업을 완수하는 노하우를 재사용 능력 단위로 패키지화할 수 있는가?</strong>"로 이동. 능력의 기본 단위가 <strong>고립된 도구 호출이 아니라 재사용 절차 지침과 실행 구조 중심의 고수준 산출물</strong>이 된다.</p>
+  <ul>
+    <li><strong>프로그램 기반 스킬 유도</strong>: 프리미티브를 더 높은 수준의 재사용 스킬로 컴파일.</li>
+    <li><strong>웹 환경</strong>: 상호작용 궤적을 재사용 가능한 스킬 라이브러리·API로 증류.</li>
+    <li><strong>컴퓨터 사용 설정</strong>: SOP 가이드 에이전트 — 파라미터화 실행, 합성 그래프, 검색·인자 인스턴스화·실패 복구가 스킬 수준에서 동작.</li>
+  </ul>
+  <div class="slide__pagenum">17</div>
+</section>
+
+<!-- ============== 18. HOW SKILLS ARE EXTERNALIZED ============== -->
+<section class="slide">
+  <div class="slide__chip">4.3 How Skills Are Externalized — 표상 + 런타임 5요소</div>
+  <h2>스킬 외재화의 5가지 층</h2>
+
+  <h3>① Specification (명세)</h3>
+  <p><code>SKILL.md</code>, 매니페스트, 선언적 명세 산출물. 스킬 명세는 API <em>구현</em>이라기보다 API <em>문서</em>에 가깝다. 잘 만들어진 명세는 <strong>능력 경계, 적용 범위, 전제조건, 실행 제약, 예시·반례</strong>를 다룬다.</p>
+
+  <h3>② Discovery (발견)</h3>
+  <p>로컬 저장소·조직 레지스트리·플랫폼 마켓플레이스에 게시. 작업 목표·컨텍스트 상태·환경 조건에 따라 후보를 검색. 핵심은 <strong>"어떤 도구를 호출할 수 있는가"가 아니라 "현재 문제에 어떤 절차적 전문성 단위가 적합한가"</strong>를 묻는다는 것.</p>
+
+  <h3>③ Progressive Disclosure (점진적 공개)</h3>
+  <p>긴 컨텍스트가 항상 좋은 성능을 의미하지 않으므로, 스킬 시스템은 <strong>존재 → 짧은 매니페스트 → 전체 가이드</strong> 순으로 단계적으로 노출. <em>Claude Code의 스킬 시스템</em>이 이 패턴의 산업 구현 사례. 정보 밀도를 작업 복잡도에 맞춘다.</p>
+
+  <h3>④ Execution Binding (실행 바인딩)</h3>
+  <p>스킬은 행동 실행자가 아니다. 도구·파일·API·서브에이전트·프로토콜 엔드포인트 같은 <strong>하위 런타임 기질</strong>에 묶여야 실제 작업이 된다. 도구가 실행 가능한 연산을, 프로토콜이 그 연산이 어떻게 기술·호출되는지를, 스킬이 이들을 결합하는 고수준 전략을 제공한다. <strong>MCP 같은 스키마 기반 인터페이스</strong>가 이 런타임 바인딩을 지원.</p>
+
+  <h3>⑤ Composition (합성)</h3>
+  <p>원자적 도구와 달리, 스킬은 <strong>고차원 구조적 조정</strong>에 참여 가능 — 직렬, 병렬 분업, 조건 라우팅, 재귀 호출. 합성은 단순한 절차 단편의 연결이 아니라 <strong>절차 전문성 자체의 재사용</strong>이다. 데이터 분석 보고서 스킬은 데이터 정제·통계·시각화·서사 합성의 작은 스킬들의 조정된 합성으로 구성될 수 있다.</p>
+  <div class="slide__pagenum">19</div>
+</section>
+
+<!-- ============== 19. SKILL ACQUISITION & BOUNDARY ============== -->
+<section class="slide">
+  <div class="slide__chip">4.4–4.5 스킬 획득 · 경계 조건</div>
+  <h2>스킬은 어떻게 생기고 왜 자주 깨지는가</h2>
+
+  <h3>4.4 4가지 획득 경로</h3>
+  <ul>
+    <li><strong>Authored (저작)</strong> — SKILL.md, AGENTS.md, 조직 SOP 템플릿. 가장 흔한 안정 경로. 반복 실패 패턴을 발견하면 엔지니어가 명시 제약을 추가.</li>
+    <li><strong>Distilled (증류)</strong> — 과거 궤적·실행 흔적에서 유도. <strong>Skill Set Optimization</strong>은 보상 부분궤적에서 전이 가능 절차를 추출. <strong>MemSkill</strong>은 메모리 연산 자체를 학습 가능 스킬로 재구성.</li>
+    <li><strong>Discovered (발견)</strong> — 환경 상호작용을 통한 자율 발견. <strong>Voyager</strong>(마인크래프트)가 영향력 있는 사례 — 탐험·실행 피드백·자기 검증·교육과정이 결합되어 끊임없이 자라는 실행 가능 코드 라이브러리를 산출. <strong>PolySkill</strong>은 추상 목표와 구체 구현을 분리해 재사용을 향상.</li>
+    <li><strong>Composed (합성)</strong> — 기존 하위 스킬의 새로운 조합으로 더 큰 스킬을 구성. 합성은 실행 전략이자 <strong>획득 메커니즘</strong>이기도 하다.</li>
+  </ul>
+
+  <h3>4.5 경계 조건 (왜 깨지는가)</h3>
+  <table class="compare">
+    <tr><th>경계</th><th>설명</th></tr>
+    <tr><td>의미 정렬</td><td>스킬의 문자적 표현은 따르지만 진짜 작업 의도를 놓치는 의미-행동 불일치. <strong>SkillProbe</strong>가 마켓플레이스에서 이를 식별.</td></tr>
+    <tr><td>이식성·노후화</td><td>웹사이트·API·의존성·런타임 컨벤션 변경. <strong>SkillsBench</strong>: 도메인·모델 구성에 따라 효용이 크게 변동.</td></tr>
+    <tr><td>안전하지 않은 합성</td><td>개별로는 무해해도 결합 시 위험. 프롬프트 인젝션, 데이터 유출, 권한 상승, 공급망 공격. 합성을 <strong>보안 민감 프로세스</strong>로 다뤄야.</td></tr>
+    <tr><td>컨텍스트 의존 열화</td><td>잔존 세션 컨텍스트·캐시된 요약·강화된 행동 패턴 때문에 갱신된 스킬이 무시됨. 너무 상세한 가이드는 글로벌 작업 추적을 방해.</td></tr>
+  </table>
+  <div class="slide__pagenum">21</div>
+</section>
+
+<!-- ============== 20. SKILLS IN HARNESS, COGNITIVE ARTIFACT ============== -->
+<section class="slide">
+  <div class="slide__chip">4.6–4.7 하니스 안의 스킬 · 인지적 인공물</div>
+  <h2>스킬은 단독 산출물로 평가될 수 없다</h2>
+
+  <h3>4.6 하니스 안에서의 운영성</h3>
+  <ul>
+    <li><strong>메모리에 조건화</strong>: 하니스가 작업 이력·결과·사용자 컨텍스트·환경 제약을 메모리에 질의 → 어떤 스킬을 로드할지, 어떤 파라미터를 인스턴스화할지, 어떤 분기를 선호할지 결정. 메모리가 없으면 스킬 선택은 <strong>키워드 매칭</strong>으로 전락.</li>
+    <li><strong>프로토콜을 통한 바인딩</strong>: 도구 스키마, 서브에이전트 위임 계약, 파일 연산, 승인 워크플로. 스킬은 무엇을 할지, 프로토콜은 어떻게 행해지는지를 명시.</li>
+    <li><strong>런타임 거버넌스</strong>: 민감 작업 권한 검사, 고위험 단계 승인 게이트, 어떤 스킬이 어떤 행동을 산출했는지 감사 로깅, 다단계 절차 중 실패 시 롤백.</li>
+    <li><strong>라이프사이클 피드백</strong>: 실행 흔적·성공률·실패 패턴이 메모리로 다시 기록 → 스킬 수정·폐기·새 후보 승격 트리거. 하니스는 스킬을 단순히 호스트하는 것이 아니라 <strong>개선의 피드백 인프라</strong>를 제공.</li>
+  </ul>
+
+  <h3>4.7 인지적 인공물로서의 스킬</h3>
+  <div class="callout callout--skill">
+    스킬은 단지 더 많은 정보를 추가하는 것이 아니라 <strong>능력이 조직되는 방식을 바꾼다</strong>. 절차적 전문성은 검사·수정·합성 가능한 구조로 모델 외부의 불투명한 파라미터 공간으로부터 빠져나온다.
+  </div>
+  <p>모델의 부담은 <em>매번 절차를 처음부터 재구성하는 것</em>에서 <em>적합한 스킬을 선택해 컨텍스트에 맞춰 적용·예외 처리</em>하는 것으로 이동한다. <strong>Kirsh의 보완 전략</strong>(complementary strategies) 관점: 모델 내부에서 더 열심히 사고하기보다 외부 환경을 재조직해 인지 작업의 일부를 거기로 떠넘긴다.</p>
+  <div class="slide__pagenum">23</div>
+</section>
+
+<!-- ============== 21. SECTION 5: PROTOCOLS ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">05</div>
+  <h2>외재화된 상호작용: 프로토콜</h2>
+  <p class="lede">프로토콜은 에이전시의 <strong>상호작용 부담(interaction burden)</strong>을 외재화한다. 메시지 형식, 인자 구조, 라이프사이클 의미, 권한, 복구 행동을 모델이 즉흥적으로 추론해야 한다면, 모든 외부 행동은 깨지기 쉬운 프롬프트 추적 연습이 된다. 표상의 전환은 <strong>자유 형식 의사소통 추론에서 구조화된 교환으로</strong>이다.</p>
+</section>
+
+<!-- ============== 22. WHAT PROTOCOLS EXTERNALIZE ============== -->
+<section class="slide">
+  <div class="slide__chip">5.1 무엇을 / 왜 프로토콜이 외재화하는가</div>
+  <h2>프로토콜이 외재화하는 4가지 차원 + 3대 이점</h2>
+
+  <h3>외재화의 4차원</h3>
+  <ul>
+    <li><strong>호출 문법(Invocation grammar)</strong> — 인자 이름·타입·순서·반환 구조. 도구 호출, API 요청, 위임 메시지의 형식.</li>
+    <li><strong>라이프사이클 의미</strong> — 누가 다음에 행동, 어떤 상태 전이가 허용, 작업 완료/실패 기준. 상태 머신·이벤트 스트림.</li>
+    <li><strong>권한·신뢰 경계</strong> — 누가 인가되며, 어떤 데이터 흐름이 허용되며, 어떤 증거가 산출되어야 하는지의 검사 가능 규칙.</li>
+    <li><strong>발견 메타데이터</strong> — 어떤 능력이 가용한지·어떻게 도달하는지를 레지스트리·능력 카드·스키마 엔드포인트로 노출.</li>
+  </ul>
+
+  <h3>왜 중요한가 — 3대 이점</h3>
+  <table class="compare">
+    <tr><th>이점</th><th>의미</th></tr>
+    <tr><td>통합 상호작용 표준</td><td>도구·에이전트·프론트엔드를 위한 <strong>공유 문법</strong> 제공. 안정적 다중 에이전트 협업의 전제 조건.</td></tr>
+    <tr><td>보안·거버넌스·감사 가능성</td><td>권한, 신원, 실행 흔적, 실패 상태, 책임 경계를 명시적으로. 묵시적 글루 코드를 런타임이 검증·운영자가 감사할 수 있는 것으로.</td></tr>
+    <tr><td>벤더 의존 감소</td><td>능력을 공급자별 인터페이스가 아닌 <strong>프로토콜 층에 누적</strong> → 벤더·모델·런타임 컴포넌트 교체 비용 절감.</td></tr>
+  </table>
+  <div class="slide__pagenum">25</div>
+</section>
+
+<!-- ============== 23. PROTOCOL FAMILIES ============== -->
+<section class="slide">
+  <div class="slide__chip">5.2 Agent Protocol Survey</div>
+  <h2>4가지 프로토콜 군(family)</h2>
+
+  <h3>① Agent–Tool: <span class="kw">MCP</span> (Model Context Protocol)</h3>
+  <p>가장 먼저 성숙한 군. 표준화된 도구 발견·스키마 검사·이질적 서비스 가로지르는 호출. JSON-RPC 2.0 위에서 서버가 도구·컨텍스트를 공통 구조로 노출, 클라이언트가 그 사양에 맞춰 발견·호출. 도구 생태계를 모델 공급자별 함수 호출 형식과 디커플링하고 새 능력 추가 비용을 낮춤. <strong>ToolUniverse</strong>가 더 전문화된 도구 스키마와 상호작용 컨벤션으로 확장.</p>
+
+  <h3>② Agent–Agent: <span class="kw">A2A</span>, ACP, ANP</h3>
+  <ul>
+    <li><strong>A2A (Google)</strong> — Agent Card로 능력 발견, 스트리밍 진행 보고, 작업 지향 통신, 상태 갱신, 협상 표준화. 위임이 구조화된 계약이 됨.</li>
+    <li><strong>ACP (IBM)</strong> — REST/HTTP 기반 경량 채택. 기존 서비스 호환성 우선.</li>
+    <li><strong>ANP</strong> — 인터넷 규모 상호운용성 — 분산 신원·교차 도메인 발견·종단 간 보안 통신.</li>
+  </ul>
+
+  <h3>③ Agent–User: <span class="kw">A2UI, AG-UI</span></h3>
+  <ul>
+    <li><strong>A2UI</strong> — 호스트 앱이 안전하게 렌더할 수 있는 제약된 선언적 형식으로 <em>UI 구조</em>를 기술. 인터페이스 구성 자체를 통제된 출력으로 다룸.</li>
+    <li><strong>AG-UI</strong> — 실행 시작·텍스트 방출·도구 호출 인자·결과·완료·오류 같은 타입화된 실행 이벤트 스트림. 프론트엔드가 사적 이벤트 형식 학습 없이 런타임 상태를 렌더.</li>
+  </ul>
+
+  <h3>④ 기타 영역 프로토콜</h3>
+  <p><strong>UCP</strong>(에이전트 상거래 — 카탈로그·요청·체크아웃 표준화), <strong>AP2</strong>(결제 — IntentMandate·PaymentMandate·PaymentReceipt 같은 증거 보유 거래 객체로 권한·서명·감사 가능성). 이는 일반 인터페이스로는 부족한 <strong>고위험 수직 워크플로</strong>를 위한 거버넌스 표준이다.</p>
+  <div class="slide__pagenum">27</div>
+</section>
+
+<!-- ============== 24. PROTOCOL IN HARNESS / COGNITIVE ARTIFACT ============== -->
+<section class="slide">
+  <div class="slide__chip">5.3–5.4 하니스 속의 프로토콜 · 인지적 인공물</div>
+  <h2>프로토콜은 상호작용을 위한 인지적 인공물이다</h2>
+
+  <h3>5.3 하니스 엔지니어링 안에서</h3>
+  <ul>
+    <li><strong>의도 포착·정규화</strong>: 자유 텍스트 제안을 프로토콜 객체로 매핑, 권한·맥락 검사, 위반 시 거부·수정. 모델 판단을 잠재 추론에서 검사 가능 인터페이스로 옮김.</li>
+    <li><strong>능력 발견·도구 기술</strong>: 세션 시작/단계 전이에서 가용 도구·스키마·입출력 구조를 표준 메시지로 노출. 컨텍스트 인플레이션 감소, 권한·버전·감사를 구조화 메타데이터에 강제.</li>
+    <li><strong>세션·라이프사이클 관리</strong>: 식별자·역할·대기 행동·국면 전이·다음 허용 행동 같은 <strong>프로토콜 상태</strong>가 보존됨. 출력·체크포인트가 영속 저장에 쓰일 때 비로소 메모리가 된다. <em>프로토콜 = 상호작용의 연속성, 메모리 = 시간을 가로지르는 연속성</em>.</li>
+  </ul>
+
+  <h3>5.4 인지적 인공물로서의 프로토콜</h3>
+  <div class="callout callout--proto">
+    프로토콜은 외재화의 <strong>가장 강한 형태</strong> 중 하나다. 추론 부류 전체를 결정 경로에서 제거한다 — 모델이 매 단계마다 상호작용의 문법·의미를 재발명할 필요가 없다.
+  </div>
+  <p>메모리(시간 상태)·스킬(절차 전문성)이 도입한 변환과 평행하지만, <strong>다른 차원에서</strong> 작동한다 — 무엇을 기억할까/어떻게 진행할까가 아니라 <strong>어떻게 통신·조정할까</strong>. 표준화된 프로토콜은 <em>올바른 상호작용을 더 쉽게, 잘못된 상호작용을 더 어렵게</em> 만든다.</p>
+  <p><strong>Kirsh의 보완 전략</strong>: LLM은 의도 해석·옵션 선택·맥락 적응에 강하지만, 다양한 인터페이스 요구 하에서 일관된 구조화 출력을 신뢰성 있게 산출하는 데 약하다. 모델이 <em>판단·의도</em>를 기여하고, 프로토콜 표면이 <em>형식·검증·라이프사이클 제어</em>를 기여한다.</p>
+  <div class="slide__pagenum">29</div>
+</section>
+
+<!-- ============== 25. SECTION 6: HARNESS ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">06</div>
+  <h2>통합 외재화: 하니스 엔지니어링</h2>
+  <p class="lede">하니스는 모듈별 외재화를 넘어, 인식·기억 접근·행동 선택·실행·모니터링·수정을 단일 운영 봉투(envelope) 안에 정렬하는 <strong>설계된 인지 환경</strong>이다. 핵심 주장: 하니스는 능력 있는 모델 위에 얹는 구현 편의가 아니라, <strong>외재화 모듈이 함께 효과적으로 작동하는 인지 환경 그 자체</strong>이다.</p>
+</section>
+
+<!-- ============== 26. WHAT IS A HARNESS ============== -->
+<section class="slide">
+  <div class="slide__chip">6.1 What is a Harness?</div>
+  <h2>하니스란 무엇인가</h2>
+
+  <h3>왜 모듈만으로는 부족한가</h3>
+  <p>메모리는 어떤 흔적이 현재 작업에 두드러진지 결정해 주지 않는다. 스킬은 효과적 루틴을 캡슐화하지만 과거 상호작용의 교훈을 자동 통합하지 않는다. 프로토콜은 호출 형식을 규제하지만 도구가 <em>언제 어떤 정책 하에서</em> 호출되어야 하는지를 결정하지 않는다. <strong>이들의 상호작용을 시간에 걸쳐 조정하는 원칙적 구조가 빠져 있다</strong>.</p>
+
+  <h3>하니스의 역할</h3>
+  <p>OpenAI Codex 관련 엔지니어링 논의가 "harness"라는 용어를 명시적으로 사용. 에이전트 루프, 실행 로직, 피드백 경로, 시스템을 운용 가능하게 만드는 운영 기계. <strong>실용 에이전트는 "주변 능력이 부착된 모델"이라기보다 "하니스 안에서 동작하는 모델"</strong>로 보는 것이 더 정확하다.</p>
+
+  <div class="callout callout--harn">
+    능력 향상은 더 좋은 베이스 모델뿐 아니라, <strong>더 좋은 메모리 조직, 더 날카로운 제약 체제, 더 가독성 있는 피드백 채널, 더 신중하게 설계된 실행 환경</strong>으로부터도 온다.
+  </div>
+
+  <h3>구성 요소</h3>
+  <p>영속적 메모리·프로젝트 컨텍스트, 재사용 스킬·실행 가능 루틴, 도구·서비스와의 결정적 상호작용을 위한 프로토콜화된 인터페이스, 그리고 더 넓은 런타임 인프라. <strong>정확한 인벤토리는 구현마다 다르며 계속 변하지만, 그들의 집합적 역할 — 모델 추론이 충분히 안정해질 조건을 만드는 것 — 은 동일하다.</strong></p>
+  <div class="slide__pagenum">30</div>
+</section>
+
+<!-- ============== 27. 6 HARNESS DIMENSIONS ============== -->
+<section class="slide">
+  <div class="slide__chip">6.2 Analytical Dimensions of Harness Design</div>
+  <h2>하니스 설계의 6가지 분석 차원</h2>
+
+  <div class="three-col">
+    <div>
+      <h4>① Agent Loop & Control Flow</h4>
+      <p>perceive–retrieve–plan–act–observe 순환. 단일 루프, 계층적 (계획자 + 실행자), 다중 에이전트. 종료·재귀·자원 소비에 대한 거버넌스 — 최대 단계 수, 재귀 깊이, 단계당 비용 상한, 타임아웃.</p>
+    </div>
+    <div>
+      <h4>② Sandboxing & Execution Isolation</h4>
+      <p>파일 작성·셸·외부 API 호출 시 환경 노출과 부작용 격리. <strong>Codex 스타일</strong>: 작업별 클라우드 샌드박스. <strong>Claude Code</strong>: 단계적 권한 모드 — 완전 자율부터 모든 도구 호출에 대한 사용자 승인까지. <em>샌드박스는 보안 펜스가 아니라 운영 환경을 단순화하고 실행 흔적을 검사 가능하게 만드는 인지적 경계</em>.</p>
+    </div>
+    <div>
+      <h4>③ Human Oversight & Approval Gates</h4>
+      <p>사전 승인 / 사후 검토 / 에스컬레이션 트리거. <strong>Hook 시스템</strong>이 일반화 — 도구 호출·파일 쓰기·서브에이전트 스폰 같은 라이프사이클 이벤트에 임의 로직 부착. 자율성은 이항이 아니라 <strong>설정 가능한 파라미터</strong>.</p>
+    </div>
+  </div>
+  <div class="three-col" style="margin-top:8px;">
+    <div>
+      <h4>④ Observability & Structured Feedback</h4>
+      <p>모델 호출, 도구 호출, 메모리 R/W, 결정 분기의 구조화 로그. 인과 선행을 잇는 실행 흔적. 단계 수·토큰 소비·오류율·지연 분포. 외부적으로 디버깅·감사·사후 분석 지원, 내부적으로 피드백 루프를 닫음. <strong>관찰가능성 없이는 적응 시스템이 아니라 정적 비계로 머문다.</strong></p>
+    </div>
+    <div>
+      <h4>⑤ Configuration, Permissions, Policy</h4>
+      <p>실행 로직과 정책의 분리, 명시적·버전 관리·감사 가능. <strong>사용자 / 프로젝트 / 조직 수준</strong>으로 계층화. 동일 베이스 에이전트가 배포 컨텍스트에 따라 다른 정책 체제 하에서 동작 가능. 권한은 <strong>외재화된 거버넌스</strong>.</p>
+    </div>
+    <div>
+      <h4>⑥ Context Budget Management</h4>
+      <p>컨텍스트 윈도우 = 가장 희소한 공유 자원. 메모리 검색·스킬 로딩·프로토콜 스키마·도구 기술·자체 추론 흔적이 동일 토큰 예산을 두고 경쟁. 요약 압축, 우선순위 기반 축출, 단계적 로딩(staged loading)으로 동적 자원 할당 문제를 풀어야 한다.</p>
+    </div>
+  </div>
+  <div class="slide__pagenum">31</div>
+</section>
+
+<!-- ============== 28. HARNESS IN PRACTICE / COGNITIVE ENV ============== -->
+<section class="slide">
+  <div class="slide__chip">6.3–6.4 실제 하니스 · 인지적 환경</div>
+  <h2>OpenAI Codex와 Anthropic Claude Code의 수렴</h2>
+
+  <h3>6.3 현대 시스템에서의 수렴</h3>
+  <p>제품 표면·구현 계보·타깃 워크플로가 다름에도, OpenAI Codex와 Anthropic Claude Code는 놀라울 정도로 유사한 하니스 구조에 수렴. 이는 우연이 아니라 <strong>외재화된 에이전시의 구조적 요구사항</strong>이라는 분석적 의미를 가진다.</p>
+  <ul>
+    <li><strong>제어 흐름</strong>: 명시적 종료 제어, 단계 한계, 재귀 깊이, 자원 상한.</li>
+    <li><strong>샌드박싱</strong>: 클라우드 격리 vs 단계적 권한 모드 — 다른 점이지만 같은 원리.</li>
+    <li><strong>인간 감독</strong>: hook 시스템 + 도구·파일·에이전트별 승인 게이트.</li>
+    <li><strong>관찰가능성</strong>: 디버깅·감사·내부 피드백 루프(실패 도구 호출 → 메모리 쓰기, 반복 실패 패턴 → 스킬 수정 플래그).</li>
+    <li><strong>구성·거버넌스</strong>: 사용자·프로젝트·조직 다층화.</li>
+    <li><strong>컨텍스트 예산</strong>: 요약, 단계적 로딩, 우선순위 축출.</li>
+  </ul>
+
+  <h3>6.4 인지 환경으로서의 하니스</h3>
+  <div class="callout callout--harn">
+    하니스는 이미 형성된 지능을 <strong>지원</strong>하는 것이 아니라, 추론이 펼쳐지는 환경을 결정함으로써 에이전트의 <strong>실효 인지</strong>를 형성한다. 무엇이 지각장에 들어오는지, 무엇이 보존되는지, 어떤 작업이 호출 가능한지, 어떤 행동이 승인을 요구하는지, 어떤 중간 상태가 수정에 노출되는지, 어떤 실패가 탐지·복구 가능한지를 규제한다.
+  </div>
+  <p>모델의 외견상 지능이 변하는 것은 <em>더 많은 컨텍스트나 도구</em> 때문이 아니라, <strong>모델이 마주하는 표상적 문제가 재조직되었기 때문</strong>이다. <strong>Hutchins의 분산 인지</strong> 관점: 인지는 개별 마음이 아니라 사람·인공물·표상·조정된 실천에 분산된다. 하니스는 이 분산 시스템이 조정되는 매체이며, 인프라 층이 아니라 <strong>인지 환경</strong>이다.</p>
+  <div class="slide__pagenum">34</div>
+</section>
+
+<!-- ============== 29. SECTION 7: CROSS-CUTTING ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">07</div>
+  <h2>교차 분석 (Cross-Cutting Analysis)</h2>
+  <p class="lede">메모리·스킬·프로토콜은 분석적으로는 구분되지만, 실제 시스템의 힘은 그들의 상호작용에서 나온다. 6개의 짝-방향 흐름이 자연스러운 시스템 사이클을 형성하고, 모델 입출력 경계에서 이들은 기능적으로 구분되는 층으로 정렬된다.</p>
+</section>
+
+<!-- ============== 30. MODULE INTERACTION MAP ============== -->
+<section class="slide">
+  <div class="slide__chip">7.1 Module Interaction Map</div>
+  <h2>3개 모듈 사이의 6개 흐름</h2>
+
+  <div class="diagram">
+    <div class="diagram-row"><span class="box" style="background:#DCEBFB;">Memory</span> <span class="arrow">⇆</span> <span class="box" style="background:#FADCE8;">Skills</span></div>
+    <div class="diagram-row"><span class="box" style="background:#FADCE8;">Skills</span> <span class="arrow">⇆</span> <span class="box" style="background:#D8EFEA;">Protocols</span></div>
+    <div class="diagram-row"><span class="box" style="background:#D8EFEA;">Protocols</span> <span class="arrow">⇆</span> <span class="box" style="background:#DCEBFB;">Memory</span></div>
+  </div>
+
+  <ul>
+    <li><strong>Memory → Skill (경험 증류)</strong>: 반복 궤적이 재사용 절차로 증류됨. <strong>TED, UMEM</strong>이 에피소드 흔적을 클러스터화·추상화·승격. <strong>Voyager</strong>는 평생학습에서 성공 행동을 재구성 가능 코드 스킬로 보존. 증류 품질이 너무 공격적이면 잡음·문맥 종속 행동이 스킬에 박히고, 너무 보수적이면 경험을 활용하지 못한다.</li>
+    <li><strong>Skill → Memory (실행 기록)</strong>: 스킬 실행이 흔적·중간 실패·런타임 정련을 만들고, 관찰가능성 인프라가 이를 영속 증거로 캡처. 이 흐름이 없으면 증류 흐름이 점점 stale한 증거 위에서 작동.</li>
+    <li><strong>Skill → Protocol (능력 호출)</strong>: 스킬이 추상에서 통제된 행동으로 넘어가는 경계. 타입화된 호출, 라이프사이클 이벤트, 권한 검사 인터페이스로 변환. <strong>OpenClaw "Lethal Trifecta"</strong>(민감 데이터 + 무제약 외부 통신 + 미검증 실행)는 절차적 가이드가 옳아도 무제약 실행이 안전 문제로 남음을 보여줌 — 프로토콜 검증이 스킬 자체와 무관한 경계 검사 역할.</li>
+    <li><strong>Protocol → Skill (능력 생성)</strong>: 인터페이스가 표준화되면 그 위의 베스트 프랙티스를 코드화하기 쉬워짐. <strong>OpenAPI/MCP</strong>가 인터페이스별 노하우를 재사용 스킬 산출물로 패키지화하는 토대. <strong>HashiCorp Agent Skills</strong>가 구체 사례.</li>
+    <li><strong>Memory → Protocol (전략 선택)</strong>: 과거 성공률·사용자 선호·이전 실패가 <em>로컬 실행 / MCP 도구 호출 / A2A 원격 위임</em> 중 어느 경로를 갈지 결정. 메모리가 정적 설정을 경험-알림 라우팅 결정으로 전환.</li>
+    <li><strong>Protocol → Memory (결과 동화)</strong>: 도구 출력·승인 이벤트·위임 결과가 정규화되어 메모리에 들어가야 하류 흐름이 환각된 가정이 아닌 검증된 외부 상태에 의존.</li>
+  </ul>
+  <div class="slide__pagenum">35</div>
+</section>
+
+<!-- ============== 31. SYSTEM-LEVEL DYNAMICS / I-O VIEW ============== -->
+<section class="slide">
+  <div class="slide__chip">7.1 (계속) · 7.2 LLM I/O 관점</div>
+  <h2>시스템 차원 동역학과 모델 경계의 3층 구조</h2>
+
+  <h3>시스템 차원 동역학</h3>
+  <ul>
+    <li><strong>자기 강화 사이클</strong>: 더 좋은 메모리 → 더 좋은 스킬 증류 → 더 풍부한 흔적 → 더 좋은 메모리. 그러나 오류도 증폭한다 — <em>오염된 메모리</em>가 결함 스킬을 만들고, 그 흔적이 메모리를 더 오염시키는 캐스케이드. 하니스 차원의 개입 없이는 모듈 단독 품질 관리로 멈출 수 없다.</li>
+    <li><strong>희소 자원 경쟁</strong>: 메모리 검색·스킬 로딩·프로토콜 스키마가 모두 같은 컨텍스트 토큰을 점유. 한 모듈의 컨텍스트 발자국 확장은 다른 것을 압축. 하니스는 모듈별 내용뿐 아니라 <strong>예산 할당</strong>도 관리해야 한다.</li>
+    <li><strong>다른 시간 척도</strong>: 프로토콜 = 동기적·고속 / 스킬 로딩 = 작업 경계 / 메모리 증류·스킬 진화 = 세션 이상의 느린 루프. 빠른 루프 최적화가 느린 루프(장기 능력 성장)를 무시할 위험.</li>
+  </ul>
+
+  <h3>7.2 모델 입출력 관점에서의 3층</h3>
+  <table class="compare">
+    <tr><th>층</th><th>역할</th><th>실패 양상</th></tr>
+    <tr><td>메모리 (맥락 입력)</td><td>이력·상황 입력의 큐레이션. 결정 시점의 작은 상태·궤적·관계를 검색.</td><td>잘못된 컨텍스트 위에서 모델이 정확히 추론 (입력 선택 오류).</td></tr>
+    <tr><td>스킬 (지침 입력)</td><td>모델에게 주어지는 절차적 가이드. 작업 패턴 발생 시에만 특화 지침·예시·제약 로드.</td><td>모델이 충실히 따르지만 <strong>지침 자체가 결함이거나 어긋남</strong> (절차 오류).</td></tr>
+    <tr><td>프로토콜 (행동 스키마)</td><td>JSON 스키마·MCP·OpenAPI로 출력 경계 강제. 출력은 후속 해석 텍스트가 아니라 명시적 인터페이스 안의 기계 판독 행동 제안.</td><td>의도는 옳지만 출력이 <strong>인터페이스 계약 위반</strong> (행동 스키마 오류).</td></tr>
+  </table>
+  <p style="margin-top:6px;">이 분리는 <strong>모듈성</strong>의 큰 실용 이점을 만든다 — 메모리 검색은 스킬 재작성 없이, 스킬은 프로토콜 변경 없이, 프로토콜은 메모리 정책을 건드리지 않고 갱신 가능하다.</p>
+  <div class="slide__pagenum">37</div>
+</section>
+
+<!-- ============== 32. PARAMETRIC vs EXTERNALIZED ============== -->
+<section class="slide">
+  <div class="slide__chip">7.3 Parametric vs. Externalized — 트레이드오프</div>
+  <h2>"어디에 능력을 둘 것인가"의 분할 결정</h2>
+
+  <h3>판단 차원</h3>
+  <ul>
+    <li><strong>갱신 빈도·시간 감쇠</strong>: 빠르게 변하는 지식·절차 → 외재화. 안정적 배경 능력(언어 이해, 광범 추론, 상식) → 가중치에서 더 자연스럽게 운반.</li>
+    <li><strong>재사용성·다중 에이전트 이식성</strong>: 작업·사용자·에이전트를 가로질러 반복적으로 필요한 능력 → 외재화가 이식성·합성성을 향상. <strong>한 에이전트용으로 저작된 스킬을 전체 swarm에 broadcast</strong> 가능 (도구·프로토콜 가정 충족 시).</li>
+    <li><strong>감사 가능성·거버넌스·정렬</strong>: 검사·승인·롤백·정책 강제가 중요할 때 외재화가 명확한 우위. 심볼릭 인터페이스는 회로 차단기·스키마 검증·추적 가능 실행 기록을 지원. RLHF는 확률적 행동 형성, 외재화 제약은 결정적 강제.</li>
+    <li><strong>지연·단순성·컨텍스트 부담</strong>: 검색·라우팅·파싱·도구 호출이 모두 지연을 추가. 모든 검색 산출물이 토큰 예산을 다툰다. 초고속·저변동·순수 의미 작업은 내부 파라메트릭 지식만으로 더 단순·신뢰성 있을 때가 많다.</li>
+  </ul>
+
+  <div class="callout">
+    결과는 모델 지능 vs 인프라 지능의 제로섬 경쟁이 아니다. <strong>강한 하니스는 영속·재사용·통제로 이득을 보는 부담을 외재화하고, 안정·고속·일반 능력은 모델 안에 남긴다.</strong> 최적 분할은 정적이지 않다 — 모델이 더 능숙해지고 외재화 인프라가 성숙하면서 경계는 계속 이동한다.
+  </div>
+  <div class="slide__pagenum">38</div>
+</section>
+
+<!-- ============== 33. SECTION 8: FUTURE ============== -->
+<section class="slide slide--section">
+  <div class="chapnum">08</div>
+  <h2>미래 논의 (Future Discussion)</h2>
+  <p class="lede">외재화의 논리를 따라가면 <strong>6개의 연결된 질문</strong>이 떠오른다 — 파라메트릭/외재화 경계는 어디로 향하는가, 다중모달은 어떻게 외연을 넓히는가, 디지털에서 임베디드(체화)로 같은 논리가 확장되는가, 외재화 자체가 어떻게 자율화되는가, 비용·위험은 어떻게 누적되는가, 사적 비계에서 공유 인프라로의 전환은 무엇을 의미하는가, 그리고 외재화 품질을 어떻게 측정하는가.</p>
+</section>
+
+<!-- ============== 34. EXPANDING FRONTIER ============== -->
+<section class="slide">
+  <div class="slide__chip">8.1 The Expanding Frontier · 8.2 Embodied</div>
+  <h2>외재화의 확장하는 경계 — 그리고 체화로의 확장</h2>
+
+  <h3>경계의 양방향 운동</h3>
+  <p>모델 개선은 능력을 안으로 끌어당길 수도 있다 — 더 큰 효과적 컨텍스트, 안정된 구조화 출력, 강한 도구 사용 능력은 기존 외부 인프라 일부를 잉여로 만든다. 동시에 더 풍부한 하니스는 새로운 모델 요구를 만든다 — 스키마 준수, 권한 검사 협력, 단계적 컨텍스트 주입과의 조정. <strong>경계는 양방향으로 동시에 이동하며, 핵심 도전은 언제 더 외재화하고 언제 안으로 끌어당길지 아는 것</strong>.</p>
+
+  <h3>외재화 후보 — 향후 외재화가 유망한 인지 작업</h3>
+  <ul>
+    <li><strong>계획·목표 관리</strong>: 현재는 in-context 추론으로 일시적 분해를 만들어 컨텍스트 리셋과 함께 잃음. <strong>BabyAGI</strong>(영속 작업 큐), <strong>InfiAgent</strong>(파일 중심 상태 추상화)가 일급 하니스 객체로 외재화하는 방향. 메모리가 이력 컨텍스트에 한 일을 계획에도 동일하게 적용 — 일시적 추론 행위를 관리되는 상태 산출물로 전환.</li>
+    <li><strong>평가·검증</strong>: 평가 로직 대부분이 모델의 사고 사슬 또는 외부 벤치마크 하니스에 거주. 평가 기준·루브릭·검증 절차를 <strong>런타임 하니스 컴포넌트</strong>로 외재화하면 자체 검사가 명시 표준에 대해 가능해짐.</li>
+    <li><strong>오케스트레이션 로직</strong>: 가장 재귀적인 형태 — 하니스 자체 구성·정책·실행 로직을 에이전트가 검사·비판·수정 가능한 객체로 만든다. <strong>자가 진화 하니스</strong>로 직접 연결.</li>
+    <li><strong>다중 모달 외재화</strong>: 지금까지의 외재화 프레임은 텍스트 중심. 멀티모달 모델이 일반화되며 시각 인식 워크플로·교차 모달 결정 로직을 인코딩하는 새 외재화 차원이 필요. <strong>MemVerse</strong>(시각·청각 경험 인덱싱), <strong>MuSEAgent</strong>(상태 보유 멀티모달 경험), <strong>TED</strong>(추가 학습 없이 멀티모달 추론 궤적 증류).</li>
+  </ul>
+
+  <h3>8.2 디지털에서 체화 외재화로</h3>
+  <p>체화 시스템(로봇)도 같은 분해를 겪고 있다. 초기 VLA(Vision-Language-Action)는 단일 forward pass에 인식·추론·계획·운동제어를 넣은 monolithic "두뇌"로 시작 — 초기 LLM 에이전트와 같은 한계(긴 계획 지평 초과, 중간 실패 진단·복구 불가, 고수준 인지와 저지연 운동의 강결합). <strong>대뇌(cerebrum) — 소뇌(cerebellum) 분리</strong>: 고수준 robot agent (LLM)가 대뇌 — 목표 해석·하위 작업 분해·상태 유지·예외 처리; VLA 모델은 소뇌 — 잡기·놓기·붓기·끼우기 같은 단일 원자적 조작 프리미티브, 실시간 운동 피드백·저지연 제어. <strong>"무엇을 할지"는 에이전트, "어떻게 정확히 할지"는 VLA</strong>. 같은 외재화 차원에 그대로 매핑된다.</p>
+  <div class="slide__pagenum">40</div>
+</section>
+
+<!-- ============== 35. SELF-EVOLVING / COSTS ============== -->
+<section class="slide">
+  <div class="slide__chip">8.3 Self-Evolving · 8.4 Costs, Risks, Governance</div>
+  <h2>자가 진화 하니스와 그 비용</h2>
+
+  <h3>8.3 자가 진화 하니스</h3>
+  <p>오케스트레이션 로직이 외재화되면, 하니스가 수동 수정의 대상이 아니라 <strong>프로그램적으로 적응 가능한 객체</strong>가 된다. 3가지 수준에서 일어날 수 있다:</p>
+  <ul>
+    <li><strong>모듈 수준</strong>: 아키텍처는 고정, 검색 입도·스킬 랭킹 휴리스틱·프로토콜 라우팅 규칙이 관찰된 실패에 반응해 조정.</li>
+    <li><strong>시스템 수준</strong>: 실행 파이프라인 재구조화 — 스케줄링 전략·실행 순서·자원 할당 변경.</li>
+    <li><strong>경계 수준</strong>: 하니스 범위 자체 확장·축소 — 외재화 컴포넌트 추가·잉여 가지치기. 정확히 8.1의 frontier 동역학.</li>
+  </ul>
+  <p>경로: <em>RL</em>(이산 런타임 정책 최적화), <em>Program synthesis</em>(코드 수리로서의 하니스 적응), <em>Evolutionary methods</em>(연결·호출 순서 토폴로지 검색), <em>Imitation learning</em>(전문가 로그·강모델로부터 더 좋은 오케스트레이션). 각자 다른 검색 공간을 다루며 결합 사용될 가능성이 높음.</p>
+
+  <h3>8.4 비용·위험·거버넌스</h3>
+  <h4 style="color:var(--c-accent-harn);">인지적 오버헤드</h4>
+  <p>외재화는 공짜가 아니다. 메모리 층·API 스키마·안전 규칙은 지연·추론 오버헤드를 추가. 어느 지점에서 모델이 작업 자체보다 모듈을 발견·파싱·조정하는 데 더 많은 노력을 쓰게 된다. <strong>최소 충분성(minimal sufficiency)</strong>, <strong>지연 로딩(lazy loading)</strong>, <strong>예산 인식 라우팅(budget-aware routing)</strong>이 대응.</p>
+
+  <h4 style="color:var(--c-accent-harn);">보안·무결성 위험</h4>
+  <p>외재화 산출물은 공격 표면이 된다 — <strong>메모리 오염</strong>(에피소드/사실 변조로 미래 추론 왜곡), <strong>악의적 스킬 주입</strong>(재사용 레퍼토리에 적대적 절차 임베드), <strong>프로토콜 스푸핑</strong>(위조된 도구 매니페스트·조작된 엔드포인트로 합법 상호작용 외관 하의 무권한 행동). 자가 진화가 더해지면 위험은 복합 — 새 작업 적응이 기존 작업 열화시키고, 누적 패치가 시스템 행동을 모호하게.</p>
+
+  <h4 style="color:var(--c-accent-harn);">인프라로서의 거버넌스</h4>
+  <div class="callout callout--harn">
+    중요 갱신을 위한 <strong>의무적 리뷰 게이트</strong>, 메모리·스킬 변경의 <strong>출처 추적</strong>, 결정적 롤백, 회귀 테스트. 외재화 시스템의 품질은 <em>가능하게 만든 것</em>뿐 아니라 <strong>그것을 얼마나 투명·되돌릴 수 있게 가능하게 했는가</strong>로 측정된다.
+  </div>
+  <div class="slide__pagenum">42</div>
+</section>
+
+<!-- ============== 36. SHARED INFRA / MEASURING ============== -->
+<section class="slide">
+  <div class="slide__chip">8.5 Shared Infrastructure · 8.6 Measuring Externalization</div>
+  <h2>사적 비계에서 공유 인프라로 — 그리고 측정의 문제</h2>
+
+  <h3>8.5 공유 인프라로의 전환</h3>
+  <p>지금까지의 외재화는 대체로 에이전트 중심 — 메모리는 한 에이전트의 연속성을 위해, 스킬은 로컬 패키지로, 프로토콜은 프레임워크 종속. 협업 사슬이 길어지면서 외재화는 <strong>공유 인프라</strong>로 이동.</p>
+  <ul>
+    <li><strong>공유 산출물</strong>: 공유 메모리는 "내가 기억하는 것"에서 "<strong>우리가 아는 것</strong>"으로 — 공유 상태·인덱스·공통 기반의 트랜잭티브 시스템. 공유 스킬은 절차 전문성을 공개 능력 단위로 — 재사용·포크·가로지른 유지. 공유 프로토콜은 플랫폼·조직 간 상호운용 가능 공통 문법.</li>
+    <li><strong>분업·집합 학습</strong>: <em>Stigmergy</em>(흰개미 군락 비유) — 실패 궤적은 공유 메모리에 누적, 성공 경로는 공유 스킬로 결정화. 학습은 공동 파라메트릭 학습이 아니라 <strong>외부 구조를 통해 확산</strong>.</li>
+    <li><strong>제도화와 그 긴장</strong>: 메모리 스키마·스킬 사양·프로토콜 바인딩이 반복 검증되면 임시 비계가 아니라 <strong>제도</strong>처럼 기능 — 생태계 규모로 행동을 조정하는 공유 운영 절차·표준. 그러나 이는 새 거버넌스 문제 — 인프라 드리프트, 악의적·저질 산출물, 조숙·지연 표준화가 생태계를 불안정화 가능. 8.4의 거버넌스 비용이 외재화가 집단적이 될 때 증폭.</li>
+  </ul>
+
+  <h3>8.6 외재화의 측정</h3>
+  <p>대부분 현재 벤치마크는 고정 프롬프트·고정 모델 설정의 작업 완료로 평가 — 외재화 인프라 기여를 체계적으로 과소평가. 더 나은 메모리 검색·정밀한 스킬 로딩·엄격한 거버넌스로 신뢰성을 향상해도 더 높은 성공률로만 나타나며 그 기여를 실제 출처에 귀속할 길이 없다.</p>
+  <table class="compare">
+    <tr><th>차원</th><th>측정해야 할 것</th></tr>
+    <tr><td>전이성(Transferability)</td><td>같은 하니스 구성이 베이스 모델 교체 시에도 효과를 유지하는가.</td></tr>
+    <tr><td>유지가능성(Maintainability)</td><td>스킬·메모리 정책·프로토콜 스키마 갱신 시 시스템이 얼마나 우아하게 열화하는가.</td></tr>
+    <tr><td>복구 견고성</td><td>실패 탐지·부분 행동 롤백·체크포인트 재개.</td></tr>
+    <tr><td>컨텍스트 효율성</td><td>하니스 오버헤드 vs 작업 관련 추론에 사용된 컨텍스트 예산 비율.</td></tr>
+    <tr><td>거버넌스 품질</td><td>투명성·되돌릴 수 있음 요건 충족 여부.</td></tr>
+  </table>
+  <p>구체 평가 전략: 절제 연구(개별 하니스 구성요소 제거 후 열화 측정), <strong>cross-model transfer test</strong>(베이스 모델만 변경하고 하니스 일정), 장기 다중세션 신뢰성 메트릭(성공률·비용·드리프트 추적).</p>
+  <div class="slide__pagenum">43</div>
+</section>
+
+<!-- ============== 37. CONCLUSION ============== -->
+<section class="slide">
+  <div class="slide__chip">9. Conclusion · 결론</div>
+  <h2>결론 — 더 나은 추론자가 아니라 더 잘 조직된 인지 시스템</h2>
+
+  <div class="callout">
+    "외재화는 LLM 에이전트의 가장 중요한 발전들을 잇는 <strong>전이 논리(transition logic)</strong>이다. 신뢰성 있는 에이전시는 점점 선택된 인지 부담을 모델 외부의 명시적 인프라로 옮기는 데 의존한다."
+  </div>
+
+  <h3>핵심 메시지 4가지</h3>
+  <ul>
+    <li><strong>① 가중치 → 컨텍스트 → 하니스</strong>는 단순한 엔지니어링 트릭의 시퀀스가 아니다. 능력이 어디에서 조직되는지의 변화다. 일부 부담은 파라메트릭으로 잘 처리되지만, 다른 것들은 <strong>영속·검사 가능·재사용 가능·거버넌스 가능한</strong> 외부 형태에서만 신뢰할 수 있게 된다.</li>
+    <li><strong>② 통합 메커니즘은 표상적 변형이다</strong>. 메모리는 회상을 검색으로, 스킬은 즉흥을 가이드 합성으로, 프로토콜은 임시방편 조정을 구조화 교환으로 바꾼다. 효과는 모델 주변에 컴포넌트를 더 추가하는 것이 아니라 <strong>모델이 풀어야 할 과제 자체를 바꾸는 것</strong>이다.</li>
+    <li><strong>③ 새 의제는 더 강한 모델을 어떻게 만드느냐가 아니라, 모델과 인프라 사이에 능력을 어떻게 분할하고, 외재화 시스템의 기여를 어떻게 평가하며, 에이전트가 점차 의존하는 공유 산출물을 어떻게 통제하느냐</strong>이다.</li>
+    <li><strong>④ 더 넓은 함의: 에이전트의 진보는 모델과 외부 인프라의 공진화에서 온다</strong>. 어느 한쪽 단독에서가 아니다. 이 관점에서 더 좋은 에이전트는 단지 더 나은 추론자가 아니다. <strong>그들은 더 잘 조직된 인지 시스템</strong>이다.</li>
+  </ul>
+  <div class="slide__pagenum">44</div>
+</section>
+
+<!-- ============== 38. KEY TERMS GLOSSARY ============== -->
+<section class="slide">
+  <div class="slide__chip">부록 A · 핵심 용어 사전</div>
+  <h2>주요 용어 한국어/영어 대조</h2>
+  <table class="compare">
+    <tr><th>한국어</th><th>English</th><th>의미</th></tr>
+    <tr><td>외재화</td><td>Externalization</td><td>모델 내부 인지 부담을 영속·검사·재사용 가능한 외부 구조로 옮기는 점진적 재배치.</td></tr>
+    <tr><td>인지적 인공물</td><td>Cognitive Artifact</td><td>Norman의 개념. 능력을 증폭하는 게 아니라 과제 표상을 변환하는 외부 보조물 (예: 쇼핑 리스트는 회상을 인식 문제로 바꾼다).</td></tr>
+    <tr><td>표상적 변형</td><td>Representational Transformation</td><td>인공물이 문제의 형태를 바꾸어, 모델이 가진 역량으로 더 신뢰성 있게 풀 수 있게 만드는 것.</td></tr>
+    <tr><td>하니스</td><td>Harness</td><td>메모리·스킬·프로토콜을 모아 일관된 운영 환경(에이전트 루프, 샌드박스, 감독, 관찰가능성, 정책, 컨텍스트 예산)으로 구성하는 런타임 인프라. 단순 인프라 층이 아닌 인지 환경.</td></tr>
+    <tr><td>점진적 공개</td><td>Progressive Disclosure</td><td>스킬을 존재 → 매니페스트 → 전체 가이드 순으로 단계적으로 노출, 정보 밀도를 작업 복잡도에 맞춤.</td></tr>
+    <tr><td>실행 바인딩</td><td>Execution Binding</td><td>스킬을 실제로 실행 가능한 도구·파일·API·서브에이전트·프로토콜 엔드포인트에 묶는 과정.</td></tr>
+    <tr><td>의미 정렬</td><td>Semantic Alignment</td><td>스킬 명세의 문자적 표현과 실제 작업 의도 사이의 일치도. 불일치 시 모델은 표면을 따르며 본질을 놓친다.</td></tr>
+    <tr><td>치명적 트리펙타</td><td>Lethal Trifecta (OpenClaw)</td><td>민감 데이터 접근 + 무제약 외부 통신 + 미검증 실행 — 안전 사고의 단일 결합 위험.</td></tr>
+    <tr><td>분산 인지</td><td>Distributed Cognition (Hutchins)</td><td>인지가 개별 마음이 아니라 사람·인공물·표상·실천에 분산된다는 관점. 하니스 = 분산 시스템이 조정되는 매체.</td></tr>
+    <tr><td>최소 충분성</td><td>Minimal Sufficiency</td><td>각 모듈이 모델의 인지 부담을 실제로 줄이는지, 아니면 단지 부담을 더하는지를 묻는 설계 원칙.</td></tr>
+  </table>
+  <div class="slide__pagenum">45</div>
+</section>
+
+<!-- ============== 39. KEY SYSTEMS ============== -->
+<section class="slide">
+  <div class="slide__chip">부록 B · 논문에서 다룬 주요 시스템</div>
+  <h2>외재화 차원별 대표 시스템</h2>
+
+  <div class="three-col">
+    <div>
+      <h4 style="color:var(--c-accent-mem);"><span class="tag tag--mem">메모리</span></h4>
+      <ul>
+        <li><strong>MemGPT, MemoryOS</strong> — OS 스타일 핫/콜드 스왑</li>
+        <li><strong>Mem0, Memory-R1, Mem-α</strong> — 라이프사이클 관리</li>
+        <li><strong>GraphRAG, ENGRAM, SYNAPSE</strong> — 검색 표상</li>
+        <li><strong>MemoryBank, MIRIX, MemOS, xMemory</strong> — 의미 분리</li>
+        <li><strong>MemEvolve, MemVerse, MemRL, GAM</strong> — 적응형</li>
+        <li><strong>Reflexion</strong> — 에피소드 반성</li>
+        <li><strong>InfiAgent</strong> — 파일 중심 상태</li>
+        <li><strong>IFRAgent, VARS</strong> — 개인화 메모리</li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="color:var(--c-accent-skill);"><span class="tag tag--skill">스킬</span></h4>
+      <ul>
+        <li><strong>Toolformer, Gorilla, ToolLLM, ToolNet, ToolScope, AutoTool</strong> — 도구 단계</li>
+        <li><strong>Voyager</strong> — 자율 발견 (마인크래프트)</li>
+        <li><strong>PolySkill</strong> — 추상/구체 분리로 재사용</li>
+        <li><strong>SkillFlow, SkillOrchestra</strong> — 스킬 라우팅</li>
+        <li><strong>SkillsBench, SkillProbe</strong> — 평가·보안 감사</li>
+        <li><strong>HashiCorp Agent Skills</strong> — 인프라 도메인</li>
+        <li><strong>Claude Code Skills</strong> — 산업 구현 (점진적 공개)</li>
+        <li><strong>SOP-Agent, CUA-Skill</strong> — SOP·컴퓨터 사용</li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="color:var(--c-accent-proto);"><span class="tag tag--proto">프로토콜</span></h4>
+      <ul>
+        <li><strong>MCP</strong> (Anthropic) — 에이전트-도구</li>
+        <li><strong>A2A</strong> (Google) — 에이전트-에이전트</li>
+        <li><strong>ACP</strong> (IBM) — REST 기반 ACP</li>
+        <li><strong>ANP</strong> — 인터넷 규모 상호운용</li>
+        <li><strong>A2UI / AG-UI</strong> — 에이전트-사용자</li>
+        <li><strong>UCP</strong> — 에이전트 상거래</li>
+        <li><strong>AP2</strong> — 에이전트 결제</li>
+        <li><strong>ToolUniverse</strong> — 도메인 특화</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:8px;">
+    <h4 style="color:var(--c-accent-harn);"><span class="tag tag--harn">하니스</span> 대표 시스템</h4>
+    <p style="font-size:13px;"><strong>Auto-GPT, BabyAGI</strong> (초기) · <strong>AutoGen, MetaGPT, CAMEL, Reflexion</strong> (프레임워크) · <strong>SWE-Agent, OpenHands, OpenAI Codex, Anthropic Claude Code</strong> (코드 에이전트 — 6개 하니스 차원에 수렴) · <strong>OpenAI Deep Research</strong> (리서치) · <strong>LangGraph, CrewAI, Voyager, OS-Copilot</strong> (워크플로/임베디드).</p>
+  </div>
+  <div class="slide__pagenum">46</div>
+</section>
+
+<!-- ============== 40. ATTRIBUTION / END ============== -->
+<section class="slide slide--title">
+  <div class="eyebrow">Attribution · 작성 주체</div>
+  <h1 style="font-size:32px;">이 요약은 Claude Code의 <code style="background:#fff;padding:2px 8px;border-radius:6px;color:var(--c-primary);">/writing-team</code> 스킬로 작성되었습니다.</h1>
+  <p class="subtitle" style="margin-top:18px;">
+    Eduteam AI Edu Day · Upstage Education<br><br>
+    원문: <a href="https://arxiv.org/abs/2604.08224" style="color:var(--c-primary); text-decoration:none;">arXiv:2604.08224 — "Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering"</a><br>
+    저자: Chenyu Zhou 외 (SJTU, Sun Yat-Sen, Shanghai Innovation Institute, CMU, OPPO) · 2026년 4월 9일<br><br>
+    <strong>요약 방식:</strong> 본 자료는 원논문의 9개 섹션·54페이지 전체를 한국어로 깊이 있게 정리한 것으로,
+    번역에 가까우면서도 핵심 흐름을 따라 재조직한 심층 요약(in-depth summary close to translation)입니다.
+    Anthropic의 Claude Code(Opus 4.7) 위에서 동작하는 <code style="background:#fff;padding:1px 6px;border-radius:4px;color:var(--c-primary);">oh-my-claudecode</code>의
+    <code style="background:#fff;padding:1px 6px;border-radius:4px;color:var(--c-primary);">/writing-team</code> 스킬을 활용하여 한국어 가이드 문서로 가공되었습니다.
+  </p>
+  <div class="meta">
+    <span>Generated with Claude Code · /writing-team skill</span>
+    <span>2026-05-04</span>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
