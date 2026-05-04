@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELI5 · 외재화 쉽게 풀어 쓰기</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    :root {
+      --c-text: #1a1a1a;
+      --c-muted: #555;
+      --c-link: #1f4ea8;
+      --c-rule: #d0d0d0;
+      --c-bg: #fffdf7;
+      --c-card: #ffffff;
+      --c-pop: #ffe9b3;
+      --c-mem: #cfe5ff;
+      --c-skill: #ffd7e8;
+      --c-proto: #cfeede;
+      --c-harn: #ffe1c2;
+      --c-callout: #fff3d9;
+      --c-callout-border: #e0a000;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 17px;
+      line-height: 1.85;
+    }
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 28px 96px;
+    }
+
+    .header { text-align: center; margin-bottom: 28px; }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--c-link);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.25;
+      margin: 0 0 14px;
+      color: #000;
+    }
+    .lede {
+      font-size: 16px;
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid var(--c-rule);
+      border-radius: 8px;
+      margin: 24px 0 32px;
+      font-size: 13px;
+    }
+    .nav-bar a { color: var(--c-link); text-decoration: none; font-weight: 700; }
+    .nav-bar a:hover { text-decoration: underline; }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 40px 0 12px;
+      color: #000;
+      border-bottom: 3px solid var(--c-pop);
+      padding-bottom: 6px;
+    }
+    h2 .emoji { margin-right: 8px; }
+
+    p { margin: 10px 0; }
+    p.kicker {
+      font-size: 18px;
+      font-weight: 500;
+      color: #2a2a2a;
+    }
+
+    .pop {
+      background: var(--c-callout);
+      border-left: 5px solid var(--c-callout-border);
+      padding: 14px 18px;
+      margin: 18px 0;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .pop strong { color: #6a4400; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 18px 0 8px;
+    }
+    @media (max-width: 600px) {
+      .card-grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      padding: 16px 18px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .card .role {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.55);
+      margin-bottom: 4px;
+    }
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 19px;
+      font-weight: 900;
+      color: #000;
+    }
+    .card p {
+      margin: 4px 0;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: #2a2a2a;
+    }
+    .card.mem    { background: var(--c-mem); }
+    .card.skill  { background: var(--c-skill); }
+    .card.proto  { background: var(--c-proto); }
+    .card.harn   { background: var(--c-harn); }
+
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin: 14px 0;
+    }
+    .step-num {
+      flex: 0 0 36px;
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      background: var(--c-link);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { color: #000; }
+
+    .vs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+    @media (max-width: 600px) { .vs { grid-template-columns: 1fr; } }
+    .vs-col {
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      line-height: 1.7;
+    }
+    .vs-col.bad { background: #fdecec; border-left: 4px solid #c53030; }
+    .vs-col.good { background: #e7f5ee; border-left: 4px solid #2f855a; }
+    .vs-col .label {
+      font-weight: 900;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .vs-col.bad .label { color: #9b2c2c; }
+    .vs-col.good .label { color: #22543d; }
+
+    .footer {
+      margin-top: 48px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--c-rule);
+      font-size: 13px;
+      color: var(--c-muted);
+      text-align: center;
+    }
+    .footer a { color: var(--c-link); }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      background: #f0eee5;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+<article class="page">
+
+<header class="header">
+  <div class="eyebrow">ELI5 · 5살에게 설명하기</div>
+  <h1>AI 에이전트는 왜 갑자기 잘 동작할까?</h1>
+  <p class="lede">— "외재화(externalization)"라는 한 단어로 풀어 보는 짧은 이야기</p>
+</header>
+
+<div class="nav-bar">
+  <span>📄 짧게 한 번 읽고 가는 버전 (약 5분)</span>
+  <a href="presentation.html">📚 전체 심층 요약 보러가기 →</a>
+</div>
+
+<h2><span class="emoji">🤔</span>먼저 한 줄로 정리</h2>
+<p class="kicker">"AI를 더 똑똑하게 만든 가장 큰 비결은 모델 자체가 아니라, <strong>모델 옆에 둔 도구들</strong>이었다."</p>
+
+<div class="pop">
+  <strong>핵심 한 줄.</strong> 사람도 머릿속에만 다 담아 두면 잊어버리고, 헷갈리고, 실수해요. 그래서 우리는 메모를 하고, 매뉴얼을 보고, 정해진 양식대로 일을 처리하죠. AI도 똑같아요. AI를 정말 쓸 만하게 만들어 준 건 "더 큰 뇌"가 아니라 <strong>그 옆에 마련해 둔 작업 도구들</strong>이었다는 이야기예요.
+</div>
+
+<h2><span class="emoji">🧠</span>"AI 에이전트"는 뭐고 왜 어려워요?</h2>
+<p>요즘 AI는 대답만 잘하는 게 아니라, 직접 <strong>일을 하는 똘똘이</strong>가 되어 가고 있어요. 코드를 짜고, 파일을 정리하고, 일정도 잡고, 인터넷도 뒤지고요. 이렇게 "혼자 일을 척척 해 주는 AI"를 우리는 <strong>에이전트</strong>라고 불러요.</p>
+<p>그런데 이게 생각보다 어려워요. 왜냐하면 진짜 일은 보통 이렇게 흘러가거든요:</p>
+
+<div class="vs">
+  <div class="vs-col bad">
+    <div class="label">맨몸 AI 혼자 다 하려고 할 때</div>
+    어제 무슨 얘기를 했는지 기억 못 함 →<br>
+    매번 처음부터 다시 시작 →<br>
+    같은 실수를 반복 →<br>
+    도구를 잘못 부름 →<br>
+    중간에 길을 잃음 😵
+  </div>
+  <div class="vs-col good">
+    <div class="label">옆에 도와주는 도구가 있을 때</div>
+    어제 한 일은 노트에 적혀 있고 →<br>
+    매뉴얼대로 따라 하면 되고 →<br>
+    실수를 다음에 안 하도록 기록 남고 →<br>
+    도구는 정해진 양식으로 부르고 →<br>
+    누가 옆에서 진행 상황을 챙겨 줘요 😊
+  </div>
+</div>
+
+<h2><span class="emoji">📦</span>그래서 등장한 한 단어 — <em>외재화</em></h2>
+<p class="kicker"><strong>외재화(外在化, externalization)</strong> = "머리 안에 다 담지 말고, 머리 밖에 두자."</p>
+<p>예를 들어 볼게요. 마트에 갈 때 살 것이 30개라고 쳐요. 머릿속으로 외우면 두세 개는 까먹잖아요. 그런데 <strong>쇼핑 리스트</strong>를 적어서 가면? 안 까먹어요.</p>
+<p>여기서 흥미로운 점 — 쇼핑 리스트는 여러분의 기억력을 늘려 주지 않아요. 대신 <strong>"기억해 내는 일"을 "보고 확인하는 일"로 바꿔</strong> 주죠. 문제 자체가 쉬워진 거예요. 이걸 어려운 말로 "표상적 변환(representational transformation)"이라고 해요.</p>
+<p>AI도 똑같아요. 모델한테 "다 외워서 말해 줘"라고 시키는 대신, 옆에 메모장·매뉴얼·양식을 놔 두면 모델이 풀어야 할 문제 자체가 쉬워져요.</p>
+
+<h2><span class="emoji">🧰</span>AI 옆에 두는 4가지 도구</h2>
+<p>이 논문은 그 도구들을 4가지로 정리해요. 이름은 좀 무서워 보여도 비유는 쉬워요.</p>
+
+<div class="card-grid">
+  <div class="card mem">
+    <div class="role">① Memory — 메모리</div>
+    <h3>📓 일기장 / 노트</h3>
+    <p>지난번에 무슨 일을 했는지, 사용자가 뭘 좋아하는지, 지금까지 알아낸 사실은 뭔지를 적어 두는 곳.</p>
+    <p>"매번 새로 시작하기" → "<strong>전에 쓴 노트를 펼쳐 보기</strong>"로 바꿔 줘요.</p>
+  </div>
+  <div class="card skill">
+    <div class="role">② Skill — 스킬</div>
+    <h3>📒 요리책 / 사용 설명서</h3>
+    <p>"이런 일은 이렇게 하면 돼"라고 정리된 절차서. 매번 다시 짜내지 않고 가져다 따라 하면 됨.</p>
+    <p>"매번 즉흥적으로 하기" → "<strong>레시피대로 따라 하기</strong>"로 바꿔 줘요.</p>
+  </div>
+  <div class="card proto">
+    <div class="role">③ Protocol — 프로토콜</div>
+    <h3>📋 정해진 양식 / 주문서</h3>
+    <p>다른 도구·다른 AI와 이야기할 때 "이 칸에 이걸 넣고, 저 칸에 저걸 넣어 주세요"라고 약속된 형식.</p>
+    <p>"눈치껏 말 걸기" → "<strong>양식대로 주고받기</strong>"로 바꿔 줘요.</p>
+  </div>
+  <div class="card harn">
+    <div class="role">④ Harness — 하니스</div>
+    <h3>🏢 일이 돌아가는 사무실</h3>
+    <p>위의 셋을 다 모아 두고, 누가 언제 무엇을 해야 하는지 정해 주는 운영 환경. 위험한 일은 막아 주고, 일지도 남기고요.</p>
+    <p>"AI 한 명에게 다 맡기기" → "<strong>잘 짜인 사무실에서 일하게 하기</strong>"로 바꿔 줘요.</p>
+  </div>
+</div>
+
+<div class="pop">
+  <strong>한 줄 요약.</strong> Memory(노트) + Skill(레시피) + Protocol(양식) + Harness(사무실) — 이 네 가지가 갖춰지면, 같은 AI 모델인데도 훨씬 똑똑하고 안정적으로 일을 해요.
+</div>
+
+<h2><span class="emoji">🔄</span>역사로 보면 한눈에 보여요</h2>
+<p>AI 분야의 흐름을 단순화해 보면 이렇게 흘러왔어요:</p>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body"><strong>Weights 시대 ("뇌만 키우자")</strong> — 모델만 점점 크게 만들면 다 될 줄 알았어요. GPT-4, Gemini 같은 거대한 모델들. 잘하긴 하는데, 정해진 한 번만 답하고 끝나는 일에 강했어요.</div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body"><strong>Context 시대 ("말 잘 거는 법을 연구하자")</strong> — 같은 모델이라도 프롬프트를 잘 짜면 훨씬 잘하더라. CoT, RAG, ReAct 같은 기법들. 다만 컨텍스트는 늘 한정되고, 세션이 끝나면 다 잊어버려요.</div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body"><strong>Harness 시대 ("모델 주변을 짓자")</strong> — 지금이 여기예요. 모델 옆에 노트장(Memory), 레시피(Skill), 양식(Protocol)을 두고, 그것들을 묶는 사무실(Harness)을 짓는 시대. <strong>가장 큰 신뢰성 향상은 모델을 안 바꾸고도 여기서 나왔어요.</strong></div>
+</div>
+
+<h2><span class="emoji">🎯</span>그래서 뭐가 달라요?</h2>
+<p>실제 예시 하나. 코드를 고치는 AI 에이전트를 떠올려 봐요.</p>
+<div class="vs">
+  <div class="vs-col bad">
+    <div class="label">외재화 없이</div>
+    저장소 구조도 외우고, 컨벤션도 외우고, 워크플로 상태도 외우고, 도구 사용법도 외우고… <strong>전부 깨지기 쉬운 프롬프트 안에</strong> 들고 있어야 해요. 길이만 길어도 헤매기 시작해요.
+  </div>
+  <div class="vs-col good">
+    <div class="label">외재화와 함께</div>
+    프로젝트 메모는 노트(Memory)에, 컨벤션은 매뉴얼(Skill)에, 도구 호출 형식은 양식(Protocol)에. 사무실(Harness)이 단계를 진행시키고, 결과를 검증하고, 실패도 챙겨 줘요. <strong>모델은 그대로인데 일이 잘 돼요.</strong>
+  </div>
+</div>
+
+<h2><span class="emoji">💡</span>왜 이게 멋진 이야기일까?</h2>
+<p>이 논문이 멋진 이유는, 이 흐름을 <strong>인간 문명의 역사</strong>와 평행으로 두고 본다는 데 있어요.</p>
+<p>인간도 머릿속만으로 다 한 게 아니에요. 말, 글, 인쇄, 디지털 계산. 매 단계에서 우리는 <strong>"머리 밖으로" 인지를 옮겨 두고</strong>, 그 덕분에 더 어려운 일을 할 수 있게 됐어요. AI 에이전트도 똑같은 길을 다시 걷고 있다는 거예요.</p>
+
+<div class="pop">
+  <strong>마지막 한 줄.</strong> 더 똑똑한 AI는 단지 더 큰 뇌가 아니라 <em>더 잘 조직된 인지 시스템</em>이에요. 이 논문을 한 줄로 줄이면 그게 끝이에요.
+</div>
+
+<h2><span class="emoji">📚</span>더 자세히 보고 싶다면?</h2>
+<p>여기까지가 5분짜리 ELI5 버전이에요. 같은 내용을 9개 섹션·54페이지의 원논문 흐름 그대로 다룬 한국어 심층 요약(번역에 가까운 길이)도 같은 사이트에 있어요.</p>
+<p style="text-align:center; margin: 24px 0;">
+  <a href="presentation.html" style="display:inline-block; background:var(--c-link); color:#fff; padding:12px 28px; border-radius:8px; font-weight:700; text-decoration:none; font-size:16px;">📚 전체 심층 요약 보러가기</a>
+</p>
+
+<div class="footer">
+  원논문 — Zhou et al., 2026, <em>"Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering"</em>, <a href="https://arxiv.org/abs/2604.08224">arXiv:2604.08224</a>.<br>
+  본 ELI5 글은 Anthropic <strong>Claude Code</strong>(Opus 4.7) 위에서 oh-my-claudecode의 <code>/writing-team</code> 스킬로 작성되었습니다.<br>
+  Eduteam AI Edu Day · Upstage Education · 2026-05-04
+</div>
+
+</article>
+</body>
+</html>
