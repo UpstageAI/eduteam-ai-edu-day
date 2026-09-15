@@ -16,31 +16,74 @@
 .header-nav a { display:inline-flex; align-items:center; min-height:44px; font-size:13px; }
 .header-nav a:hover { color:var(--ink); }
 .catalog-section { padding:8px 0 48px; scroll-margin-top:24px; }
-.learning-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; }
+.learning-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  position:relative;
+  isolation:isolate;
+  margin-bottom:8px;
+}
+.learning-grid::before,.learning-grid::after {
+  content:'';
+  position:absolute;
+  inset:8px 4px -4px;
+  z-index:-1;
+  border:1px solid rgba(91,95,233,.1);
+  border-radius:6px;
+  background:var(--paper);
+  pointer-events:none;
+}
+.learning-grid::after { inset:16px 8px -8px; z-index:-2; }
 .learning-card {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 112px;
+  align-items:center;
+  gap:16px;
+  position:relative;
+  z-index:1;
   min-width:0;
-  padding:14px 16px 4px;
+  min-height:52px;
+  padding:4px 14px;
+}
+.learning-card+.learning-card { margin-top:-4px; }
+.learning-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:-1;
   border:1px solid transparent;
   border-radius:6px;
-  /* A static translucent edge, not a shadow or animated glass effect. */
   background:
     linear-gradient(var(--paper),var(--paper)) padding-box,
     linear-gradient(125deg,rgba(91,95,233,.14),rgba(91,95,233,.065) 42%,rgba(91,95,233,.16)) border-box;
+  box-shadow:0 1px 2px rgba(43,42,71,.025);
+  pointer-events:none;
+  transition:transform 200ms cubic-bezier(.2,.8,.2,1),box-shadow 200ms cubic-bezier(.2,.8,.2,1);
 }
 .card-content {
   display:grid;
-  grid-template-columns:64px 64px minmax(0,1.2fr) minmax(0,1fr);
+  grid-template-columns:54px 54px minmax(0,1.2fr) minmax(0,1fr);
   align-items:baseline;
-  gap:20px;
+  gap:12px;
 }
+.card-content,.card-bottom { min-width:0; transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
 .card-content>* { min-width:0; }
-.type-label,.format-label { font-size:12px; line-height:1.8; color:var(--muted); }
+.type-label,.format-label { font-size:11px; line-height:1.7; color:var(--muted); }
 .type-label { color:var(--green); }
-.resource-title { margin:0; font-size:16px; font-weight:550; line-height:1.65; letter-spacing:-.3px; }
-.card-description { margin:0; color:var(--muted); font-size:14px; line-height:1.8; }
-.card-bottom { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:16px; margin-top:4px; }
-.text-link { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:var(--green); font-size:13px; font-weight:500; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:5px; }
+.resource-title { margin:0; font-size:14px; font-weight:550; line-height:1.55; letter-spacing:-.2px; }
+.card-description { margin:0; color:var(--muted); font-size:12px; line-height:1.65; }
+.card-bottom { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:12px; margin:0; }
+.text-link { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--green); font-size:12px; font-weight:500; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:5px; }
 .text-link:hover { text-decoration-color:var(--green); }
+/* Keep the hover owner stationary; lift only the document surface and contents. */
+@media(hover:hover) and (pointer:fine) {
+  .learning-card:focus-within { z-index:3; }
+  .learning-card:hover { z-index:4; }
+  .learning-card:is(:hover,:focus-within)::before,
+  .learning-card:is(:hover,:focus-within)>.card-content,
+  .learning-card:is(:hover,:focus-within)>.card-bottom { transform:translateY(-6px); }
+  .learning-card:is(:hover,:focus-within)::before { box-shadow:0 10px 24px rgba(43,42,71,.1),0 2px 5px rgba(91,95,233,.06); }
+}
 .button-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
 .button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:5px; font-size:13px; font-weight:550; line-height:1.6; text-decoration:none; }
 .button-primary { background:var(--ink); color:var(--paper); }
@@ -81,24 +124,34 @@
 .workshop-section code { font-size:.9em; background:var(--green-soft); padding:2px 5px; border-radius:3px; }
 .workshop-section .reading-option { margin:12px 0; }
 @media(max-width:760px) {
-  .card-content { grid-template-columns:64px minmax(0,1fr); gap:6px 16px; }
+  .learning-card { display:block; padding:8px 12px 2px; }
+  .learning-card+.learning-card { margin-top:0; }
+  .card-content { grid-template-columns:54px minmax(0,1fr); gap:2px 12px; }
   .resource-title,.card-description { grid-column:1/-1; }
-  .resource-title { margin-top:4px; }
+  .resource-title { margin-top:2px; }
   .reading-layout,.workshop-layout { padding-top:16px; }
 }
 @media(max-width:480px) {
   .header-inner { flex-wrap:nowrap; gap:16px; }
   .brand { font-size:13px; }
   .header-nav a { font-size:12px; }
-  .learning-card { padding:12px 12px 2px; }
   .workshop-title { font-size:28px; }
   .lesson-item { gap:12px; }
 }
+@media(hover:none),(pointer:coarse) {
+  .learning-card+.learning-card { margin-top:0; }
+}
 @media(prefers-reduced-motion:reduce) {
+  .learning-card::before,.card-content,.card-bottom { transition:none; transform:none!important; }
+  .learning-card::before { box-shadow:none!important; }
   .text-link,.button { transition:none; }
 }
 @media print {
+  .learning-grid::before,.learning-grid::after,.learning-card::before { display:none; }
   .learning-grid,.workshop-layout { display:block; }
+  .learning-card { display:block; padding:8px 0; }
+  .learning-card+.learning-card { margin-top:0; }
+  .card-content,.card-bottom { transform:none!important; }
   .learning-card,.lesson-item { break-inside:avoid; }
   .catalog-section,.workshop-layout { padding:0; }
   .workshop-title { font-size:24pt; }

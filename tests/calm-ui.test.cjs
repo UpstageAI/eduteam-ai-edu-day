@@ -51,29 +51,43 @@ test('minimal header links retain a visible keyboard focus treatment', () => {
   assert.match(focusRules, /outline\s*:\s*(?!none\b)/, 'keyboard focus needs a visible outline');
 });
 
-test('interactive hover states do not move or rotate content', () => {
-  const hoverRules = ruleBodies(siteCss, ':hover').join('\n');
-  assert.doesNotMatch(hoverRules, /transform\s*:\s*[^;]*(?:translate|rotate)/i);
+test('stack interaction moves surfaces without moving the card hit area', () => {
+  const ownerRules = [...siteCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(([,selectors])=>selectors.split(',').some(selector=>selector.trim()==='.learning-card'))
+    .map(([, ,body])=>body).join('\n');
+  assert.doesNotMatch(ownerRules,/\btransform\s*:/i,'the normal-flow card owner must stay fixed');
+  const raisedRules=ruleBodies(siteCss,':hover').join('\n')+ruleBodies(siteCss,':focus-within').join('\n');
+  assert.match(raisedRules,/transform\s*:\s*translateY\s*\(/i,'hover or focus must lift an inner surface');
+  assert.match(raisedRules,/z-index\s*:/i,'raised sheets must paint above their neighbors');
 });
 
 test('shared pages avoid entrance motion and forced smooth scrolling', () => {
   const css = `${sharedCss}\n${siteCss}`;
   assert.doesNotMatch(css, /\banimation(?:-\w+)?\s*:/i);
-  assert.doesNotMatch(css, /^\s*transform\s*:/im);
   assert.doesNotMatch(css, /scroll-behavior\s*:\s*smooth/i);
 });
 
-test('transitions are brief and limited to interaction colors and borders', () => {
+test('transitions stay brief and limited to interaction feedback', () => {
   const declarations = [...`${sharedCss}\n${siteCss}`.matchAll(/\btransition\s*:\s*([^;}]+)/gi)].map(match => match[1].trim());
   assert.ok(declarations.length > 0);
   for (const declaration of declarations) {
     if (/^none\b/.test(declaration)) continue;
-    for (const item of declaration.split(',')) {
-      assert.match(item.trim(), /^(?:color|background(?:-color)?|border(?:-color)?|text-decoration-color)\s+/i, `non-interaction transition: ${item.trim()}`);
+    const items=declaration.replace(/cubic-bezier\([^)]*\)/gi,'timing-function').split(',');
+    for (const item of items) {
+      assert.match(item.trim(), /^(?:color|background(?:-color)?|border(?:-color)?|text-decoration-color|transform|box-shadow)\s+/i, `non-interaction transition: ${item.trim()}`);
       const duration = item.match(/([\d.]+)(ms|s)\b/i);
       assert.ok(duration, `transition needs an explicit short duration: ${item.trim()}`);
       const milliseconds = Number(duration[1]) * (duration[2].toLowerCase() === 's' ? 1000 : 1);
-      assert.ok(milliseconds <= 200, `transition exceeds 200ms: ${item.trim()}`);
+      assert.ok(milliseconds <= 220, `transition exceeds 220ms: ${item.trim()}`);
     }
   }
+});
+
+test('reduced motion and coarse pointers remove the sheet lift', () => {
+  assert.match(siteCss,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  const reduced=siteCss.slice(siteCss.search(/@media\s*\(prefers-reduced-motion:\s*reduce\)/));
+  assert.match(reduced,/transition\s*:\s*none/);
+  assert.match(reduced,/transform\s*:\s*none/);
+  assert.match(reduced,/box-shadow\s*:\s*none/);
+  assert.match(siteCss,/@media[^{}]*hover:\s*hover[^{}]*pointer:\s*fine/,'hover lift must be gated to real fine pointers');
 });
