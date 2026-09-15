@@ -1,18 +1,128 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GAS Tutorial Presentation</title>
-    <meta http-equiv="refresh" content="0; url=./slides-gas-tutorial/dist/presentation.html" />
-    <script>
-      window.location.replace('./slides-gas-tutorial/dist/presentation.html');
-    </script>
-  </head>
-  <body>
-    <p>
-      Redirecting to
-      <a href="./slides-gas-tutorial/dist/presentation.html">presentation.html</a>...
-    </p>
-  </body>
+<html lang="ko">
+<head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <meta name="color-scheme" content="light" /> <meta name="description" content="LLM과 Google Apps Script로 업무 자동화를 단계별로 익히는 60분 실습 안내입니다." /> <title>Google Apps Script 업무 자동화 실습 · AI Edu Day</title> <link rel="stylesheet" href="../reading-list/assets/reading-list.css" /> <link rel="stylesheet" href="../assets/site.css" /> <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+</head>
+<body> <a class="skip-link" href="#content">본문으로 건너뛰기</a>
+<header class="site-header">
+<div class="header-inner">
+      <a class="brand" href="../" aria-label="Upstage Education 홈"><span class="brand-mark" aria-hidden="true">e.</span><span class="brand-copy">Upstage Education<span class="brand-divider"> / </span><span class="brand-eduday">AI Edu Day</span></span></a>
+<nav class="header-nav" aria-label="사이트 메뉴"><a href="../#resources" aria-current="page">학습 자료</a><a href="../reading-list/">Reading List</a><a class="nav-github" href="https://github.com/UpstageAI/eduteam-ai-edu-day" target="_blank" rel="noopener noreferrer" aria-label="GitHub 저장소 (새 탭)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1-4-2-6-2m12 5v-3.5a3 3 0 0 0-.8-2.4c2.7-.3 5.6-1.3 5.6-6A4.7 4.7 0 0 0 18.5 7a4.3 4.3 0 0 0-.1-3.1S17.3 3.6 15 5a11 11 0 0 0-6 0C6.7 3.6 5.6 3.9 5.6 3.9A4.3 4.3 0 0 0 5.5 7a4.7 4.7 0 0 0-1.3 3.2c0 4.7 2.9 5.7 5.6 6A3 3 0 0 0 9 18.5V22"/></svg><span>GitHub ↗</span></a>
+</nav>
+</div>
+</header>
+<main id="content" class="container" tabindex="-1">
+<nav class="breadcrumb" aria-label="현재 위치"> <a href="../">AI Edu Day</a><span aria-hidden="true">/</span><span aria-current="page">GAS 업무 자동화 실습</span>
+</nav>
+<div class="workshop-layout">
+<article class="workshop-main">
+<header class="workshop-hero">
+<p class="eyebrow">Hands-on workshop · Google Apps Script
+</p>
+<h1 class="workshop-title">LLM과 함께 만드는<br />업무 자동화
+</h1>
+<p class="workshop-lede">JavaScript를 처음부터 직접 쓰기보다, 문제를 작게 나누어 LLM에 요청하고 실행 결과를 검증하는 과정을 연습합니다. Google Sheets 정리부터 Drive 파일 분류까지 네 단계로 이어집니다.
+</p>
+<div class="workshop-meta" aria-label="실습 정보"> <span class="pill">60분</span><span class="pill">36장</span><span class="pill">4단계 실습</span>
+</div>
+<div class="button-row"> <a class="button button-primary" href="./slides-gas-tutorial/dist/presentation.html">슬라이드 열기</a> <a class="button button-secondary" href="./tutorial/student_one_page_handout.md" download>핸드아웃 내려받기 (.md)</a>
+</div>
+</header>
+<section class="workshop-section" aria-labelledby="practice-heading">
+<div class="section-heading">
+<p class="eyebrow">Practice path
+</p>
+<h2 id="practice-heading">네 단계 실습
+</h2>
+<p>각 단계의 프롬프트를 먼저 읽고, 직접 실행한 뒤 참고 코드와 결과를 비교해 보세요.
+</p>
+</div>
+<ol class="lesson-list">
+<li class="lesson-item"> <span class="lesson-number" aria-hidden="true">01</span>
+<div class="lesson-content">
+<h3>시트 정규화와 이메일 매칭
+</h3>
+<p>이름과 연락처 형식을 정리하고, 두 시트에 나뉜 지원자 정보를 이름으로 연결합니다.
+</p>
+<div class="resource-links"><a href="./practices/practice1_sheet_normalization/prompt.md" download>프롬프트 내려받기 (.md)</a><a href="./practices/practice1_sheet_normalization/sample_solution.js">참고 코드 열기</a>
+</div>
+</div>
+</li>
+<li class="lesson-item"> <span class="lesson-number" aria-hidden="true">02</span>
+<div class="lesson-content">
+<h3>Drive 폴더와 문서 생성
+</h3>
+<p>정리한 데이터를 기준으로 트랙별 폴더와 지원자 문서를 만들고, 실제 생성 전에는 dry-run으로 확인합니다.
+</p>
+<div class="resource-links"><a href="./practices/practice2_drive_generation/prompt.md" download>프롬프트 내려받기 (.md)</a><a href="./practices/practice2_drive_generation/sample_solution.js">참고 코드 열기</a>
+</div>
+</div>
+</li>
+<li class="lesson-item"> <span class="lesson-number" aria-hidden="true">03</span>
+<div class="lesson-content">
+<h3>Drive 디렉터리 구조 확인
+</h3>
+<p>정리 규칙을 만들기 전에 폴더와 파일을 탐색하고, 전체 구조를 시트에 트리 형태로 기록합니다.
+</p>
+<div class="resource-links"><a href="./practices/practice3_tree_inspector/prompt.md" download>프롬프트 내려받기 (.md)</a><a href="./practices/practice3_tree_inspector/sample_solution.js">참고 코드 열기</a>
+</div>
+</div>
+</li>
+<li class="lesson-item"> <span class="lesson-number" aria-hidden="true">04</span>
+<div class="lesson-content">
+<h3>72개 파일 정리 Capstone
+</h3>
+<p>앞 단계에서 익힌 관찰·요청·실행·검증 과정을 바탕으로, 여러 폴더에 흩어진 파일을 규칙에 맞게 분류합니다.
+</p>
+<div class="resource-links"><a href="./practices/practice4_capstone/prompt.md" download>프롬프트 내려받기 (.md)</a><a href="./practices/practice4_capstone/sample_solution.js">참고 코드 열기</a>
+</div>
+</div>
+</li>
+</ol>
+</section>
+</article>
+<aside class="workshop-aside" aria-label="실습 안내">
+<section class="aside-card">
+<h2>실습 전 준비
+</h2>
+<ul>
+<li>Google 계정과 Chrome 브라우저
+</li>
+<li>Google Apps Script 접속 환경
+</li>
+<li>ChatGPT 또는 Claude
+</li>
+</ul>
+</section>
+<section class="aside-card">
+<h2>핵심 진행 순서
+</h2>
+<p>관찰 → 요청 → 실행 → 검증 → 재질문
+</p>
+<p>실제 개인정보는 사용하지 말고, 오류를 공유할 때도 이름·이메일·URL을 가린 뒤 전달하세요.
+</p>
+</section>
+<section class="aside-card">
+<h2>전체 안내서
+</h2>
+<p>준비 사항과 단계별 실행 방법을 한 문서에서 확인할 수 있습니다.
+</p>
+<div class="resource-links"><a href="./tutorial/GAS_Tutorial_Guide.md" download>실습 안내서 내려받기 (.md)</a><a href="./README.md" download>README 내려받기 (.md)</a>
+</div>
+</section>
+</aside>
+</div>
+</main>
+<footer class="site-footer">
+<div class="footer-inner">
+<div class="footer-brand"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true">e.</span> Upstage Education</a>
+<p>Learn together. Build better.
+</p>
+</div>
+<nav class="footer-nav" aria-label="하단 메뉴"><a href="../#resources">학습 자료</a><a href="../reading-list/">Reading List</a><a href="https://github.com/UpstageAI/eduteam-ai-edu-day" target="_blank" rel="noopener noreferrer">GitHub ↗ <span class="visually-hidden">(새 탭)</span></a>
+</nav>
+<p class="footer-caption">AI EDU DAY<br>함께 쌓아가는 교육팀의 학습 기록
+</p>
+</div>
+</footer>
+</body>
 </html>

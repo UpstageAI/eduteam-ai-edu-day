@@ -1,69 +1,160 @@
-# Edu Team Day (GitHub Pages 운영 가이드)
+# Edu Team Day 정적 자료 사이트
 
-이 저장소는 **GitHub Pages 1개 사이트**를 사용하고, 그 안에서 **여러 폴더 경로**로 슬라이드를 운영합니다.
+이 저장소는 교육팀의 워크숍과 읽기 자료를 한 GitHub Pages 사이트에서 제공합니다. 홈에서 네 개의 대표 자료를 검색하거나 유형별로 고를 수 있고, 각 워크숍은 안내 페이지에서 내용을 확인한 뒤 슬라이드와 실습 자료를 열 수 있습니다. 별도의 빌드나 패키지 설치는 필요하지 않습니다.
 
-- Pages 루트: `https://upstageai.github.io/eduteam-ai-edu-day/`
-- 폴더별 페이지 예시: `https://upstageai.github.io/eduteam-ai-edu-day/gas-tutorial/`
+- 사이트: `https://upstageai.github.io/eduteam-ai-edu-day/`
+- 배포 후 읽기 자료 경로: `https://upstageai.github.io/eduteam-ai-edu-day/reading-list/`
+- 배포 기준: `main` 브랜치의 저장소 루트
 
----
+## 로컬 실행
 
-## README for Agents
+저장소 루트에서 정적 파일 서버를 실행합니다.
 
-Deterministic instructions for Coding Agents (Claude Code, Codex, Gemini, etc.) working in this repo. Human readers can skip to the Korean guide below.
-
-### Repo role
-
-A static portal that exposes multiple HTML slide decks under `https://upstageai.github.io/eduteam-ai-edu-day/<folder>/`. Each `<folder>/` is one deck.
-
-### Invariants
-
-- Default branch is `main`. Pages deploys from `main` + `/ (root)` (legacy `build_type=branch`). Always push to `main`.
-- Each deck lives in its own root-level `<folder>/`. Never rename an existing folder (its URL is shared).
-- Folder entry point is `<folder>/index.html` — a redirect to the actual slide HTML (see `gas-tutorial/index.html`).
-- Use **relative paths only**. Never hardcode `/eduteam-ai-edu-day/...` (must work both locally and on Pages).
-- Do **not** commit `.omc/`, `.omx/`, `node_modules/`, `.DS_Store`.
-- Keep PDF/PPTX next to the source HTML so both originals and exports are discoverable.
-- Avoid rapid back-to-back pushes to `main` — the legacy Pages pipeline can deadlock if a deploy is cancelled mid-flight. Wait for the previous build to finish (`gh api repos/UpstageAI/eduteam-ai-edu-day/pages/builds/latest`) before pushing again.
-
-### Canonical layout
-
-```text
-<folder>/
-  index.html                           # entry — redirects to slides/dist/presentation.html
-  slides-<folder>/
-    dist/
-      presentation.html                # built single-file HTML (required)
-      presentation.pdf                 # PDF export (recommended)
+```bash
+python3 -m http.server 8000
 ```
 
-### Playbook: add a new deck
+브라우저에서 다음 주소를 엽니다.
 
-1. Prepare the slide HTML locally and verify it renders.
-2. Create `<folder>/slides-<folder>/dist/` at the repo root.
-3. Copy `presentation.html` (and `presentation.pdf` if available).
-4. Create `<folder>/index.html` from this template (replace `<folder>` only):
+- 홈 포털: `http://localhost:8000/`
+- Reading List: `http://localhost:8000/reading-list/`
+- Google Apps Script 튜토리얼: `http://localhost:8000/gas-tutorial/`
+- Oh-my-claude-code 사용기: `http://localhost:8000/omc-intro/`
 
-   ```html
-   <!doctype html>
-   <html lang="ko">
-     <head>
-       <meta charset="utf-8" />
-       <meta name="viewport" content="width=device-width, initial-scale=1" />
-       <title><folder> Presentation</title>
-       <meta http-equiv="refresh" content="0; url=./slides-<folder>/dist/presentation.html" />
-       <script>
-         window.location.replace('./slides-<folder>/dist/presentation.html');
-       </script>
-     </head>
-     <body>
-       <p>Redirecting to <a href="./slides-<folder>/dist/presentation.html">presentation.html</a>...</p>
-     </body>
-   </html>
-   ```
+서버를 종료하려면 실행 중인 터미널에서 `Ctrl-C`를 누릅니다. HTML 파일을 직접 열어도 기본 링크는 작동하지만, 사이트와 같은 조건에서 확인하려면 로컬 서버를 사용하는 편이 안전합니다.
 
-5. Stage only the new folder: `git add <folder>/` (never `git add .` or `-A`).
-6. Commit message style: `Add <folder> slides` or `Update <folder> ...` (short, imperative, English).
-7. `git push origin main`, then wait 1–3 min for Pages to rebuild and verify the URL.
+## 자료 구조
+
+```text
+index.html                                      # 네 개의 대표 자료를 보여 주는 홈 포털
+assets/
+  site.css                                      # 홈·워크숍이 함께 쓰는 스타일
+  portal.js                                     # 검색·필터와 자료 탐색을 더하는 선택적 기능
+reading-list/
+  index.html                                    # 읽기 자료 목록
+  assets/                                       # 읽기 화면의 스타일과 기능
+  externalization-llm-agents/                   # LLM 에이전트 외재화 자료
+    index.html
+  forward-deployed-engineer/
+    index.html                                  # Latent Space 글의 한국어 요약·읽기 가이드
+externalization-llm-agents/
+  index.html                                    # 기존 공유 URL을 위한 호환 리다이렉트
+gas-tutorial/
+  index.html                                    # 60분 실습 안내와 자료 링크
+  slides-gas-tutorial/dist/presentation.html    # 원본 슬라이드
+omc-intro/
+  index.html                                    # Oh-my-claude-code 사용기 안내
+  slides-omc-intro/dist/
+    presentation.html                           # 원본 슬라이드
+    presentation.pdf                            # 원본 PDF
+```
+
+새 읽기 자료는 `reading-list/<자료명>/` 아래에 둡니다. 루트에는 슬라이드처럼 독립적으로 운영하는 자료만 추가합니다. 모든 내부 링크와 정적 파일 경로에는 상대 경로를 사용합니다.
+
+## Reading List 구성
+
+Reading List에는 다음 자료가 있습니다.
+
+- **LLM 에이전트 외재화**: 기존 `externalization-llm-agents` 자료를 Reading List 안에서 읽을 수 있도록 정리했습니다.
+- **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 핵심 내용을 한국어로 요약하고, 업무에 적용할 때 살펴볼 질문을 읽기 가이드로 덧붙였습니다. 원문 전체 번역본은 아닙니다.
+
+기존에 공유된 `/externalization-llm-agents/` 주소는 삭제하지 않고 새 위치로 연결합니다. 북마크와 문서에 남은 링크를 그대로 사용할 수 있습니다.
+
+## 홈 포털과 워크숍 안내
+
+루트 `index.html`에는 아래 네 자료가 정적 카드로 들어 있습니다.
+
+- Google Apps Script로 시작하는 업무 자동화
+- Oh-my-claude-code 사용기
+- LLM 에이전트의 외재화
+- FDE: 고객 현장과 제품 개발
+
+검색창과 워크숍·읽을거리 필터는 `assets/portal.js`가 더하는 선택적 기능입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 네 카드와 모든 기본 링크는 그대로 사용할 수 있습니다. 스크립트는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 기존 목록 뒤에 추가합니다.
+
+`gas-tutorial/`과 `omc-intro/`는 더 이상 슬라이드로 바로 보내는 리다이렉트가 아닙니다. 두 폴더의 `index.html`은 발표 내용과 자료 형식을 먼저 설명하고, 원본 슬라이드·PDF·프롬프트·참고 코드로 이동할 수 있는 워크숍 안내 페이지입니다. 공통 화면 요소는 `assets/site.css`를 사용하며 Reading List와 같은 색상과 타이포그래피를 따릅니다.
+
+JavaScript를 사용할 수 있으면 GitHub의 `main` 브랜치 트리를 조회해 다음 항목도 추가합니다.
+
+- 루트 바로 아래의 `<폴더>/index.html`
+- 저장소 안의 `.pptx` 파일
+
+`reading-list/` 아래의 개별 글과 기존 `externalization-llm-agents/` 호환 주소는 홈에서 별도 카드로 표시하지 않습니다. 개별 글은 Reading List에서 선택합니다.
+
+## 자료 편집
+
+### 읽기 자료 추가
+
+1. `reading-list/<자료명>/index.html`을 만듭니다.
+2. `reading-list/index.html`에 제목, 설명, 예상 읽기 시간과 링크를 추가합니다.
+3. 로컬 서버에서 홈과 Reading List를 차례로 엽니다.
+4. 아래 검사 명령으로 링크와 원본 자료 보존 여부를 확인합니다.
+
+### 슬라이드 추가
+
+슬라이드는 기존 폴더 형식을 유지합니다.
+
+```text
+<폴더>/
+  index.html
+  slides-<폴더>/
+    dist/
+      presentation.html
+      presentation.pdf                 # 선택 사항
+```
+
+`<폴더>/index.html`에서는 실제 슬라이드 HTML을 상대 경로로 연결합니다. 폴더 이름은 공유 URL이 되므로 운영 중인 폴더는 이름을 바꾸지 않습니다.
+
+### 검사 명령
+
+```bash
+# 포털, 워크숍, 링크, 원문 보존, 이미지 체크섬, 리다이렉트 검사
+node --test tests/*.test.cjs
+node --check assets/portal.js
+node --check reading-list/assets/reading-list.js
+
+# 변경 파일 확인
+git status --short
+git diff --check
+git diff -- index.html README.md tests/portal.test.cjs
+```
+
+이 저장소에는 빌드나 의존성 설치 단계가 없습니다. HTML, CSS, JavaScript를 수정한 뒤 로컬 서버와 Node.js 기본 테스트 러너로 검사합니다.
+
+## 배포 전 확인 사항
+
+- 홈, Reading List, 수정한 자료를 로컬 서버에서 엽니다.
+- 이미지와 링크가 상대 경로를 사용하는지 살펴봅니다.
+- `node --test tests/*.test.cjs`가 통과하는지 검사합니다.
+- `.omc/`, `.omx/`, `node_modules/`, `.DS_Store`를 커밋하지 않습니다.
+- `git status --short`로 의도한 파일만 포함됐는지 점검합니다.
+
+GitHub Pages는 `main` 브랜치와 저장소 루트를 사용합니다. 배포가 끝나기 전에 연속으로 푸시하면 이전 배포가 취소될 수 있으므로, 직전 배포가 끝난 뒤 다음 변경을 푸시합니다.
+
+### 원본 자료와 이미지 보존
+
+기존 워크숍의 슬라이드 HTML과 OMC PDF는 안내 페이지에서 연결만 하며 파일 내용은 수정하지 않습니다. 회귀 테스트는 해당 파일의 SHA-256 체크섬을 확인합니다. 읽기 자료의 원문 그림, 기존 외재화 자료 URL과 그림 URL도 그대로 유지합니다.
+
+Latent.Space 자료의 원본 이미지 3개는 `reading-list/forward-deployed-engineer/images/`에 있습니다. `images/sources.json`에는 원문 URL, 원본 이미지 URL, 크기, SHA-256 체크섬을 기록했습니다. 이미지는 자르거나 다시 그리지 않았으며, 본문에서 출처와 원본 크기 링크를 제공합니다. 출처 표시는 별도의 이용 허가를 뜻하지 않습니다. 이미지 저작권은 해당 권리자에게 있습니다.
+
+### 브라우저 검증
+
+Chrome과 `chromux`가 설치된 환경에서는 아래 명령으로 홈과 워크숍의 검색·필터·반응형 화면을 먼저 확인하고, 이어서 Reading List의 읽음 표시·글자 크기·리다이렉트·저장소 제한·JavaScript 비활성화·인쇄 화면을 검증할 수 있습니다. Reading List 테스트는 해당 브라우저 프로필의 읽음 표시 값만 초기화합니다.
+
+```bash
+chromux open site-test http://127.0.0.1:8000/
+chromux run site-test --file tests/site.browser.js --arg base=http://127.0.0.1:8000/
+chromux close site-test
+
+chromux open reading-list-test http://127.0.0.1:8000/reading-list/
+chromux run reading-list-test --file tests/reading-list.browser.js --arg base=http://127.0.0.1:8000/
+chromux close reading-list-test
+```
+
+이전 주소로 연결된 그림도 깨지지 않도록 기존 `externalization-llm-agents/` 경로에 원본 그림의 호환용 사본을 유지합니다. 새 콘텐츠를 추가할 때는 `reading-list/` 아래를 사용합니다.
+
+## 기존 슬라이드 운영 참고
+
+배포 시에는 의도한 경로만 명시해 스테이징합니다. `git add .`이나 `git add -A`로 로컬 작업 파일을 함께 추가하지 않습니다. PDF와 PPTX는 원본 HTML 옆에 둡니다.
 
 ### PDF generation (HTML → PDF)
 
@@ -83,114 +174,12 @@ sed -i '' 's/@page { size: landscape; margin: 0; }/@page { size: 960px 540px; ma
   --virtual-time-budget=10000 "file:///tmp/print.html"
 ```
 
-### Pre-push checklist
-
-- [ ] `<folder>/index.html` exists and redirects to a real file
-- [ ] `<folder>/slides-<folder>/dist/presentation.html` exists
-- [ ] `git status` shows only intended files (no `.omc/`, `.omx/`)
-- [ ] `open <folder>/index.html` works locally
-- [ ] All internal links/images use relative paths
-
-### Auto-listing
-
-The root `index.html` scans the `main` branch tree via the GitHub API and renders cards for every `<folder>/index.html` and `.pptx`. Just push — no manual list edit needed.
-
-### Common failure modes
-
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| 404 after deploy | Pages still building | wait 1–3 min, retry |
-| Page loads but blank | wrong redirect path in `index.html` | check DevTools → Network for 404 |
-| CSS/images broken | absolute paths used | switch to relative (`./`) |
-| Missing from portal list | not pushed to `main` or `<folder>/index.html` missing | check and re-push |
-| Pages stuck at `updating_pages` and times out | a previous deploy was cancelled mid-flight, or `build_type` was changed | revert to `build_type=legacy` (`gh api --method PUT repos/UpstageAI/eduteam-ai-edu-day/pages -f build_type=legacy -f 'source[branch]=main' -f 'source[path]=/'`), remove any custom `.github/workflows/pages.yml`, and push a clean commit |
-
----
-
-## 핵심 개념
-
-- 한 저장소에서 Pages 설정은 보통 1개입니다. (브랜치/폴더 소스 1개)
-- 대신 `/<폴더명>/` 형태로 여러 페이지를 함께 운영할 수 있습니다.
-- 즉, "사이트는 하나"지만 "경로는 여러 개"를 가질 수 있습니다.
-
----
-
-## 새 폴더로 HTML 슬라이드 올리는 방법
-
-아래 순서대로 진행하세요.
-
-### 1) 폴더 생성
-예: `my-workshop/`
-
-### 2) 슬라이드 HTML 배치
-예시 구조:
-
-```text
-my-workshop/
-  index.html
-  slides/
-    presentation.html
-```
-
-> 권장: `my-workshop/index.html`에서 실제 슬라이드 파일로 리다이렉트하면 URL이 깔끔해집니다.
-
-### 3) (선택) index.html 리다이렉트 예시
-
-```html
-<!doctype html>
-<html>
-  <head>
-    <meta http-equiv="refresh" content="0; url=./slides/presentation.html" />
-    <script>location.replace('./slides/presentation.html');</script>
-  </head>
-  <body>Redirecting...</body>
-</html>
-```
-
-### 4) 변경사항 커밋
+### Pages 배포 상태 확인
 
 ```bash
-git add my-workshop
-git commit -m "Add my-workshop slides"
+gh api repos/UpstageAI/eduteam-ai-edu-day/pages/builds/latest
 ```
 
-### 5) main 브랜치로 푸시
+기존 사이트는 브랜치 기반 Pages 배포를 사용합니다. 사용자 승인 없이 배포 방식을 바꾸거나 별도 Pages 워크플로를 추가하지 않습니다. 배포가 멈추면 먼저 직전 작업의 완료 여부와 저장소의 Pages 설정을 확인합니다.
 
-```bash
-git push origin main
-```
-
-### 6) Pages 설정 확인 (최초 1회)
-GitHub 저장소에서:
-- **Settings → Pages**
-- Source: **Deploy from a branch**
-- Branch: **main**
-- Folder: **/ (root)**
-
-### 7) 접속 URL
-
-- 폴더 진입점: `https://upstageai.github.io/eduteam-ai-edu-day/my-workshop/`
-- 직접 파일: `https://upstageai.github.io/eduteam-ai-edu-day/my-workshop/slides/presentation.html`
-
----
-
-## 현재 운영 중인 경로
-
-- `gas-tutorial/` — `gas-tutorial/slides-gas-tutorial/dist/presentation.html`
-- `omc-intro/` — `omc-intro/slides-omc-intro/dist/presentation.html`
-
----
-
-## 자주 발생하는 문제
-
-1. **404 발생**
-   - Pages 배포가 아직 안 끝났을 수 있습니다 (1~3분 대기)
-   - 브랜치/폴더 설정이 `main` + `/ (root)`인지 확인
-
-2. **스타일/정적 파일 누락**
-   - 상대경로(`./`) 기준이 맞는지 확인
-   - 파일이 실제 커밋/푸시 되었는지 확인
-
-3. **폴더 링크는 보이는데 내용이 안 열림**
-   - 해당 폴더에 `index.html`이 있는지 확인
-
+정적 검사와 브라우저 검증을 마친 변경만 기존 `main` 브랜치에 게시합니다. 배포 후에는 Pages 빌드 상태와 실제 사이트의 화면·링크를 모두 살펴봅니다.

@@ -1,0 +1,33 @@
+{
+  "retrieved": "2026-09-15",
+  "note": "Original article images downloaded without resizing, cropping, redrawing, or translating embedded text. Copyright remains with the original rights holders. Source attribution is not a license grant.",
+  "images": [
+    {
+      "file": "images/fde-and-consulting.png",
+      "source_page": "https://www.latent.space/p/forward-deployed-engineer-best-practices",
+      "original_url": "https://substack-post-media.s3.amazonaws.com/public/images/d9ad2af0-b40a-433d-bd78-0514683c9eb4_2560x1440.png",
+      "sha256": "f97c43fbf89326c4b8476a315a7dbd84ccffa823b6c34efb251ed3bb34a75109",
+      "width": 2560,
+      "height": 1440,
+      "modified": false
+    },
+    {
+      "file": "images/author-in-the-field.jpeg",
+      "source_page": "https://www.latent.space/p/forward-deployed-engineer-best-practices",
+      "original_url": "https://substack-post-media.s3.amazonaws.com/public/images/ccefb6ab-85b9-4fd3-9909-0635cfe96ef8_3024x2728.jpeg",
+      "sha256": "17b19104fb9f7a060d514e23961811b1a463e072694503c460d3a08883fa4e5d",
+      "width": 3024,
+      "height": 2728,
+      "modified": false
+    },
+    {
+      "file": "images/operating-model.png",
+      "source_page": "https://www.latent.space/p/forward-deployed-engineer-best-practices",
+      "original_url": "https://substack-post-media.s3.amazonaws.com/public/images/d663133e-6760-4a69-b519-cabc4c1e4472_2442x1240.png",
+      "sha256": "aa33c3d42ce1c554c2b4c9ef808ab5a4197d50408fd9e13d24dc16f2fbf3f602",
+      "width": 2442,
+      "height": 1240,
+      "modified": false
+    }
+  ]
+}
