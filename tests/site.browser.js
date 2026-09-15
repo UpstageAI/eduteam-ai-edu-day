@@ -56,7 +56,7 @@ try {
   check(await js('document.querySelectorAll("section.slide").length===20'), 'OMC action opens all 20 original slides');
 
   await go('reading-list/forward-deployed-engineer/');
-  check(await js(`getComputedStyle(document.querySelector('.reading-layout')).display==='grid' && getComputedStyle(document.querySelector('.reading-layout')).gridTemplateColumns.split(' ').length===1 && getComputedStyle(document.querySelector('.reading-sidebar')).position==='static' && getComputedStyle(document.querySelector('.reading-sidebar')).overflowY==='visible'`), 'reader TOC is in the single vertical document flow');
+  check(await js(`document.querySelector('main.reader-body[data-reader]') && !document.querySelector('.reading-progress,.reading-toolbar,.reading-sidebar,.article-end,.breadcrumb,[data-reader-control]')`), 'reader presents only static article content without auxiliary chrome');
 
   const offlineScript = await cdp('Page.addScriptToEvaluateOnNewDocument',{source:'const realFetch=window.fetch;window.fetch=(u,...a)=>String(u).includes("api.github.com")?Promise.reject(new Error("offline test")):realFetch(u,...a);'});
   try {

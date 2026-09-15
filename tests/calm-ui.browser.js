@@ -126,10 +126,7 @@ try {
   check(await js(`document.querySelectorAll('[data-resource]').length===2&&!document.querySelector('.collection-hero,.collection-toolbar,#result-count,#empty-state,.site-footer,script[src*="reading-list.js"]')`),'Reading List is a static two-row catalog without catalogue UI or runtime');
 
   await go('reading-list/forward-deployed-engineer/');
-  await js(`document.querySelector('[data-complete]').setAttribute('aria-pressed','true')`);
-  const selected=await js(`(${contrast})(['[data-complete]'])`);
-  check(selected[0].ratio>=4.5,`selected reader control meets 4.5:1 contrast (${selected[0].ratio.toFixed(2)})`);
-  check(await js(`getComputedStyle(document.querySelector('.reading-layout')).gridTemplateColumns.split(' ').length===1&&getComputedStyle(document.querySelector('.reading-sidebar')).position==='static'`),'reader details use one in-flow vertical layout');
+  check(await js(`document.querySelector('main.reader-body[data-reader] h1') && !document.querySelector('.reading-progress,.reading-toolbar,.reading-sidebar,.article-end,.breadcrumb,[data-reader-control]')`),'reader keeps article content without auxiliary chrome');
 
   await go('gas-tutorial/');
   check(await js(`getComputedStyle(document.querySelector('.workshop-layout')).gridTemplateColumns.split(' ').length===1&&getComputedStyle(document.querySelector('.workshop-aside')).position==='static'`),'workshop details use one in-flow vertical layout');

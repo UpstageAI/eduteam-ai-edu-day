@@ -129,93 +129,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   align-items:start;
   padding:26px 0 75px;
 }
-.reading-sidebar {
-  position:static;
-  font-size:12px;
-  max-height:none;
-  overflow:visible;
-  padding:4px 6px 12px 0;
-}
-.reading-sidebar summary {
-  font-weight:700;
-  letter-spacing:.6px;
-  cursor:pointer;
-  font-size:11px;
-  padding-bottom:12px;
-}
-.section-nav {
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-.section-nav a {
-  display:block;
-  padding:8px 10px;
-  border-left:2px solid var(--line);
-  text-decoration:none;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.55;
-}
-.section-nav a:hover,.section-nav a[aria-current=location] {
-  color:var(--green);
-  border-color:var(--green);
-  background:var(--green-soft);
-}
-.sidebar-note {
-  font-size:11px;
-  color:var(--muted);
-  padding:20px 10px 0;
-}
 .reader-column {
   min-width:0;
-}
-.reading-toolbar {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  border-bottom:1px solid var(--line);
-  padding:0 0 18px;
-  margin-bottom:32px;
-  font-size:11px;
-  color:var(--muted);
-}
-.toolbar-actions {
-  display:flex;
-  gap:6px;
-  align-items:center;
-}
-.toolbar-actions button,.complete-button {
-  background:white;
-  color:var(--ink);
-  border:1px solid var(--line);
-  border-radius:6px;
-  min-height:36px;
-  padding:5px 12px;
-}
-.toolbar-actions button {
-  min-width:36px;
-  font-size:13px;
-}
-.toolbar-actions output {
-  min-width:38px;
-  text-align:center;
-}
-.reading-progress {
-  height:3px;
-  width:100%;
-  position:fixed;
-  top:0;
-  left:0;
-  z-index:30;
-  pointer-events:none;
-}
-.reading-progress span {
-  display:block;
-  height:100%;
-  width:0;
-  background:var(--green);
 }
 .reader-title {
   font-size:clamp(27px,3vw,34px);
@@ -334,32 +249,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 .reading-option:hover {
   border-color:var(--green);
 }
-.article-end {
-  padding-top:32px;
-  border-top:1px solid var(--line);
-  margin-top:45px;
-}
-.complete-button {
-  font-size:13px;
-  padding:10px 18px;
-  min-height:44px;
-}
-.complete-button[aria-pressed=true] {
-  background:var(--green);
-  color:#fff;
-  border-color:var(--green);
-}
-.storage-note {
-  font-size:11px!important;
-  color:var(--muted);
-  line-height:1.6;
-}
-.next-reading {
-  display:block;
-  font-size:14px;
-  font-weight:650;
-  margin-top:32px;
-}
 .source-link {
   font-size:13px;
 }
@@ -415,10 +304,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   word-break:normal;
   white-space:normal;
 }
-.legacy-body .nav-bar {
-  flex-wrap:wrap;
-  gap:12px;
-}
 .legacy-body .paper>div[style*="display:flex"] {
   flex-wrap:wrap;
 }
@@ -436,9 +321,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 }
 .legacy-body article .toc {
   font-size:.82em;
-}
-.legacy-body article .toc h2 {
-  font-size:20px;
 }
 body.legacy-reader {
   font-family:var(--sans);
@@ -465,34 +347,11 @@ body.legacy-reader {
     gap:24px;
     padding-top:5px;
   }
-  .reading-sidebar {
-    position:static;
-    max-height:none;
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:13px 16px;
-  }
-  .reading-sidebar summary {
-    padding-bottom:0;
-  }
-  .reading-sidebar[open] summary {
-    padding-bottom:12px;
-  }
-  .section-nav {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
-  .sidebar-note {
-    display:none;
-  }
   .reader-column {
     max-width:760px;
   }
   .reader-title {
     max-width:670px;
-  }
-  .reading-toolbar {
-    margin-bottom:25px;
   }
   .header-nav {
     gap:18px;
@@ -527,12 +386,6 @@ body.legacy-reader {
   .reader-body .callout {
     padding:17px 19px;
   }
-  .reading-toolbar {
-    flex-wrap:wrap;
-  }
-  .section-nav {
-    grid-template-columns:1fr;
-  }
   .byline {
     font-size:11px;
   }
@@ -563,7 +416,7 @@ body.legacy-reader {
     background:#fff;
     color:#000;
   }
-  .site-header,.breadcrumb,.reading-sidebar,.reading-toolbar,.reading-progress,.article-end,.skip-link {
+  .site-header,.breadcrumb,.skip-link {
     display:none!important;
   }
   .container {
@@ -626,3 +479,10 @@ body.legacy-reader {
 .source-gallery .source-figure {
   margin-bottom:12px;
 }
+
+/* Reader pages intentionally contain only the article itself. Legacy source bytes remain intact; auxiliary contents and jump bars are not part of the UI. */
+.legacy-body article .toc,
+.legacy-body article .nav-bar,
+.legacy-body article.paper > div[style*="display:flex"] { display:none !important; }
+.legacy-body article > .attribution { color:var(--muted); }
+.source-meta { font-size:13px; color:var(--muted); }

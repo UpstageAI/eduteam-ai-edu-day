@@ -38,7 +38,7 @@ Motion follows the latest explicit user request: retain 150ms color feedback on 
 
 ## Components
 
-Shared two-link header, skip link, visually hidden catalog heading, uniform four-field document sheet and right-aligned action. Workshop action buttons, breadcrumbs and essential exercise links remain. Reader: collapsed-by-default, in-flow contents, reading progress, font-size controls, completion toggle and original inline image figures. Footer and catalogue-only controls are removed, not merely hidden. All actions are real links/buttons; no placeholder controls.
+Shared two-link header, skip link, visually hidden catalog heading, uniform four-field document sheet and right-aligned action. Workshop action buttons, breadcrumbs and essential exercise links remain. Reader: static article title, byline/source attribution, body text and original inline figures. Do not render progress, font-size controls, completion state, breadcrumbs, outer or embedded contents navigation, or a “next reading” footer. Footer and catalogue-only controls are removed, not merely hidden. All actions are real links/buttons; no placeholder controls.
 
 ## Accessibility
 
@@ -50,7 +50,7 @@ Desktop: compact document strips stack with 20px folder overlap; fields read lef
 
 ## Interaction states
 
-All static rows and links work with JavaScript disabled. GitHub discovery may append unknown root-level collections/PPTX in the same row format but never replaces static resources. No search or filter controls, counts or read-state labels are rendered on catalogs. API errors/timeouts leave known content usable. Reading settings degrade safely when storage is blocked. Completion is reversible and scoped to this browser, not a cloud account.
+All static rows and links work with JavaScript disabled. GitHub discovery may append unknown root-level collections/PPTX in the same row format but never replaces static resources. No search or filter controls, counts or read-state labels are rendered on catalogs. API errors/timeouts leave known content usable. Article pages have no reader settings, progress meter, completion state, contents navigation or browser-storage dependency.
 
 ## Content voice
 
@@ -58,7 +58,7 @@ Korean-first, direct, welcoming and specific. English for familiar technical nam
 
 ## Implementation constraints
 
-Static HTML/CSS/JavaScript; no new dependencies, font CDN, tracking, framework or hosting migration. Relative internal paths must work locally and under `/eduteam-ai-edu-day/`. Preserve user untracked files and original slide/article/image/PDF bytes. Existing regression tests lock source content. Before delivery run Node tests, JS syntax, internal-link/fragment checks, Korean copy checks and Chrome desktop/mobile/no-JS/storage/offline/keyboard checks; inspect screenshots. Publish only to the existing main/root GitHub Pages configuration after user approval and passing verification; check previous deployment before a single push.
+Static HTML/CSS/JavaScript; no new dependencies, font CDN, tracking, framework or hosting migration. Relative internal paths must work locally and under `/eduteam-ai-edu-day/`. Preserve user untracked files and original slide/article/image/PDF bytes. Existing regression tests lock source content. Before delivery run Node tests, JS syntax, internal-link/fragment checks, Korean copy checks and Chrome desktop/mobile/no-JS/offline/keyboard checks; inspect screenshots. Publish only to the existing main/root GitHub Pages configuration after user approval and passing verification; check previous deployment before a single push.
 
 ### Item-overlap refinement plan
 

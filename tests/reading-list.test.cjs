@@ -92,15 +92,18 @@ test('all three article images are local unmodified originals with source proven
   assert.match(html,/<span>한국어 전문 번역<\/span>/);
 });
 
-test('reader HTML has progressive controls, accessible navigation and no added remote runtime', () => {
+test('reader HTML is static accessible content without reader chrome or runtime', () => {
+  assert.equal(fs.existsSync(path.join(root,'reading-list/assets/reading-list.js')),false);
   for (const file of readingFiles()) {
     const html=fs.readFileSync(file,'utf8');
     assert.doesNotMatch(html,/<script[^>]*src="https?:/);
     assert.doesNotMatch(html,/@import/);
     if (html.includes('data-reader>')) {
-      assert.match(html,/data-reader-control hidden/);
-      assert.match(html,/aria-label="글 목차"/);
-      assert.match(html,/data-reading-id="(?:externalization-llm-agents|forward-deployed-engineer)"/);
+      assert.match(html,/<main[^>]*id="content"[^>]*tabindex="-1"[^>]*data-reader/);
+      assert.equal((html.match(/<h1\b/g)||[]).length,1,path.relative(root,file));
+      assert.match(html,/<a\b[^>]*href="[^"]+"/);
+      assert.doesNotMatch(html,/reading-list\.js|data-reading-id|data-reader-control|data-(?:progress|percent|size(?:-output)?|complete|storage-note)|aria-label="글 목차"/);
+      assert.doesNotMatch(html,/class="[^"]*\b(?:reading-progress|reading-toolbar|reading-sidebar|section-nav|breadcrumb|next-reading|article-end|storage-note)\b/);
     }
   }
 });

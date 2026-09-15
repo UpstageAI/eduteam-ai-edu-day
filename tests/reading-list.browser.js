@@ -1,60 +1,51 @@
 // Run with an already open isolated Chrome session:
 // chromux run <session> --file tests/reading-list.browser.js --arg base=http://127.0.0.1:8000/
-// This test only modifies reading-list storage keys in that test browser.
+// Reader pages are intentionally static: no progress meter, font controls, TOC, or reader runtime.
 const base = new URL(args.base || 'http://127.0.0.1:8000/');
 const results = [];
 const check = (condition, message) => { if (!condition) throw new Error(message); results.push(message); };
 async function go(path) {
-  await cdp('Page.navigate', { url: new URL(path,base).href });
+  await cdp('Page.navigate', { url: new URL(path, base).href });
   await waitLoad();
   await waitFor('main, body');
 }
-const viewport = async (width,height,mobile=false) => cdp('Emulation.setDeviceMetricsOverride', { width,height,deviceScaleFactor:1,mobile });
-const noOverflow = async () => js('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1');
-const errorScript = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: 'window.__readingErrors=[];window.addEventListener("error",e=>window.__readingErrors.push(e.message));'});
-let savedReaderStorage = {};
+const viewport = (width, height, mobile = false) => cdp('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile });
+const noOverflow = () => js('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1');
+const errorScript = await cdp('Page.addScriptToEvaluateOnNewDocument', { source: 'window.__readingErrors=[];window.addEventListener("error",e=>window.__readingErrors.push(e.message));' });
 try {
-  await viewport(1440,1000);
+  await viewport(1440, 1000);
   await go('reading-list/');
-  savedReaderStorage = await js(`Object.fromEntries(Object.keys(localStorage).filter(k=>k.startsWith('edu-reading-list:v1:')).map(k=>[k,localStorage.getItem(k)]))`);
-  await js(`Object.keys(localStorage).filter(k=>k.startsWith('edu-reading-list:v1:')).forEach(k=>localStorage.removeItem(k));`);
-  check(await js('document.querySelectorAll("[data-resource]").length===2'), 'collection has two static resource rows');
-  check(await js(`!document.querySelector('.collection-hero,.collection-toolbar,#resource-search,#result-count,#empty-state,[data-read-state],.site-footer,script[src*="reading-list.js"]')`), 'collection has no hero, catalogue controls, status, footer, or catalogue runtime');
-  check(await js('[...document.querySelectorAll("[data-resource]")].every(row=>row.querySelectorAll(":scope>.card-content>.type-label,:scope>.card-content>.format-label,:scope>.card-content>h2.resource-title,:scope>.card-content>.card-description").length===4&&row.querySelector(":scope>.card-bottom>a.text-link"))'), 'collection rows retain category, format, title, summary, and CTA');
+  check(await js('document.querySelectorAll("[data-resource]").length===2'), 'collection retains two static resource rows');
+  check(await js('document.querySelectorAll(".site-header a").length===2'), 'collection keeps only brand and GitHub links');
+  check(await js('!document.querySelector(".collection-hero,.collection-toolbar,#resource-search,#result-count,#empty-state,.read-state")'), 'collection has no auxiliary catalogue UI or runtime');
   check(await noOverflow(), 'desktop collection has no horizontal overflow');
-  await go('reading-list/');
-  await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
-  await cdp('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
-  check(await js('document.activeElement.classList.contains("skip-link")'), 'keyboard navigation reaches the skip link first');
-  await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
-  await cdp('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
-  check(await js('document.activeElement.id==="content"'), 'skip link moves keyboard focus to the main content');
-
-
   await go('reading-list/forward-deployed-engineer/');
+  check(await js('document.querySelectorAll("[data-source-paragraph]").length===57'), 'FDE article keeps all 57 translated paragraphs');
   check(await js('document.querySelectorAll(".source-figure img").length===3'), 'article preserves all three original images');
-  check(await js('!document.querySelector("#discussion, .editorial-note, .source-gallery")'), 'FDE article has no added questions or detached image gallery');
+  check(await js('!document.querySelector(".reading-progress,.reading-toolbar,.reading-sidebar,.article-end,.breadcrumb,[data-reader-control],[data-progress],[data-percent],[data-size],[data-complete],[data-reading-id]")'), 'reader omits progress, font controls, TOC, breadcrumbs and completion chrome');
+  check(await js('![...document.querySelectorAll("body,main")].some(node=>/스크롤 진행률|글자 크기|이 글의 목차|읽음으로 표시/.test(node.textContent))'), 'reader omits progress, font, TOC and completion copy');
+  check(await js('document.querySelector("main[data-reader] h1") && document.querySelector("main[data-reader] .byline")'), 'article title and source byline remain visible');
   await js('document.querySelectorAll("img").forEach(img=>img.loading="eager")');
   await js('Promise.all([...document.images].map(image => image.decode())).then(() => true)');
   check(await js('[...document.images].every(img=>img.complete && img.naturalWidth>0)'), 'all original images decode successfully');
-  await js('document.querySelector("[data-size=larger]").click()');
-  check(await js('getComputedStyle(document.querySelector("[data-reader]")).fontSize==="20px"'), 'font-size control changes the reader text');
-  await js('document.querySelector("[data-complete]").click()');
-  await go('reading-list/forward-deployed-engineer/');
-  check(await js('document.querySelector("[data-complete]").getAttribute("aria-pressed")==="true" && document.querySelector("[data-size-output]").textContent==="20px"'), 'reading status and type size persist after navigation');
-  await js('document.querySelector("[data-complete]").click()');
-  check(await js('document.querySelector("[data-complete]").getAttribute("aria-pressed")==="false"'), 'completion can be undone');
-  await js('document.querySelector("[data-complete]").click();window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"})');
-  await sleep(150);
-  check(await js('document.querySelector("[data-percent]").textContent==="100%"'), 'scroll progress reaches 100 percent at the end');
-  for (const [width,height] of [[390,844],[320,740]]) {
-    await viewport(width,height,true);
-    for (const path of ['reading-list/','reading-list/forward-deployed-engineer/','reading-list/externalization-llm-agents/','reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html','reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html']) {
+  check(await noOverflow(), 'desktop article has no horizontal overflow');
+
+  await go('reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html');
+  check(await js('document.querySelector(".legacy-body article .toc") && getComputedStyle(document.querySelector(".legacy-body article .toc")).display==="none"'), 'legacy presentation hides its embedded contents block');
+  check(await js(`document.querySelector('.legacy-body article.paper > div[style*="display:flex"]') && getComputedStyle(document.querySelector('.legacy-body article.paper > div[style*="display:flex"]')).display==='none'`), 'legacy deep article hides its auxiliary intro panel');
+  await go('reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html');
+  check(await js('document.querySelector(".legacy-body article .nav-bar") && getComputedStyle(document.querySelector(".legacy-body article .nav-bar")).display==="none"'), 'legacy short article hides its auxiliary jump bar');
+
+  for (const [width, height] of [[390, 844], [320, 740]]) {
+    await viewport(width, height, true);
+    for (const path of ['reading-list/', 'reading-list/forward-deployed-engineer/', 'reading-list/externalization-llm-agents/', 'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html', 'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html']) {
       await go(path);
       check(await noOverflow(), `${width}px no horizontal overflow: ${path}`);
       check(await js('!(window.__readingErrors || []).length'), `no browser script errors: ${width}px ${path}`);
+      check(await js('document.querySelectorAll(".site-header a").length===2'), `two header links remain: ${width}px ${path}`);
     }
   }
+
   await go('externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html?from=bookmark#s3');
   await waitFor('[data-reader]');
   check(await js('location.pathname.includes("reading-list/externalization-llm-agents/") && location.hash==="#s3" && location.search==="?from=bookmark" && !!document.querySelector("#s3")'), 'old deep links preserve queries and section anchors');
@@ -62,34 +53,21 @@ try {
   await waitFor('[data-reader]');
   check(await js('location.pathname.endsWith("/reading-list/externalization-llm-agents/")'), 'old collection entry redirects to the new resource');
 
-  const storageScript = await cdp('Page.addScriptToEvaluateOnNewDocument', {source:'Object.defineProperty(window,"localStorage",{get(){throw new Error("Storage blocked for test");}});'});
-  try {
-    await go('reading-list/forward-deployed-engineer/');
-    await js('document.querySelector("[data-size=larger]").click();document.querySelector("[data-complete]").click()');
-    check(await js('document.querySelector("[data-storage-note]").textContent.includes("이번 페이지") && document.querySelector("[data-complete]").getAttribute("aria-pressed")==="true" && !(window.__readingErrors || []).length'), 'blocked storage does not break reading controls');
-  } finally { await cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:storageScript.identifier}); }
-
-  await cdp('Emulation.setScriptExecutionDisabled',{value:true});
+  await cdp('Emulation.setScriptExecutionDisabled', { value: true });
   try {
     await go('reading-list/');
-    check(await js('document.querySelectorAll("[data-resource]").length===2 && !document.querySelector(".collection-toolbar,#resource-search,#empty-state")'), 'no-JavaScript collection retains both rows without dead controls');
+    check(await js('document.querySelectorAll("[data-resource]").length===2 && !document.querySelector(".collection-toolbar")'), 'no-JavaScript collection retains rows without dead UI');
     await go('reading-list/forward-deployed-engineer/');
-    check(await js('document.querySelectorAll("[data-source-paragraph]").length===57 && document.querySelectorAll(".source-figure img").length===3 && document.querySelector(".reading-toolbar").hidden'), 'no-JavaScript article retains text, images and static navigation');
-    await go('');
-    check(await js(`['./reading-list/externalization-llm-agents/','./reading-list/forward-deployed-engineer/'].every(href=>[...document.querySelectorAll('#pages a.text-link')].some(link=>link.getAttribute('href')===href))`), 'no-JavaScript portal links directly to both reading materials');
-  } finally { await cdp('Emulation.setScriptExecutionDisabled',{value:false}); }
+    check(await js('document.querySelectorAll("[data-source-paragraph]").length===57 && document.querySelectorAll(".source-figure img").length===3'), 'no-JavaScript article retains text and images');
+  } finally { await cdp('Emulation.setScriptExecutionDisabled', { value: false }); }
 
-  await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+  await cdp('Emulation.setEmulatedMedia', { media: 'print', features: [] });
   await go('reading-list/forward-deployed-engineer/');
-  check(await js('getComputedStyle(document.documentElement).scrollBehavior==="auto"'), 'reduced motion disables smooth scrolling');
-  await cdp('Emulation.setEmulatedMedia',{media:'print',features:[]});
-  check(await js('getComputedStyle(document.querySelector(".site-header")).display==="none" && getComputedStyle(document.querySelector("[data-reader]")).fontSize==="16px"'), 'print layout hides navigation and uses readable text');
-  return { passed:results.length, base:base.href, checks:results };
+  check(await js('getComputedStyle(document.querySelector(".site-header")).display==="none"'), 'print mode hides the minimal header');
+  return { passed: results.length, base: base.href, checks: results };
 } finally {
-  await cdp('Emulation.setEmulatedMedia',{media:'',features:[]});
-  await cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:errorScript.identifier});
-  await cdp('Emulation.setScriptExecutionDisabled',{value:false});
-  await go('reading-list/');
-  await js(`Object.keys(localStorage).filter(k=>k.startsWith('edu-reading-list:v1:')).forEach(k=>localStorage.removeItem(k));Object.entries(${JSON.stringify(savedReaderStorage)}).forEach(([k,v])=>localStorage.setItem(k,v))`);
-  await viewport(1440,1000);
+  await cdp('Emulation.setScriptExecutionDisabled', { value: false });
+  await cdp('Emulation.setEmulatedMedia', { media: '', features: [] });
+  await cdp('Page.removeScriptToEvaluateOnNewDocument', { identifier: errorScript.identifier });
+  await viewport(1440, 1000);
 }

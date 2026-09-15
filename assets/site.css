@@ -94,9 +94,7 @@
 .button-secondary:hover { border-color:var(--muted); background:var(--green-soft); }
 /* Detail pages follow the same single vertical flow, with no independent side panel. */
 .reading-layout,.workshop-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:28px; max-width:760px; margin-inline:auto; padding:20px 0 64px; }
-.reading-sidebar { position:static; max-height:none; overflow:visible; border-bottom:1px solid var(--line); padding:0 0 16px; }
 .reader-body h2 { scroll-margin-top:28px; }
-.section-nav { display:flex; flex-direction:column; }
 .workshop-main { min-width:0; }
 .workshop-hero { padding-bottom:32px; border-bottom:1px solid var(--line); }
 .workshop-title { font-size:32px; font-weight:550; line-height:1.5; letter-spacing:-1px; margin:18px 0; }
