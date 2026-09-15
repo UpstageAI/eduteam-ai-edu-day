@@ -21,19 +21,19 @@
   grid-template-columns:minmax(0,1fr);
   position:relative;
   isolation:isolate;
-  margin-bottom:8px;
+  margin-bottom:12px;
 }
 .learning-grid::before,.learning-grid::after {
   content:'';
   position:absolute;
-  inset:8px 4px -4px;
+  inset:8px 4px -6px;
   z-index:-1;
   border:1px solid rgba(91,95,233,.1);
   border-radius:6px;
   background:var(--paper);
   pointer-events:none;
 }
-.learning-grid::after { inset:16px 8px -8px; z-index:-2; }
+.learning-grid::after { inset:16px 8px -12px; z-index:-2; }
 .learning-card {
   display:grid;
   grid-template-columns:minmax(0,1fr) 112px;
@@ -45,7 +45,7 @@
   min-height:52px;
   padding:4px 14px;
 }
-.learning-card+.learning-card { margin-top:-4px; }
+.learning-card+.learning-card { margin-top:-12px; }
 .learning-card::before {
   content:'';
   position:absolute;
@@ -81,8 +81,8 @@
   .learning-card:hover { z-index:4; }
   .learning-card:is(:hover,:focus-within)::before,
   .learning-card:is(:hover,:focus-within)>.card-content,
-  .learning-card:is(:hover,:focus-within)>.card-bottom { transform:translateY(-6px); }
-  .learning-card:is(:hover,:focus-within)::before { box-shadow:0 10px 24px rgba(43,42,71,.1),0 2px 5px rgba(91,95,233,.06); }
+  .learning-card:is(:hover,:focus-within)>.card-bottom { transform:translateY(-16px); }
+  .learning-card:is(:hover,:focus-within)::before { box-shadow:0 18px 32px rgba(43,42,71,.14),0 4px 10px rgba(91,95,233,.08); }
 }
 .button-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
 .button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:5px; font-size:13px; font-weight:550; line-height:1.6; text-decoration:none; }
@@ -123,6 +123,9 @@
 .workshop-section .callout { border-left:2px solid var(--green); background:var(--green-soft); padding:18px 22px; font-size:14px; line-height:1.9; color:var(--ink); margin:20px 0; }
 .workshop-section code { font-size:.9em; background:var(--green-soft); padding:2px 5px; border-radius:3px; }
 .workshop-section .reading-option { margin:12px 0; }
+@media(max-width:1000px) {
+  .learning-card+.learning-card { margin-top:-4px; }
+}
 @media(max-width:760px) {
   .learning-card { display:block; padding:8px 12px 2px; }
   .learning-card+.learning-card { margin-top:0; }

@@ -20,7 +20,7 @@ try {
   const ratios=await js(`(${contrast})(['body','.type-label','.format-label','.resource-title','.card-description','.text-link'])`);
   check(ratios.every(item=>item.ratio>=4.5),`catalog text meets 4.5:1 contrast (${ratios.map(item=>`${item.selector} ${item.ratio.toFixed(2)}`).join(', ')})`);
   check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')].slice(0,4),heights=rows.map(row=>row.getBoundingClientRect().height);return heights.every(height=>height>=44&&height<=66)&&Math.max(...heights)-Math.min(...heights)<=10})()`),'wide-screen material rows are approximately half-height while retaining a usable hit area');
-  check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>row.getBoundingClientRect());return rows.slice(1).every((row,index)=>{const overlap=rows[index].bottom-row.top;return overlap>=1&&overlap<=8})})()`),'document sheets overlap slightly without leaving normal flow');
+  check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>row.getBoundingClientRect());return rows.slice(1).every((row,index)=>{const overlap=rows[index].bottom-row.top;return overlap>=10&&overlap<=14})})()`),'drawer folders have a deeper overlap without leaving normal flow');
   check(await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).every(row=>{const surface=getComputedStyle(row,'::before'),stops=[...surface.backgroundImage.matchAll(/rgba\\(91,\\s*95,\\s*233,\\s*([\\d.]+)\\)/g)];return surface.position==='absolute'&&parseFloat(surface.borderTopWidth)===1&&stops.length>=2&&stops.every(stop=>Number(stop[1])>0&&Number(stop[1])<=.2)})`),'each pseudo surface keeps a faint one-pixel violet glass line');
   check(await js(`[...document.querySelectorAll('#pages>.learning-card')].every(row=>{const owner=getComputedStyle(row),summary=getComputedStyle(row.querySelector('.card-description')),link=row.querySelector('.text-link');return owner.transform==='none'&&summary.whiteSpace!=='nowrap'&&summary.textOverflow!=='ellipsis'&&parseFloat(getComputedStyle(link).minHeight)>=44})`),'stable owner hit areas keep all text wrappable and actions reachable');
   check(await js(`!document.querySelector('.home-hero,#catalog-controls,#catalog-search,#catalog-count,#catalog-empty,#catalog-feedback,.site-footer')`),'removed homepage UI is absent rather than hidden');
@@ -33,7 +33,7 @@ try {
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:point.x,y:point.y});
   await sleep(260);
   check(await js(`document.querySelector('${target}').matches(':hover')`),'real mouse enter activates the hovered sheet');
-  check(await js(`(()=>{const row=document.querySelector('${target}'),parts=[getComputedStyle(row,'::before'),getComputedStyle(row.querySelector('.card-content')),getComputedStyle(row.querySelector('.card-bottom'))];return parts.every(style=>{const y=new DOMMatrixReadOnly(style.transform).m42;return y<0&&y>=-6})})()`),'hover lifts the pseudo surface and both content layers by at most six pixels');
+  check(await js(`(()=>{const row=document.querySelector('${target}'),parts=[getComputedStyle(row,'::before'),getComputedStyle(row.querySelector('.card-content')),getComputedStyle(row.querySelector('.card-bottom'))];return parts.every(style=>{const y=new DOMMatrixReadOnly(style.transform).m42;return y<=-15&&y>=-17})})()`),'hover lifts the pseudo surface and both content layers by about sixteen pixels');
   check(await js(`(()=>{const row=document.querySelector('${target}'),neighbors=[row.previousElementSibling,row.nextElementSibling];return Number(getComputedStyle(row).zIndex)>Math.max(...neighbors.map(item=>Number(getComputedStyle(item).zIndex)||0))&&getComputedStyle(row,'::before').boxShadow!=='none'})()`),'hovered sheet stays above neighbors with a subtle shadow');
   await sleep(500);
   check(await js(`document.querySelector('${target}').matches(':hover')&&new DOMMatrixReadOnly(getComputedStyle(document.querySelector('${target} .card-content')).transform).m42<0`),'hover lift remains while the pointer lingers');
@@ -42,6 +42,17 @@ try {
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
   await sleep(260);
   check(await js(`!document.querySelector('${target}').matches(':hover')&&new DOMMatrixReadOnly(getComputedStyle(document.querySelector('${target} .card-content')).transform).m42===0`),'mouse leave returns the sheet surface to rest');
+
+  // Visit every fixed row slot in both directions, including the action column.
+  // A raised folder must not trap the pointer over a neighboring folder's target.
+  const drawerSlots=await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>{const r=row.getBoundingClientRect();return {x:r.right-56,y:r.y+r.height/2}})`);
+  for (const index of [0,1,2,3,2,1,0]) {
+    await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',...drawerSlots[index]});
+    await sleep(230);
+    check(await js(`document.querySelectorAll('#pages>.learning-card')[${index}].matches(':hover')`),`drawer pointer pass selects folder ${index+1} without being trapped`);
+  }
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
+  await sleep(240);
 
   let linkPoint=await js(`(()=>{const r=document.querySelector('${target} .text-link').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:linkPoint.x,y:linkPoint.y});
