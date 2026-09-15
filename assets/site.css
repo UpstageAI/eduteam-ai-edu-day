@@ -43,9 +43,9 @@
   z-index:1;
   min-width:0;
   min-height:52px;
-  padding:4px 14px;
+  padding:0 14px 8px;
 }
-.learning-card+.learning-card { margin-top:-12px; }
+.learning-card+.learning-card { margin-top:-20px; }
 .learning-card::before {
   content:'';
   position:absolute;
@@ -66,7 +66,9 @@
   align-items:baseline;
   gap:12px;
 }
-.card-content,.card-bottom { min-width:0; transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
+.card-content,.card-bottom { min-width:0; }
+.card-content,.action-label { transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
+.action-label { display:inline-flex; align-items:center; gap:6px; pointer-events:none; }
 .card-content>* { min-width:0; }
 .type-label,.format-label { font-size:11px; line-height:1.7; color:var(--muted); }
 .type-label { color:var(--green); }
@@ -81,7 +83,7 @@
   .learning-card:hover { z-index:4; }
   .learning-card:is(:hover,:focus-within)::before,
   .learning-card:is(:hover,:focus-within)>.card-content,
-  .learning-card:is(:hover,:focus-within)>.card-bottom { transform:translateY(-16px); }
+  .learning-card:is(:hover,:focus-within) .action-label { transform:translateY(-16px); }
   .learning-card:is(:hover,:focus-within)::before { box-shadow:0 18px 32px rgba(43,42,71,.14),0 4px 10px rgba(91,95,233,.08); }
 }
 .button-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
@@ -123,7 +125,7 @@
 .workshop-section .callout { border-left:2px solid var(--green); background:var(--green-soft); padding:18px 22px; font-size:14px; line-height:1.9; color:var(--ink); margin:20px 0; }
 .workshop-section code { font-size:.9em; background:var(--green-soft); padding:2px 5px; border-radius:3px; }
 .workshop-section .reading-option { margin:12px 0; }
-@media(max-width:1000px) {
+@media(max-width:1100px) {
   .learning-card+.learning-card { margin-top:-4px; }
 }
 @media(max-width:760px) {
@@ -145,7 +147,7 @@
   .learning-card+.learning-card { margin-top:0; }
 }
 @media(prefers-reduced-motion:reduce) {
-  .learning-card::before,.card-content,.card-bottom { transition:none; transform:none!important; }
+  .learning-card::before,.card-content,.action-label { transition:none; transform:none!important; }
   .learning-card::before { box-shadow:none!important; }
   .text-link,.button { transition:none; }
 }
@@ -154,7 +156,7 @@
   .learning-grid,.workshop-layout { display:block; }
   .learning-card { display:block; padding:8px 0; }
   .learning-card+.learning-card { margin-top:0; }
-  .card-content,.card-bottom { transform:none!important; }
+  .card-content,.action-label { transform:none!important; }
   .learning-card,.lesson-item { break-inside:avoid; }
   .catalog-section,.workshop-layout { padding:0; }
   .workshop-title { font-size:24pt; }

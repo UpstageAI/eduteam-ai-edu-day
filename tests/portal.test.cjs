@@ -90,6 +90,11 @@ function assertDynamicRow(card, expectedTitle) {
   assert.equal(content.children[2].textContent, expectedTitle);
   assert.equal(content.children[2].children.length, 0);
   assert.ok(bottom.querySelector('.text-link'));
+  for (const link of bottom.querySelectorAll('.text-link')) {
+    const label = link.querySelector('.action-label');
+    assert.ok(label, 'dynamic actions separate their visual label from the fixed hit area');
+    assert.equal(label.textContent, link.textContent);
+  }
 }
 
 test('portal runtime only discovers additions and preserves four static rows', () => {

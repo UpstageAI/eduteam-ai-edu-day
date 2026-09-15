@@ -70,7 +70,10 @@
 
   function appendLink(parent, text, href, external = false, className = '') {
     const link = document.createElement('a');
-    link.textContent = text;
+    const label = document.createElement('span');
+    label.className = 'action-label';
+    label.textContent = text;
+    link.appendChild(label);
     link.setAttribute('href', href);
     if (className) link.className = className;
     if (external) {
