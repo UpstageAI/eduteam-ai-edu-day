@@ -47,18 +47,23 @@ test('minimal header links retain a visible keyboard focus treatment', () => {
   const header=home.match(/<header class="site-header">([\s\S]*?)<\/header>/);
   assert.ok(header);
   assert.equal((header[1].match(/<a\b/g)||[]).length,2);
-  const focusRules = ruleBodies(sharedCss, ':focus-visible').join('\n') + ruleBodies(siteCss, ':focus-within').join('\n');
-  assert.match(focusRules, /outline\s*:\s*(?!none\b)/, 'keyboard focus needs a visible outline');
+  assert.match(ruleBodies(sharedCss, ':focus-visible').join('\n'), /outline\s*:\s*(?!none\b)/, 'keyboard focus needs a visible outline');
+  assert.match(ruleBodies(siteCss, '.text-link:focus-visible .action-label').join('\n'), /outline\s*:\s*2px\s+solid/, 'catalog focus rings travel with the label so the next sheet cannot hide them');
 });
 
-test('stack interaction moves surfaces without moving the card hit area', () => {
+test('drawer sheets lift their paper and print without moving the card or restacking', () => {
   const ownerRules = [...siteCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
     .filter(([,selectors])=>selectors.split(',').some(selector=>selector.trim()==='.learning-card'))
     .map(([, ,body])=>body).join('\n');
-  assert.doesNotMatch(ownerRules,/\btransform\s*:/i,'the normal-flow card owner must stay fixed');
-  const raisedRules=ruleBodies(siteCss,':hover').join('\n')+ruleBodies(siteCss,':focus-within').join('\n');
-  assert.match(raisedRules,/transform\s*:\s*translateY\s*\(/i,'hover or focus must lift an inner surface');
-  assert.match(raisedRules,/z-index\s*:/i,'raised sheets must paint above their neighbors');
+  assert.doesNotMatch(ownerRules,/\b(?:transform|translate)\s*:/i,'the normal-flow card owner must stay fixed');
+  assert.match(siteCss,/\.learning-card::before,\.card-content,\.action-label\s*\{[^}]*translate\s*:\s*0\s+var\(--sheet-y\)/,'paper, text and label travel together');
+  const brushed=ruleBodies(siteCss,':hover').join('\n');
+  assert.match(brushed,/--sheet-y\s*:\s*var\(--sheet-lift\)/,'a brushed sheet rises');
+  assert.match(brushed,/--sheet-y\s*:\s*var\(--sheet-part\)/,'sheets in front lean away');
+  assert.doesNotMatch(brushed,/z-index\s*:/i,'hover must never change stacking order');
+  const tokens=Object.fromEntries([...siteCss.matchAll(/(--sheet-(?:pad|lift|part))\s*:\s*(-?[\d.]+)px/g)].map(([,name,value])=>[name,Number(value)]));
+  assert.ok(Math.abs(tokens['--sheet-lift'])<tokens['--sheet-pad'],'the lift stays inside the empty margin of the sheet behind');
+  assert.ok(tokens['--sheet-part']>0&&tokens['--sheet-part']<Math.abs(tokens['--sheet-lift']),'the lean is smaller than the lift');
 });
 
 test('shared pages avoid entrance motion and forced smooth scrolling', () => {
@@ -67,27 +72,47 @@ test('shared pages avoid entrance motion and forced smooth scrolling', () => {
   assert.doesNotMatch(css, /scroll-behavior\s*:\s*smooth/i);
 });
 
-test('transitions stay brief and limited to interaction feedback', () => {
-  const declarations = [...`${sharedCss}\n${siteCss}`.matchAll(/\btransition\s*:\s*([^;}]+)/gi)].map(match => match[1].trim());
+test('transitions stay limited to interaction feedback and settle slower than they rise', () => {
+  const css=`${sharedCss}\n${siteCss}`;
+  const motions=[...new Set([...siteCss.matchAll(/--sheet-motion\s*:\s*([^;}]+)/g)].map(match=>match[1].trim()))];
+  assert.equal(motions.length,2,'one resting curve and one brushed curve');
+  const milliseconds=value=>{const duration=value.match(/([\d.]+)(ms|s)\b/i);assert.ok(duration,`transition needs an explicit duration: ${value}`);return Number(duration[1])*(duration[2].toLowerCase()==='s'?1000:1);};
+  const [settle,rise]=motions.map(milliseconds);
+  assert.ok(rise>=200&&rise<settle&&settle<=500,`rise ${rise}ms must be quicker than settle ${settle}ms and both brief`);
+  const declarations = [...css.matchAll(/\btransition\s*:\s*([^;}]+)/gi)].map(match => match[1].trim());
   assert.ok(declarations.length > 0);
   for (const declaration of declarations) {
     if (/^none\b/.test(declaration)) continue;
     const items=declaration.replace(/cubic-bezier\([^)]*\)/gi,'timing-function').split(',');
     for (const item of items) {
-      assert.match(item.trim(), /^(?:color|background(?:-color)?|border(?:-color)?|text-decoration-color|transform|box-shadow)\s+/i, `non-interaction transition: ${item.trim()}`);
-      const duration = item.match(/([\d.]+)(ms|s)\b/i);
-      assert.ok(duration, `transition needs an explicit short duration: ${item.trim()}`);
-      const milliseconds = Number(duration[1]) * (duration[2].toLowerCase() === 's' ? 1000 : 1);
-      assert.ok(milliseconds <= 220, `transition exceeds 220ms: ${item.trim()}`);
+      assert.match(item.trim(), /^(?:color|background(?:-color)?|border(?:-color)?|text-decoration-color|translate|box-shadow)\s+/i, `non-interaction transition: ${item.trim()}`);
+      if (/var\(--sheet-motion\)/.test(item)) continue;
+      assert.ok(milliseconds(item) <= 220, `transition exceeds 220ms: ${item.trim()}`);
     }
   }
 });
 
-test('reduced motion and coarse pointers remove the sheet lift', () => {
+test('reduced motion and coarse pointers keep sheets still', () => {
   assert.match(siteCss,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
-  const reduced=siteCss.slice(siteCss.search(/@media\s*\(prefers-reduced-motion:\s*reduce\)/));
-  assert.match(reduced,/transition\s*:\s*none/);
-  assert.match(reduced,/transform\s*:\s*none/);
-  assert.match(reduced,/box-shadow\s*:\s*none/);
-  assert.match(siteCss,/@media[^{}]*hover:\s*hover[^{}]*pointer:\s*fine/,'hover lift must be gated to real fine pointers');
+  const reduced=siteCss.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/);
+  assert.ok(reduced);
+  assert.match(reduced[1],/\.learning-card::before,\.card-content,\.action-label\s*\{[^}]*transition\s*:\s*none[^}]*translate\s*:\s*none/,'reduced motion stops every travelling layer');
+  const gate=siteCss.match(/@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)\s*\{([\s\S]*?)\n\}/);
+  assert.ok(gate,'hover lift must be gated to real fine pointers');
+  const outside=[...siteCss.replace(gate[0],'').matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  const movers=outside.filter(([,,body])=>/--sheet-y\s*:/.test(body)).map(([,selectors])=>selectors.trim());
+  assert.deepEqual(movers,['.learning-card'],'only the resting sheet sets --sheet-y outside the fine-pointer gate');
+  for (const [,selectors,body] of [...siteCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)]) {
+    for (const [,value] of body.matchAll(/(?:^|[;\s])translate\s*:\s*([^;}]+)/g)) {
+      assert.match(value.trim(),/^(?:0 var\(--sheet-y\)|none)$/,`sheets move only through --sheet-y: ${selectors.trim()}`);
+    }
+    assert.doesNotMatch(body,/\btransform\s*:\s*(?!none)/,`no transform-based sheet motion: ${selectors.trim()}`);
+  }
+  const focusMovers=[...gate[1].matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([,,body])=>/--sheet-y\s*:/.test(body))
+    .flatMap(([,selectors])=>selectors.split(',').map(selector=>selector.trim())).filter(selector=>selector.includes(':focus-visible'));
+  assert.ok(focusMovers.length>=2&&focusMovers.every(selector=>selector.startsWith('.learning-grid:not(:hover)>')),'keyboard focus moves sheets only while the pointer is elsewhere');
+  for (const [,selectors] of gate[1].matchAll(/([^{}]+)\{/g)) {
+    const usesHas=selectors.split(',').map(selector=>selector.includes(':has('));
+    assert.ok(usesHas.every(Boolean)||!usesHas.some(Boolean),`keep :has() rules separate so browsers without it keep the hover lift: ${selectors.trim()}`);
+  }
 });

@@ -16,7 +16,13 @@
 .header-nav a { display:inline-flex; align-items:center; min-height:44px; font-size:13px; }
 .header-nav a:hover { color:var(--ink); }
 .catalog-section { padding:8px 0 48px; scroll-margin-top:24px; }
+/* Sheets filed in a drawer: each later sheet stands in front of the one above it and
+   covers only that sheet's empty bottom margin, so stacking never has to change. */
 .learning-grid {
+  --sheet-tuck:16px;
+  --sheet-pad:9px;
+  --sheet-lift:-8px;
+  --sheet-part:4px;
   display:grid;
   grid-template-columns:minmax(0,1fr);
   position:relative;
@@ -35,6 +41,8 @@
 }
 .learning-grid::after { inset:16px 8px -12px; z-index:-2; }
 .learning-card {
+  --sheet-y:0px;
+  --sheet-motion:460ms cubic-bezier(.4,0,.2,1);
   display:grid;
   grid-template-columns:minmax(0,1fr) 112px;
   align-items:center;
@@ -42,10 +50,9 @@
   position:relative;
   z-index:1;
   min-width:0;
-  min-height:52px;
-  padding:0 14px 8px;
+  padding:var(--sheet-pad) 14px calc(var(--sheet-tuck) + var(--sheet-pad));
 }
-.learning-card+.learning-card { margin-top:-20px; }
+.learning-card+.learning-card { margin-top:calc(var(--sheet-tuck) * -1); }
 .learning-card::before {
   content:'';
   position:absolute;
@@ -56,9 +63,8 @@
   background:
     linear-gradient(var(--paper),var(--paper)) padding-box,
     linear-gradient(125deg,rgba(91,95,233,.14),rgba(91,95,233,.065) 42%,rgba(91,95,233,.16)) border-box;
-  box-shadow:0 1px 2px rgba(43,42,71,.025);
+  box-shadow:0 -1px 3px rgba(43,42,71,.04);
   pointer-events:none;
-  transition:transform 200ms cubic-bezier(.2,.8,.2,1),box-shadow 200ms cubic-bezier(.2,.8,.2,1);
 }
 .card-content {
   display:grid;
@@ -67,7 +73,8 @@
   gap:12px;
 }
 .card-content,.card-bottom { min-width:0; }
-.card-content,.action-label { transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
+/* The card box never moves, so its hit area stays put; only the paper and its print travel. */
+.learning-card::before,.card-content,.action-label { translate:0 var(--sheet-y); transition:translate var(--sheet-motion); }
 .action-label { display:inline-flex; align-items:center; gap:6px; pointer-events:none; }
 .card-content>* { min-width:0; }
 .type-label,.format-label { font-size:11px; line-height:1.7; color:var(--muted); }
@@ -76,15 +83,28 @@
 .card-description { margin:0; color:var(--muted); font-size:12px; line-height:1.65; }
 .card-bottom { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:12px; margin:0; }
 .text-link { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--green); font-size:12px; font-weight:500; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:5px; }
+/* The next sheet covers the link's lower edge, so the focus ring hugs the label that travels with the paper. */
+.learning-card .text-link:focus-visible { outline:none; }
+.learning-card .text-link:focus-visible .action-label { outline:2px solid var(--green); outline-offset:4px; border-radius:2px; }
+/* On one-line rows the tall action target spills into the sheet's padding instead of setting the row height. */
+@media(min-width:761px) {
+  .card-bottom { row-gap:calc(var(--sheet-pad) * 2); }
+  .card-bottom .text-link { margin-block:calc(var(--sheet-pad) * -1); }
+}
 .text-link:hover { text-decoration-color:var(--green); }
-/* Keep the hover owner stationary; lift only the document surface and contents. */
+/* Brushing a sheet draws it up out of its slot; the sheets in front lean away a beat later.
+   It rises quickly and settles slowly, so a sweep across the list reads as one wave.
+   One input moves the drawer at a time: keyboard focus lifts a sheet only while the pointer is elsewhere.
+   Focus rules stay separate so browsers without :has() still keep the hover lift. */
 @media(hover:hover) and (pointer:fine) {
-  .learning-card:focus-within { z-index:3; }
-  .learning-card:hover { z-index:4; }
-  .learning-card:is(:hover,:focus-within)::before,
-  .learning-card:is(:hover,:focus-within)>.card-content,
-  .learning-card:is(:hover,:focus-within) .action-label { transform:translateY(-16px); }
-  .learning-card:is(:hover,:focus-within)::before { box-shadow:0 18px 32px rgba(43,42,71,.14),0 4px 10px rgba(91,95,233,.08); }
+  .text-link { min-height:40px; }
+  .learning-card::before { transition:translate var(--sheet-motion),box-shadow var(--sheet-motion); }
+  .learning-card:hover ~ .learning-card { --sheet-y:var(--sheet-part); }
+  .learning-card:hover { --sheet-y:var(--sheet-lift); --sheet-motion:280ms cubic-bezier(.22,1,.36,1); }
+  .learning-card:hover::before { box-shadow:0 -6px 14px -8px rgba(43,42,71,.14); }
+  .learning-grid:not(:hover)>.learning-card:has(:focus-visible) ~ .learning-card { --sheet-y:var(--sheet-part); }
+  .learning-grid:not(:hover)>.learning-card:has(:focus-visible) { --sheet-y:var(--sheet-lift); --sheet-motion:280ms cubic-bezier(.22,1,.36,1); }
+  .learning-grid:not(:hover)>.learning-card:has(:focus-visible)::before { box-shadow:0 -6px 14px -8px rgba(43,42,71,.14); }
 }
 .button-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
 .button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:5px; font-size:13px; font-weight:550; line-height:1.6; text-decoration:none; }
@@ -123,12 +143,8 @@
 .workshop-section .callout { border-left:2px solid var(--green); background:var(--green-soft); padding:18px 22px; font-size:14px; line-height:1.9; color:var(--ink); margin:20px 0; }
 .workshop-section code { font-size:.9em; background:var(--green-soft); padding:2px 5px; border-radius:3px; }
 .workshop-section .reading-option { margin:12px 0; }
-@media(max-width:1100px) {
-  .learning-card+.learning-card { margin-top:-4px; }
-}
 @media(max-width:760px) {
-  .learning-card { display:block; padding:8px 12px 2px; }
-  .learning-card+.learning-card { margin-top:0; }
+  .learning-card { display:block; padding:var(--sheet-pad) 12px var(--sheet-tuck); }
   .card-content { grid-template-columns:54px minmax(0,1fr); gap:2px 12px; }
   .resource-title,.card-description { grid-column:1/-1; }
   .resource-title { margin-top:2px; }
@@ -141,12 +157,8 @@
   .workshop-title { font-size:28px; }
   .lesson-item { gap:12px; }
 }
-@media(hover:none),(pointer:coarse) {
-  .learning-card+.learning-card { margin-top:0; }
-}
 @media(prefers-reduced-motion:reduce) {
-  .learning-card::before,.card-content,.action-label { transition:none; transform:none!important; }
-  .learning-card::before { box-shadow:none!important; }
+  .learning-card::before,.card-content,.action-label { transition:none; translate:none; }
   .text-link,.button { transition:none; }
 }
 @media print {
@@ -154,7 +166,7 @@
   .learning-grid,.workshop-layout { display:block; }
   .learning-card { display:block; padding:8px 0; }
   .learning-card+.learning-card { margin-top:0; }
-  .card-content,.action-label { transform:none!important; }
+  .card-content,.action-label { translate:none; }
   .learning-card,.lesson-item { break-inside:avoid; }
   .catalog-section,.workshop-layout { padding:0; }
   .workshop-title { font-size:24pt; }
