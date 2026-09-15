@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="AI 에이전트와 제품 개발을 함께 공부하는 Upstage Education의 한국어 읽기 자료."><title>LLM 에이전트의 외재화 · Reading List</title><link rel="stylesheet" href="../assets/reading-list.css?v=20260915-drawer-skim">
-<link rel="stylesheet" href="../../assets/site.css?v=20260915-drawer-skim">
-<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg?v=20260915-drawer-skim">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="메모리와 스킬로 AI 에이전트를 돕는 방법을 다룬 논문입니다."><title>LLM 에이전트의 외재화 · Reading List</title><link rel="stylesheet" href="../assets/reading-list.css?v=20260915-fingertip">
+<link rel="stylesheet" href="../../assets/site.css?v=20260915-fingertip">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg?v=20260915-fingertip">
 </head>
 <body><a class="skip-link" href="#content">본문으로 건너뛰기</a>
 <header class="site-header">
@@ -14,71 +14,17 @@
 <div class="container">
 <main id="content" tabindex="-1" class="reader-body" data-reader>
 <header>
-<div class="eyebrow">01 / AI 에이전트
-</div>
 <h1 class="reader-title">LLM 에이전트의 외재화
 </h1>
-<p class="reader-subtitle">모델의 능력과 모델을 둘러싼 구조를 구분해서 읽기.
+<p class="reader-subtitle">메모리와 스킬로 AI 에이전트를 돕는 방법을 다룬 논문입니다.
 </p>
-<div class="byline"><span>논문 읽기</span><span>한국어 해설</span><span>입문 약 5분</span>
+<div class="byline"><span>Zhou et al. · arXiv:2604.08224</span>
 </div>
 </header>
-<div class="callout"><strong>읽기 전에</strong><br>외재화는 에이전트에 필요한 기억, 작업 방법, 도구 사용 규칙을 모델 밖에 두는 접근입니다. 이 자료는 네 가지 개념을 연결해 설명합니다.
+<div class="reading-options"><a class="reading-option" href="./slides-externalization-llm-agents/dist/eli5.html"><strong>쉬운 설명 읽기 →</strong><span>약 5분</span></a><a class="reading-option" href="./slides-externalization-llm-agents/dist/presentation.html"><strong>자세한 요약 읽기 →</strong><span>그림 포함</span></a>
 </div>
-<section aria-labelledby="overview">
-<h2 id="overview">모델 밖에 두는 네 가지 구조
-</h2>
-<p>모든 정보를 프롬프트에 담는 대신, 필요한 정보를 저장하고 꺼내 쓰는 구조를 갖춥니다. 각 구조가 맡는 역할부터 살펴보세요.
+<p class="source-link">출처: <a href="https://arxiv.org/abs/2604.08224" target="_blank" rel="noopener noreferrer">Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering ↗ (새 탭)</a>
 </p>
-<div class="concept-grid">
-<div class="concept"><small>01 / MEMORY</small>
-<h3>메모리
-</h3>
-<p>이전 작업의 정보와 상태를 저장해 다음 작업에서도 참고합니다.
-</p>
-</div>
-<div class="concept"><small>02 / SKILLS</small>
-<h3>스킬
-</h3>
-<p>반복해서 쓰는 절차와 노하우를 재사용 가능한 형태로 정리합니다.
-</p>
-</div>
-<div class="concept"><small>03 / PROTOCOLS</small>
-<h3>프로토콜
-</h3>
-<p>에이전트와 도구가 정보를 주고받는 형식과 규칙을 정합니다.
-</p>
-</div>
-<div class="concept"><small>04 / HARNESS</small>
-<h3>하니스
-</h3>
-<p>실행 순서, 권한, 검증, 실패 처리를 담당하는 운영 환경입니다.
-</p>
-</div>
-</div>
-</section>
-<section aria-labelledby="reading-path">
-<h2 id="reading-path">나에게 맞는 읽기 순서
-</h2>
-<div class="reading-options"><a class="reading-option" href="./slides-externalization-llm-agents/dist/eli5.html"><strong>01. 쉬운 설명으로 시작하기 →</strong><span>약 5분 · 익숙한 비유로 개념을 설명하는 기존 ELI5 자료</span></a><a class="reading-option" href="./slides-externalization-llm-agents/dist/presentation.html"><strong>02. 심층 요약으로 이어 읽기 →</strong><span>논문의 흐름을 따라 읽는 기존 한국어 자료 · 그림 포함</span></a>
-</div>
-</section>
-<section aria-labelledby="questions">
-<h2 id="questions">읽고 나서 생각할 질문
-</h2>
-<p>우리 에이전트가 반복해서 잊거나 틀리는 것은 무엇인가요? 그 문제를 해결하려면 어떤 정보와 규칙을 모델 밖에 두어야 할까요?
-</p>
-<p class="editorial-note">이 질문은 팀 토론을 위해 덧붙였습니다. 위 읽기 링크에서는 기존 자료의 본문과 그림을 그대로 볼 수 있습니다.
-</p>
-</section>
-<section aria-labelledby="source">
-<h2 id="source">원문과 자료 정보
-</h2>
-<p class="source-link"><a href="https://arxiv.org/abs/2604.08224" target="_blank" rel="noopener noreferrer">Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering ↗ (새 탭)</a>
-</p>
-<p class="source-meta">Zhou et al. · arXiv:2604.08224<br>기존 한국어 해설의 출처와 작성 정보는 각 자료 하단에 보존했습니다.
-</p>
-</section>
 </main>
 
 </body>

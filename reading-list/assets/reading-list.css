@@ -181,49 +181,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 .reader-body a {
   overflow-wrap:anywhere;
 }
-.reader-body .callout {
-  border-left:3px solid var(--green);
-  background:var(--green-soft);
-  padding:20px 24px;
-  margin:28px 0;
-  font-size:.95em;
-  line-height:1.8;
-}
-.reader-body .editorial-note {
-  border:1px solid var(--line);
-  border-radius:8px;
-  padding:16px 20px;
-  margin:25px 0;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.8;
-}
-.concept-grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin:22px 0;
-}
-.concept {
-  border:1px solid var(--line);
-  padding:20px;
-  border-radius:8px;
-  background:#fff;
-}
-.concept small {
-  font:11px ui-monospace,monospace;
-  color:var(--green);
-  letter-spacing:1px;
-}
-.concept h3 {
-  margin:6px 0;
-  font-size:18px;
-}
-.concept p {
-  font-size:14px;
-  line-height:1.8;
-  margin:0;
-}
 .reading-options {
   display:grid;
   gap:12px;
@@ -232,7 +189,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   display:block;
   padding:20px 24px;
   border:1px solid var(--line);
-  border-radius:8px;
   background:#fff;
   text-decoration:none;
 }
@@ -377,14 +333,8 @@ body.legacy-reader {
     font-size:28px;
     letter-spacing:-.8px;
   }
-  .concept-grid {
-    grid-template-columns:1fr;
-  }
   .reader-body {
     line-height:1.9;
-  }
-  .reader-body .callout {
-    padding:17px 19px;
   }
   .byline {
     font-size:11px;
@@ -437,9 +387,6 @@ body.legacy-reader {
   .reader-body h2 {
     break-after:avoid;
   }
-  .concept,.callout {
-    break-inside:avoid;
-  }
   .reader-body a {
     color:#000;
     text-decoration:underline;
@@ -458,7 +405,6 @@ body.legacy-reader {
   max-width:100%;
   height:auto;
   border:1px solid var(--line);
-  border-radius:8px;
 }
 .source-figure figcaption {
   font-size:11px;
@@ -466,23 +412,9 @@ body.legacy-reader {
   line-height:1.7;
   margin-top:10px;
 }
-.source-gallery {
-  border:1px solid var(--line);
-  padding:16px 20px;
-  border-radius:8px;
-}
-.source-gallery summary {
-  font-size:14px;
-  font-weight:650;
-  cursor:pointer;
-}
-.source-gallery .source-figure {
-  margin-bottom:12px;
-}
 
 /* Reader pages intentionally contain only the article itself. Legacy source bytes remain intact; auxiliary contents and jump bars are not part of the UI. */
 .legacy-body article .toc,
 .legacy-body article .nav-bar,
 .legacy-body article.paper > div[style*="display:flex"] { display:none !important; }
 .legacy-body article > .attribution { color:var(--muted); }
-.source-meta { font-size:13px; color:var(--muted); }

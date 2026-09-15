@@ -53,10 +53,10 @@ test('GAS entry describes the repository-backed 60-minute, 36-slide, four-stage 
   assert.match(gas, /<span class="pill">60분<\/span>/);
   assert.match(gas, /<span class="pill">36장<\/span>/);
   assert.equal(count(gas, /class="lesson-item"/g), 4);
-  assert.match(gas, /시트 정규화와 이메일 매칭/);
+  assert.match(gas, /시트 정리와 이메일 매칭/);
   assert.match(gas, /Drive 폴더와 문서 생성/);
-  assert.match(gas, /Drive 디렉터리 구조 확인/);
-  assert.match(gas, /72개 파일 정리 Capstone/);
+  assert.match(gas, /Drive 폴더 구조 확인/);
+  assert.match(gas, /72개 파일 자동 분류/);
   assert.match(gas, /href="\.\/slides-gas-tutorial\/dist\/presentation\.html">슬라이드 열기<\/a>/);
 
   for (let stage = 1; stage <= 4; stage += 1) {
@@ -75,7 +75,7 @@ test('OMC entry uses the source title and preserves both presentation formats', 
   assert.match(omc, /OMC 활용 경험/);
   assert.match(omc, /Skill 시스템/);
   assert.match(omc, /href="\.\/slides-omc-intro\/dist\/presentation\.html">슬라이드 열기<\/a>/);
-  assert.match(omc, /href="\.\/slides-omc-intro\/dist\/presentation\.pdf" download>원본 PDF 내려받기<\/a>/);
+  assert.match(omc, /href="\.\/slides-omc-intro\/dist\/presentation\.pdf" download>PDF 내려받기<\/a>/);
   assert.doesNotMatch(omc, /Oh My Codex/i);
 });
 
