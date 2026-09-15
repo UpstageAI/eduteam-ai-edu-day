@@ -23,13 +23,14 @@ try {
   check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>row.getBoundingClientRect());return rows.slice(1).every((row,index)=>{const overlap=rows[index].bottom-row.top;return overlap>=15&&overlap<=17})})()`),'each sheet tucks about sixteen pixels behind the next without leaving normal flow');
   const clearance=String.raw`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],paperY=row=>{const s=getComputedStyle(row,'::before');return Math.min(row.getBoundingClientRect().top+(s.translate==='none'?0:parseFloat(s.translate.split(' ')[1]||'0')),row.querySelector('.type-label').getBoundingClientRect().top)};return Math.min(...rows.slice(0,-1).map((row,index)=>paperY(rows[index+1])-Math.max(...[...row.querySelectorAll('.resource-title,.card-description,.action-label')].map(node=>node.getBoundingClientRect().bottom))))})()`;
   check(await js(clearance)>=9,'text keeps more clearance above the next sheet than the lift covers');
-  check(await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).every(row=>{const surface=getComputedStyle(row,'::before'),stops=[...surface.backgroundImage.matchAll(/rgba\\(91,\\s*95,\\s*233,\\s*([\\d.]+)\\)/g)];return surface.position==='absolute'&&parseFloat(surface.borderTopWidth)===1&&stops.length>=2&&stops.every(stop=>Number(stop[1])>0&&Number(stop[1])<=.2)})`),'each pseudo surface keeps a faint one-pixel violet glass line');
+  check(await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).every(row=>{const surface=getComputedStyle(row,'::before');return surface.position==='absolute'&&parseFloat(surface.borderTopWidth)===1&&surface.borderTopStyle==='solid'&&surface.borderTopColor===surface.borderLeftColor&&surface.backgroundImage==='none'})`),'each sheet frame is one solid hairline, so overlapping sheets never draw darker seams');
   check(await js(`[...document.querySelectorAll('#pages>.learning-card')].every(row=>{const owner=getComputedStyle(row),summary=getComputedStyle(row.querySelector('.card-description')),link=row.querySelector('.text-link');return owner.transform==='none'&&owner.translate==='none'&&summary.whiteSpace!=='nowrap'&&summary.textOverflow!=='ellipsis'&&parseFloat(getComputedStyle(link).minHeight)>=40})`),'stable owner hit areas keep all text wrappable and actions reachable');
   check(await js(`!document.querySelector('.home-hero,#catalog-controls,#catalog-search,#catalog-count,#catalog-empty,#catalog-feedback,.site-footer')`),'removed homepage UI is absent rather than hidden');
   check(await js(`[document.querySelector('#resources'),...document.querySelectorAll('#pages>.learning-card')].every(element=>{const s=getComputedStyle(element),r=element.getBoundingClientRect();return s.visibility==='visible'&&parseFloat(s.opacity)===1&&s.transform==='none'&&r.width>0&&r.height>0})`),'all catalog content is immediately visible');
 
   const target='.learning-card:nth-child(2)';
-  const atRest=async(timeout=4000)=>{for(const start=Date.now();Date.now()-start<timeout;await sleep(50)){if(await js(`[...document.querySelectorAll('#pages>.learning-card')].every(row=>!row.style.getPropertyValue('--sheet-y'))`))return true;}return false;};
+  const until=async(expression,timeout=4000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await js(expression))return true;await sleep(50);}return false;};
+  const atRest=()=>until(`[...document.querySelectorAll('#pages>.learning-card')].every(row=>!row.style.getPropertyValue('--sheet-y'))`);
   const layerY=String.raw`row=>[getComputedStyle(row,'::before'),getComputedStyle(row.querySelector('.card-content')),getComputedStyle(row.querySelector('.action-label'))].map(style=>style.translate==='none'?0:parseFloat(style.translate.split(' ')[1]||'0'))`;
   await js(`document.querySelector('${target}').scrollIntoView({block:'center',behavior:'instant'})`);
   const ownerRectsBefore=await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>{const r=row.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})`);
@@ -38,10 +39,9 @@ try {
   const point=await js(`(()=>{const r=document.querySelector('${target} .resource-title').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:point.x,y:point.y-6});
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:point.x,y:point.y});
-  await sleep(700);
-  check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],lift=(${layerY}),y=rows.map(row=>lift(row));return y.every(layers=>Math.max(...layers)-Math.min(...layers)<.01)&&y[1][0]<=-10&&y[1][0]>=-12.5&&y[0][0]<-.5&&y[0][0]>y[1][0]&&y[2][0]<-.5&&y[2][0]>y[1][0]&&y[3][0]>y[2][0]})()`),'the sheet under the pointer rises most while the sheets beside it rise a little, paper and print in sync');
+  check(await until(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],lift=(${layerY}),y=rows.map(row=>lift(row));return y.every(layers=>Math.max(...layers)-Math.min(...layers)<.01)&&y[1][0]<=-10&&y[1][0]>=-12.5&&y[0][0]<-.5&&y[0][0]>y[1][0]&&y[2][0]<-.5&&y[2][0]>y[1][0]&&y[3][0]>y[2][0]})()`),'the sheet under the pointer rises most while the sheets beside it rise a little, paper and print in sync');
   check(await js(`[...document.querySelectorAll('#pages>.learning-card')].map(row=>getComputedStyle(row).zIndex).join()==='${stackBefore}'`),'skimming never changes the stacking order');
-  check(await js(clearance)>=1.95,'the raised paper and tab stay at least two pixels clear of the text behind');
+  check(await js(clearance)>=3.95,'the raised paper and tab stay at least four pixels clear of the text behind');
   await sleep(500);
   check(await js(`(${layerY})(document.querySelector('${target}'))[0]<=-10`),'the lift stays while the pointer lingers');
   const ownerRectsHover=await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>{const r=row.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})`);
@@ -72,7 +72,24 @@ try {
   await atRest();
   await sleep(120); // let the frame recorder log the resting frame before reading it
   const skim=await js(`(()=>{window.__skimDone=true;const frames=window.__skim;let jump=0;for(let i=1;i<frames.length;i++){const dt=Math.max(frames[i].t-frames[i-1].t,1);frames[i].y.forEach((layers,row)=>layers.forEach((y,layer)=>{jump=Math.max(jump,Math.abs(y-frames[i-1].y[row][layer])*16.7/dt)}))}return {frames:frames.length,restacks:new Set(frames.map(frame=>frame.z)).size-1,split:frames.filter(frame=>frame.y.some(layers=>Math.max(...layers)-Math.min(...layers)>.01)).length,jump,clear:Math.min(...frames.map(frame=>frame.clear)),moved:frames.some(frame=>frame.y.some(layers=>layers[0]<-5)),rest:frames.at(-1).y.every(layers=>layers.every(y=>y===0))}})()`);
-  check(skim.frames>30&&skim.moved&&skim.restacks===0&&skim.split===0&&skim.jump<=4&&skim.clear>=1.95&&skim.rest,`a real skim is one smooth wave (${skim.frames} frames, ${skim.restacks} restacks, ${skim.split} split frames, max ${skim.jump.toFixed(2)}px/frame, min clearance ${skim.clear.toFixed(1)}px)`);
+  check(skim.frames>30&&skim.moved&&skim.restacks===0&&skim.split===0&&skim.jump<=4&&skim.clear>=3.95&&skim.rest,`a real skim is one smooth wave (${skim.frames} frames, ${skim.restacks} restacks, ${skim.split} split frames, max ${skim.jump.toFixed(2)}px/frame, min clearance ${skim.clear.toFixed(1)}px)`);
+
+  // Brush slowly down through a tab. The tint must always sit on the highest sheet and change only once.
+  const band=await js(`(()=>{const tab=document.querySelector('#pages>.learning-card:nth-child(3) .type-label').getBoundingClientRect(),box=document.querySelector('#pages>.learning-card:nth-child(3)').getBoundingClientRect();return {x:tab.x+tab.width/2,from:tab.top-14,to:box.top+14,mid:tab.top+tab.height/2}})()`);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:band.x,y:band.from-6});
+  const brush=[];
+  for (let y=band.from;y<=band.to;y+=1) {
+    await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:band.x,y});
+    await sleep(30);
+    brush.push(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],lift=rows.map(row=>(${layerY})(row)[0]),low=Math.min(...lift);return {tinted:rows.findIndex(row=>row.hasAttribute('data-peak')),highest:lift.indexOf(low),low}})()`));
+  }
+  const tintChanges=brush.slice(1).filter((sample,index)=>sample.tinted!==brush[index].tinted).length;
+  const agree=brush.every(sample=>sample.low>-.5||sample.tinted===sample.highest);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:band.x,y:band.mid});
+  const onTab=await until(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],lift=rows.map(row=>(${layerY})(row)[0]);return rows[2].hasAttribute('data-peak')&&lift[2]===Math.min(...lift)&&lift[2]<-6})()`);
+  check(agree&&tintChanges<=1&&onTab,`brushing through a tab keeps the tint on the highest sheet with ${tintChanges} tint change, and a tab raises its own sheet`);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
+  await atRest();
 
   // Uneven rows are where a sheet could rise far enough to reach the text behind it. Add two rows,
   // make one summary wrap onto several lines, then scan the pointer across the drawer.
@@ -86,7 +103,7 @@ try {
     unevenClear=Math.min(unevenClear,await js(clearance));
   }
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
-  check(unevenClear>=1.95&&await atRest(),`uneven rows keep raised tabs at least two pixels clear of the text behind (min ${unevenClear.toFixed(2)}px)`);
+  check(unevenClear>=3.95&&await atRest(),`uneven rows keep raised tabs at least four pixels clear of the text behind (min ${unevenClear.toFixed(2)}px)`);
   await js(`(()=>{const grid=document.querySelector('#pages');grid.querySelectorAll('[data-resource-key^="probe-"]').forEach(row=>row.remove());const summary=grid.children[2].querySelector('.card-description');summary.textContent=summary.dataset.original;delete summary.dataset.original;return true})()`);
   await sleep(100);
 
@@ -110,7 +127,8 @@ try {
   await cdp('Input.dispatchMouseEvent',{type:'mousePressed',x:titleRange.x,y:titleRange.y,button:'left',clickCount:1});
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:titleRange.end,y:titleRange.y,button:'left',buttons:1});
   await cdp('Input.dispatchMouseEvent',{type:'mouseReleased',x:titleRange.end,y:titleRange.y,button:'left',clickCount:1});
-  check(await js(`getSelection().toString().includes(document.querySelector('${target} .resource-title').textContent)`),'raised folder titles remain selectable with a normal text drag');
+  await sleep(400);
+  check(await js(`getSelection().toString().includes(document.querySelector('${target} .resource-title').textContent)`)&&await js(`location.href===${JSON.stringify(base.href)}`),'raised folder titles remain selectable with a normal text drag, and the drag does not open the sheet');
   await js('getSelection().removeAllRanges()');
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
   await sleep(240);
@@ -127,18 +145,39 @@ try {
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
   await go();
 
+  const edge=await js(`(()=>{const sheet=document.querySelector('#pages>.learning-card:nth-child(3)'),r=sheet.getBoundingClientRect(),title=sheet.querySelector('.resource-title').getBoundingClientRect();return {x:r.x+r.width*0.55,top:r.top,titleY:title.y+title.height/2}})()`);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:edge.x,y:edge.titleY});
+  await until(`(${layerY})(document.querySelector('#pages>.learning-card:nth-child(3)'))[0]<=-10`);
+  const raisedTop=await js(`document.querySelector('#pages>.learning-card:nth-child(3)').getBoundingClientRect().top+(${layerY})(document.querySelector('#pages>.learning-card:nth-child(3)'))[0]`);
+  check(await js(`document.elementFromPoint(${edge.x},${raisedTop+4}).closest('.learning-card')===document.querySelector('#pages>.learning-card:nth-child(3)')`),'the strip just below a raised sheet\'s top edge belongs to that raised sheet');
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
+  await atRest();
+
+  // The whole sheet opens its document: clicking the summary text works like the link.
+  check(await js(`getComputedStyle(document.querySelector('${target}')).cursor==='pointer'`),'the whole sheet shows it can be opened');
+  await js(`(()=>{window.__named='';addEventListener('pageswap',()=>{const title=document.querySelector('${target} .resource-title');sessionStorage.setItem('vt-name',getComputedStyle(title).viewTransitionName||'none');sessionStorage.setItem('vt-supported',String('onpageswap' in window))});return true})()`);
+  const summaryPoint=await js(`(()=>{const r=document.querySelector('${target} .card-description').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:summaryPoint.x,y:summaryPoint.y});
+  await cdp('Input.dispatchMouseEvent',{type:'mousePressed',x:summaryPoint.x,y:summaryPoint.y,button:'left',clickCount:1});
+  await cdp('Input.dispatchMouseEvent',{type:'mouseReleased',x:summaryPoint.x,y:summaryPoint.y,button:'left',clickCount:1});
+  await waitLoad();
+  await sleep(400);
+  check(await js(`location.pathname.endsWith('/omc-intro/')`),'clicking a sheet\'s summary opens its document');
+  check(await js(`sessionStorage.getItem('vt-supported')!=='true'||sessionStorage.getItem('vt-name')==='doc-title'`)&&await js(`getComputedStyle(document.querySelector('.workshop-title')).viewTransitionName==='doc-title'`),'the opened sheet\'s title and the page heading share one transition name');
+  await js(`(()=>{sessionStorage.removeItem('vt-name');sessionStorage.removeItem('vt-supported');return true})()`);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
+  await go();
+
   await js('document.activeElement.blur()');
   for (let tab=0;tab<20&&!(await js(`document.activeElement===document.querySelector('${target} .text-link')`));tab++) for (const type of ['keyDown','keyUp']) await cdp('Input.dispatchKeyEvent',{type,key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
-  await sleep(700);
-  check(await js(`(()=>{const row=document.querySelector('${target}'),link=row.querySelector('.text-link'),label=getComputedStyle(row.querySelector('.action-label'));return document.activeElement===link&&link.matches(':focus-visible')&&!row.matches(':hover')&&(${layerY})(row).every(y=>y<=-10)&&label.outlineStyle!=='none'&&parseFloat(label.outlineWidth)>0})()`),'keyboard focus raises its sheet the same way with a visible ring');
+  check(await until(`(()=>{const row=document.querySelector('${target}'),link=row.querySelector('.text-link'),label=getComputedStyle(row.querySelector('.action-label'));return document.activeElement===link&&link.matches(':focus-visible')&&!row.matches(':hover')&&(${layerY})(row).every(y=>y<=-10)&&label.outlineStyle!=='none'&&parseFloat(label.outlineWidth)>0})()`),'keyboard focus raises its sheet the same way with a visible ring');
   check(await js(`(()=>{const row=document.querySelector('${target}'),next=row.nextElementSibling,label=row.querySelector('.action-label'),r=label.getBoundingClientRect(),s=getComputedStyle(label),ring=r.bottom+parseFloat(s.outlineOffset)+parseFloat(s.outlineWidth),paper=next.getBoundingClientRect().top+(${layerY})(next)[0];return ring<paper})()`),'the focus ring stays whole instead of slipping under the next sheet');
 
   // The pointer takes over from keyboard focus while it is inside the drawer.
   const lastRow=await js(`(()=>{const r=document.querySelector('#pages>.learning-card:nth-child(4) .resource-title').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:lastRow.x,y:lastRow.y-6});
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:lastRow.x,y:lastRow.y});
-  await sleep(800);
-  check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],lift=(${layerY});return document.activeElement===rows[1].querySelector('.text-link')&&lift(rows[1])[0]>-.5&&lift(rows[3])[0]<=-10})()`)&&await js(clearance)>=1.95,'hovering another sheet while a link keeps focus moves the drawer to the pointer and covers no text');
+  check(await until(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')],lift=(${layerY});return document.activeElement===rows[1].querySelector('.text-link')&&lift(rows[1])[0]>-.5&&lift(rows[3])[0]<=-10})()`)&&await js(clearance)>=3.95,'hovering another sheet while a link keeps focus moves the drawer to the pointer and covers no text');
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
   await js('document.activeElement.blur()');
   await atRest();
@@ -201,6 +240,12 @@ try {
   await go('reading-list/forward-deployed-engineer/');
   check(await js(`document.querySelector('main.reader-body[data-reader] h1') && !document.querySelector('.reading-progress,.reading-toolbar,.reading-sidebar,.article-end,.breadcrumb,[data-reader-control]')`),'reader keeps article content without auxiliary chrome');
 
+  const heads=[];
+  for (const page of ['gas-tutorial/','omc-intro/','reading-list/externalization-llm-agents/','reading-list/forward-deployed-engineer/']) {
+    await go(page);
+    heads.push(await js(`(()=>{const back=document.querySelector('.back a').getBoundingClientRect(),title=document.querySelector('h1'),box=title.getBoundingClientRect(),style=getComputedStyle(title);return [Math.round(back.x),Math.round(back.y),Math.round(box.x+box.width/2),Math.round(box.y),style.fontSize,style.fontWeight,style.textAlign].join()})()`));
+  }
+  check(new Set(heads).size===1&&await js(`!document.querySelector('.breadcrumb')`),`every detail page places its back link and centered title identically (${heads[0]})`);
   await go('gas-tutorial/');
   check(await js(`getComputedStyle(document.querySelector('.workshop-layout')).gridTemplateColumns.split(' ').length===1&&getComputedStyle(document.querySelector('.workshop-aside')).position==='static'`),'workshop details use one in-flow vertical layout');
   return {passed:checks.length,base:base.href,checks};

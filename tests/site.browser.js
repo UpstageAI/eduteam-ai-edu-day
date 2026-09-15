@@ -43,7 +43,7 @@ try {
     if (new URL(link).origin!==base.origin) continue;
     check(await js(`fetch(${JSON.stringify(link)}).then(r=>r.ok)`), `GAS material loads: ${new URL(link).pathname}`);
   }
-  await js('document.querySelector(".workshop-hero .button-primary").click()');
+  await js('document.querySelector(".workshop-main>.button-row .button-primary").click()');
   await waitLoad();
   check(await js('location.pathname.endsWith("gas-tutorial/slides-gas-tutorial/dist/presentation.html") && document.querySelectorAll("section.slide").length===36'), 'GAS action opens the intact 36-slide presentation');
 
@@ -51,7 +51,7 @@ try {
   check(await js('document.querySelector("h1").textContent.includes("Oh-my-claude-code")'), 'OMC retains the source title');
   const pdf = await js('[...document.links].find(a=>a.pathname.endsWith("presentation.pdf")).href');
   check(await js(`fetch(${JSON.stringify(pdf)}).then(r=>r.ok && r.headers.get('content-type').includes('pdf'))`), 'original OMC PDF is downloadable');
-  await js('document.querySelector(".workshop-hero .button-primary").click()');
+  await js('document.querySelector(".workshop-main>.button-row .button-primary").click()');
   await waitLoad();
   check(await js('document.querySelectorAll("section.slide").length===20'), 'OMC action opens all 20 original slides');
 
@@ -69,7 +69,7 @@ try {
     await go();
     check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===4 && !document.querySelector("#catalog-controls,.site-footer")'), 'no-JavaScript portal retains four rows without dead UI');
     await go('gas-tutorial/');
-    check(await js('!!document.querySelector(".workshop-hero .button-primary") && document.querySelectorAll(".lesson-item").length===4'), 'no-JavaScript workshop retains primary action and materials');
+    check(await js('!!document.querySelector(".workshop-main>.button-row .button-primary") && document.querySelectorAll(".lesson-item").length===4'), 'no-JavaScript workshop retains primary action and materials');
   } finally { await cdp('Emulation.setScriptExecutionDisabled',{value:false}); }
 
   await cdp('Emulation.setEmulatedMedia',{media:'print',features:[]});

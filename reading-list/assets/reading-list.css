@@ -15,6 +15,7 @@
 * {
   box-sizing:border-box;
 }
+/* Legacy readers set smooth scrolling inline; keep jumps instant. */
 html {
   scroll-behavior:auto;
   scroll-padding-top:28px;
@@ -86,7 +87,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   align-items:center;
   gap:10px;
   text-decoration:none;
-  font-weight:550;
+  font-weight:600;
   font-size:14px;
   color:var(--ink);
   letter-spacing:-.3px;
@@ -111,31 +112,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   letter-spacing:.4px;
   color:var(--muted);
 }
-.breadcrumb {
-  font-size:12px;
-  padding:24px 0;
-  color:var(--muted);
-}
-.breadcrumb a {
-  text-decoration:none;
-}
-.breadcrumb span {
-  margin:0 9px;
-}
-.reading-layout {
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  gap:60px;
-  align-items:start;
-  padding:26px 0 75px;
-}
-.reader-column {
-  min-width:0;
-}
 .reader-title {
   font-size:clamp(27px,3vw,34px);
   line-height:1.35;
-  font-weight:550;
+  font-weight:600;
   letter-spacing:-.8px;
   margin:16px 0;
 }
@@ -156,7 +136,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 }
 .reader-body {
   font-size:var(--reader-size);
-  line-height:1.95;
+  line-height:1.8;
 }
 .reader-body h2 {
   font-size:1.35em;
@@ -194,6 +174,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 }
 .reading-option strong {
   display:block;
+  font-weight:600;
   font-size:17px;
 }
 .reading-option span {
@@ -285,29 +266,12 @@ body.legacy-reader {
   background:var(--paper);
   color:var(--ink);
 }
-@media(min-width:1500px) {
-  .reading-layout {
-    gap:48px;
-    grid-template-columns:minmax(0,1fr);
-  }
-}
 @media(max-width:850px) {
   .header-inner {
     padding:18px 24px;
   }
   .container {
     padding:0 24px;
-  }
-  .reading-layout {
-    grid-template-columns:1fr;
-    gap:24px;
-    padding-top:5px;
-  }
-  .reader-column {
-    max-width:760px;
-  }
-  .reader-title {
-    max-width:670px;
   }
   .header-nav {
     gap:18px;
@@ -334,7 +298,7 @@ body.legacy-reader {
     letter-spacing:-.8px;
   }
   .reader-body {
-    line-height:1.9;
+    line-height:1.75;
   }
   .byline {
     font-size:11px;
@@ -354,9 +318,6 @@ body.legacy-reader {
   }
 }
 @media(prefers-reduced-motion:reduce) {
-  html {
-    scroll-behavior:auto;
-  }
   * {
     transition:none!important;
   }
@@ -366,15 +327,11 @@ body.legacy-reader {
     background:#fff;
     color:#000;
   }
-  .site-header,.breadcrumb,.skip-link {
+  .site-header,.back,.skip-link {
     display:none!important;
   }
   .container {
     max-width:none;
-    padding:0;
-  }
-  .reading-layout {
-    display:block;
     padding:0;
   }
   .reader-body {

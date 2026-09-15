@@ -48,10 +48,9 @@ test('workshop headers contain only the home brand and external GitHub link', ()
   }
 });
 
-test('GAS entry describes the repository-backed 60-minute, 36-slide, four-stage workshop', () => {
+test('GAS entry opens with its title and keeps the slides, handout and four exercise stages', () => {
   assert.match(gas, /Google Apps Script 업무 자동화 실습/);
-  assert.match(gas, /<span class="pill">60분<\/span>/);
-  assert.match(gas, /<span class="pill">36장<\/span>/);
+  assert.match(gas, /<header class="workshop-hero">\n<h1 class="workshop-title">Google Apps Script로 시작하는 업무 자동화<\/h1>\n<\/header>/, 'the page opens with its title alone, matching its sheet');
   assert.equal(count(gas, /class="lesson-item"/g), 4);
   assert.match(gas, /시트 정리와 이메일 매칭/);
   assert.match(gas, /Drive 폴더와 문서 생성/);
@@ -68,7 +67,7 @@ test('GAS entry describes the repository-backed 60-minute, 36-slide, four-stage 
 
 test('OMC entry uses the source title and preserves both presentation formats', () => {
   assert.match(omc, /<title>Oh-my-claude-code 사용기 · AI Edu Day<\/title>/);
-  assert.match(omc, /<span class="pill">20장<\/span>/);
+  assert.match(omc, /<header class="workshop-hero">\n<h1 class="workshop-title">Oh-my-claude-code 사용기<\/h1>\n<\/header>/, 'the page opens with its title alone');
   assert.equal(count(omc, /class="lesson-item"/g), 4);
   assert.match(omc, /Harness Engineering/);
   assert.match(omc, /Oh-my-Claude-Code/);

@@ -105,6 +105,29 @@ test('all eight public shells use the two-link header and no footer', () => {
   }
 });
 
+test('every detail page opens with one back link and no breadcrumb', () => {
+  const detailPages = {
+    'gas-tutorial/index.html': '../',
+    'omc-intro/index.html': '../',
+    'reading-list/externalization-llm-agents/index.html': '../../',
+    'reading-list/forward-deployed-engineer/index.html': '../../',
+    'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html': '../../',
+    'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html': '../../',
+  };
+  for (const filename of shellEntries) {
+    const html = fs.readFileSync(path.join(root, filename), 'utf8');
+    assert.doesNotMatch(html, /class="breadcrumb"/, `${filename} has no breadcrumb`);
+    const backs = [...html.matchAll(/<p class="back"><a href="([^"]+)"><span aria-hidden="true">←<\/span> 돌아가기<\/a><\/p>/g)];
+    if (filename in detailPages) {
+      assert.equal(backs.length, 1, `${filename} has one back link`);
+      assert.equal(backs[0][1], detailPages[filename], `${filename} goes back to its list`);
+      assert.ok(html.indexOf('class="back"') < html.indexOf('<main') || html.indexOf('class="back"') < html.indexOf('<h1'), `${filename} puts the back link before the page title`);
+    } else {
+      assert.equal(backs.length, 0, `${filename} is a list, not a detail page`);
+    }
+  }
+});
+
 test('shared stylesheet retains minimal rows, vertical detail layouts and responsive print rules', () => {
   const css=fs.readFileSync(path.join(root,'assets/site.css'),'utf8');
   for (const selector of ['.workshop-layout','.lesson-item','.learning-grid','.learning-card','.card-content','.card-bottom']) assert.ok(css.includes(selector),selector);

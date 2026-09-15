@@ -11,11 +11,12 @@
   border:0;
 }
 .header-inner { padding-top:20px; padding-bottom:20px; }
-.brand { font-size:14px; font-weight:550; min-height:44px; }
+.brand { font-size:14px; font-weight:600; min-height:44px; }
 .header-nav { align-items:center; }
 .header-nav a { display:inline-flex; align-items:center; min-height:44px; font-size:13px; }
 .header-nav a:hover { color:var(--ink); }
-.catalog-section { padding:8px 0 48px; scroll-margin-top:24px; }
+.catalog-section { padding:20px 0 48px; }
+
 /* Sheets filed in a drawer: each later sheet stands in front of the one above it and
    covers only that sheet's empty bottom margin, so stacking never has to change.
    Each sheet carries a file tab on its top edge, which sits in the empty strip of the sheet behind. */
@@ -38,21 +39,18 @@
   gap:16px;
   position:relative;
   z-index:1;
-  min-width:0;
   padding:var(--sheet-pad) 14px calc(var(--sheet-pad) + var(--sheet-tab) + var(--sheet-tuck));
 }
 .learning-card:last-child { padding-bottom:calc(var(--sheet-pad) + var(--sheet-tuck)); }
 .learning-card+.learning-card { margin-top:calc(var(--sheet-tuck) * -1); }
+/* One solid hairline: a translucent frame would darken where two sheets overlap. */
 .learning-card::before {
   content:'';
   position:absolute;
   inset:0;
   z-index:-1;
-  border:1px solid transparent;
-  background:
-    linear-gradient(var(--paper),var(--paper)) padding-box,
-    linear-gradient(125deg,rgba(91,95,233,.14),rgba(91,95,233,.065) 42%,rgba(91,95,233,.16)) border-box;
-  pointer-events:none;
+  border:1px solid #e6e7f5;
+  background:var(--paper);
 }
 .card-content {
   display:flex;
@@ -61,31 +59,40 @@
   margin-top:calc((var(--sheet-pad) + var(--sheet-tab)) * -1);
   pointer-events:none;
 }
-/* Only the tab and the words catch the pointer, so a raised sheet never covers the link of the sheet behind it. */
-.card-content>* { pointer-events:auto; }
+/* The paper, its tab and its words catch the pointer where they are drawn, so a click lands on the sheet you see. */
+.card-content>* { min-width:0; pointer-events:auto; }
 /* A zero-height break keeps the tab on its own line above the title and summary. */
 .card-content::after { content:''; order:1; flex-basis:100%; height:0; }
-.card-content,.card-bottom { min-width:0; }
 /* The card box never moves, so its hit area stays put; only the paper and its print travel.
    assets/drawer.js sets --sheet-y every frame while a mouse skims the drawer. */
 .learning-card::before,.card-content,.action-label { translate:0 var(--sheet-y); }
-.action-label { display:inline-flex; align-items:center; gap:6px; pointer-events:none; }
-.card-content>* { min-width:0; }
+
 /* Category and format share one file tab. Its bottom overlaps the sheet's top line so tab and paper read as one piece. */
-.type-label,.format-label { height:calc(var(--sheet-tab) + 1px); margin-bottom:calc(var(--sheet-pad) - 1px); border:2px solid var(--tab-line,rgba(91,95,233,.16)); border-bottom:0; background:var(--paper); transition:border-color 150ms ease-out; font-size:11px; line-height:calc(var(--sheet-tab) - 1px); white-space:nowrap; }
-/* One soft outline color per category marks the tab; the sheet keeps its faint frame. */
-.learning-card[data-category="workshop"] { --tab-line:#8faa9c; --tab-line-strong:#6a8b7b; }
-.learning-card[data-category="reading"] { --tab-line:#a3a6ee; --tab-line-strong:#8084e2; }
-/* The sheet under the pointer, or holding keyboard focus, deepens its tab outline a little. */
-.learning-card:hover { --tab-line:var(--tab-line-strong); }
-.learning-card:has(.text-link:focus-visible) { --tab-line:var(--tab-line-strong); }
+.type-label,.format-label {
+  height:calc(var(--sheet-tab) + 1px);
+  margin-bottom:calc(var(--sheet-pad) - 1px);
+  border:2px solid var(--tab-line,#e6e7f5);
+  border-bottom:0;
+  background:var(--paper);
+  font-size:11px;
+  line-height:calc(var(--sheet-tab) - 1px);
+  white-space:nowrap;
+  transition:border-color 150ms ease-out;
+}
 .type-label { padding-left:9px; border-right:0; color:var(--ink); }
 .format-label { padding-right:9px; border-left:0; color:var(--muted); }
-.format-label::before { content:'·'; content:'·' / ''; margin:0 6px; }
-.resource-title { order:2; flex:0 0 calc((100% - 12px) * 1.2 / 2.2); margin:0; font-size:14px; font-weight:550; line-height:1.55; letter-spacing:-.2px; }
-.card-description { order:2; flex:0 0 calc((100% - 12px) / 2.2); margin:0 0 0 12px; color:var(--muted); font-size:12px; line-height:1.65; }
-.card-bottom { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:12px; margin:0; }
+.format-label::before { content:'·'; content:'·' / ''; margin:0 4px; }
+/* One soft outline color per category marks the tab; keyboard focus and fine-pointer hover deepen it a little. */
+.learning-card[data-category="workshop"] { --tab-line:#8faa9c; --tab-line-strong:#6a8b7b; }
+.learning-card[data-category="reading"] { --tab-line:#a3a6ee; --tab-line-strong:#8084e2; }
+.learning-card:has(.text-link:focus-visible) { --tab-line:var(--tab-line-strong); }
+
+.resource-title { order:2; flex:0 0 calc((100% - 12px) * 1.2 / 2.2); margin:0; font-size:14px; font-weight:600; line-height:1.55; letter-spacing:-.2px; }
+.card-description { order:2; flex:0 0 calc((100% - 12px) / 2.2); margin:0 0 0 12px; color:var(--muted); font-size:12px; line-height:1.65; text-wrap:balance; }
+.card-bottom { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:12px; }
 .text-link { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--green); font-size:12px; font-weight:500; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:5px; }
+.text-link:hover { text-decoration-color:var(--green); }
+.action-label { display:inline-flex; align-items:center; gap:6px; pointer-events:none; }
 /* The next sheet covers the link's lower edge, so the focus ring hugs the label that travels with the paper. */
 .learning-card .text-link:focus-visible { outline:none; }
 .learning-card .text-link:focus-visible .action-label { outline:2px solid var(--green); outline-offset:4px; }
@@ -94,68 +101,89 @@
   .card-bottom { row-gap:calc(var(--sheet-pad) * 2); }
   .card-bottom .text-link { margin-block:calc(var(--sheet-pad) * -1); }
 }
-.text-link:hover { text-decoration-color:var(--green); }
+/* With the script, the whole sheet opens its document. */
+.learning-grid[data-open] .learning-card { cursor:pointer; }
+/* Hover styling belongs to real pointers; on touch it would stick after a tap.
+   While assets/drawer.js skims, the highest sheet ([data-peak]) takes the tint so it never disagrees with the bulge. */
 @media(hover:hover) and (pointer:fine) {
   .text-link { min-height:40px; }
+  .learning-grid:not([data-skim]) .learning-card:hover,
+  .learning-card[data-peak] { --tab-line:var(--tab-line-strong); }
 }
+
 .button-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
-.button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; padding:10px 16px; border:1px solid transparent; font-size:13px; font-weight:550; line-height:1.6; text-decoration:none; }
+.button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; padding:10px 16px; border:1px solid transparent; font-size:13px; font-weight:600; line-height:1.6; text-decoration:none; }
 .button-primary { background:var(--ink); color:var(--paper); }
 .button-primary:hover { background:var(--green); }
 .button-secondary { background:transparent; color:var(--ink); border-color:var(--line); }
 .button-secondary:hover { border-color:var(--muted); background:var(--green-soft); }
-/* Detail pages follow the same single vertical flow, with no independent side panel. */
-.reading-layout,.workshop-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:28px; max-width:760px; margin-inline:auto; padding:20px 0 64px; }
+
+/* Opening a document: pages cross-fade, the header holds still and the sheet's title glides into the page heading.
+   assets/drawer.js names the clicked title; the destination heading carries the same name. */
+@view-transition { navigation:auto; }
+.site-header { view-transition-name:site-header; }
+.workshop-title,.reader-title { view-transition-name:doc-title; }
+::view-transition-group(doc-title) { animation-duration:320ms; animation-timing-function:cubic-bezier(.2,.7,.2,1); }
+::view-transition-old(doc-title),::view-transition-new(doc-title) { height:100%; object-fit:none; object-position:0 0; }
+/* A heading with no matching sheet (or the reverse) simply fades instead of lingering. */
+::view-transition-old(doc-title):only-child,::view-transition-new(doc-title):only-child { animation-duration:140ms; }
+/* The old page is nearly gone before the new one arrives, so the two barely overlap. */
+::view-transition-old(root) { animation-duration:140ms; }
+::view-transition-new(root) { animation-duration:200ms; animation-delay:60ms; }
+
+/* Detail pages share one centered 760px reading column. */
+.workshop-layout,.back,.reader-body:not(.legacy-body) { max-width:760px; margin-inline:auto; }
+/* Every detail page opens the same way: one back link, then the title alone, centered with room around it. */
+.back { margin-block:0; padding:16px 0 4px; }
+.legacy-reader .back { max-width:none; }
+.back a { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--muted); font-size:13px; text-decoration:none; }
+.back a:hover { color:var(--ink); }
+.workshop-title,.reader-title { width:fit-content; max-width:100%; margin:48px auto 72px; font-size:24px; font-weight:600; line-height:1.45; letter-spacing:-.4px; text-align:center; text-wrap:balance; }
+/* The FDE translation keeps its original subtitle and byline as the opening of the article. */
+.reader-subtitle { margin:0 0 12px; color:var(--muted); font-size:16px; line-height:1.8; }
+.byline { display:flex; flex-wrap:wrap; gap:8px 18px; margin:0 0 32px; padding:0; border:0; color:var(--muted); font-size:12px; }
+.workshop-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:28px; padding:0 0 64px; }
 .reader-body h2 { scroll-margin-top:28px; }
 .workshop-main { min-width:0; }
-.workshop-hero { padding-bottom:32px; border-bottom:1px solid var(--line); }
-.workshop-title { font-size:32px; font-weight:550; line-height:1.5; letter-spacing:-1px; margin:18px 0; }
-.workshop-lede { font-size:16px; line-height:1.9; color:var(--muted); margin-bottom:22px; }
-.workshop-meta { display:flex; flex-wrap:wrap; gap:8px 18px; margin:22px 0; }
-.pill { color:var(--muted); font-size:12px; }
-.workshop-section { padding-top:36px; scroll-margin-top:28px; }
-.workshop-section>h2,.section-heading { font-size:20px; line-height:1.5; letter-spacing:-.5px; margin:0 0 16px; }
-.workshop-section .section-heading h2 { font-size:20px; font-weight:550; margin:8px 0 12px; }
-.workshop-section>p,.workshop-section .section-heading>p:not(.eyebrow) { font-size:15px; font-weight:400; color:var(--muted); line-height:1.85; }
-.workshop-aside { position:static; }
+.workshop-section { padding-top:36px; }
+.workshop-section>h2 { font-size:20px; line-height:1.5; letter-spacing:-.5px; margin:0 0 16px; }
 .aside-card { padding:20px 0; margin-bottom:12px; border-top:1px solid var(--line); }
-.aside-card h2,.aside-card h3 { font-size:14px; font-weight:550; line-height:1.5; margin:0 0 12px; }
+.aside-card h2 { font-size:14px; font-weight:600; line-height:1.5; margin:0 0 12px; }
 .aside-card p,.aside-card li { font-size:13px; color:var(--muted); line-height:1.8; }
 .aside-card ul { padding-left:17px; }
-.aside-card a { font-size:12px; }
-.aside-card .button { width:100%; margin-top:10px; }
 .lesson-list { list-style:none; padding:0; margin:20px 0; }
 .lesson-item { display:flex; gap:18px; padding:24px 0; border-bottom:1px solid var(--line); }
-.lesson-number { flex-shrink:0; min-width:24px; padding-top:3px; color:var(--muted); font:12px/1.8 ui-monospace,monospace; }
+.lesson-number { flex-shrink:0; min-width:24px; padding-top:3px; color:var(--muted); font:12px/1.8 var(--sans); font-variant-numeric:tabular-nums; }
 .lesson-content { min-width:0; flex:1; }
-.lesson-content h3 { font-size:16px; font-weight:550; margin:0 0 7px; }
+.lesson-content h3 { font-size:16px; font-weight:600; margin:0 0 7px; }
 .lesson-content p { font-size:14px; color:var(--muted); margin:0 0 12px; line-height:1.85; }
 .resource-links { display:flex; gap:8px 18px; flex-wrap:wrap; margin-top:12px; }
 .resource-links a { font-size:12px; min-height:44px; display:inline-flex; align-items:center; }
-.workshop-section .callout { border-left:2px solid var(--green); background:var(--green-soft); padding:18px 22px; font-size:14px; line-height:1.9; color:var(--ink); margin:20px 0; }
-.workshop-section code { font-size:.9em; background:var(--green-soft); padding:2px 5px; }
-.workshop-section .reading-option { margin:12px 0; }
+
 @media(max-width:760px) {
   .learning-card { display:block; padding:var(--sheet-pad) 12px calc(var(--sheet-tab) + var(--sheet-tuck) + 2px); }
   .learning-card:last-child { padding-bottom:calc(var(--sheet-tuck) + 2px); }
   .resource-title,.card-description { flex-basis:100%; margin-left:0; }
-  .reading-layout,.workshop-layout { padding-top:16px; }
+  /* Keep the action with its own summary rather than floating between two sheets. */
+  .card-bottom { margin-top:-8px; }
+}
+@media(max-width:580px) {
+  .workshop-title,.reader-title { margin:36px auto 52px; font-size:22px; }
 }
 @media(max-width:480px) {
   .header-inner { flex-wrap:nowrap; gap:16px; }
   .brand { font-size:13px; }
   .header-nav a { font-size:12px; }
-  .workshop-title { font-size:28px; }
   .lesson-item { gap:12px; }
 }
 @media(prefers-reduced-motion:reduce) {
   .learning-card::before,.card-content,.action-label { translate:none; }
-  .text-link,.button { transition:none; }
+  @view-transition { navigation:none; }
 }
 @media print {
   .learning-card::before { display:none; }
   .learning-grid,.workshop-layout { display:block; }
-  .learning-card { display:block; padding:8px 0; }
+  .learning-card,.learning-card:last-child { display:block; padding:8px 0; }
   .learning-card+.learning-card { margin-top:0; }
   .card-content,.action-label { translate:none; }
   .learning-grid { padding-top:0; }

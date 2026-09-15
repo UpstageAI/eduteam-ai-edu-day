@@ -68,14 +68,14 @@
     });
   }
 
-  function appendLink(parent, text, href, external = false, className = '') {
+  function appendLink(parent, text, href, external = false) {
     const link = document.createElement('a');
     const label = document.createElement('span');
     label.className = 'action-label';
     label.textContent = text;
     link.appendChild(label);
     link.setAttribute('href', href);
-    if (className) link.className = className;
+    link.className = 'text-link';
     if (external) {
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
@@ -105,8 +105,6 @@
 
     const heading = document.createElement('h2');
     heading.className = 'resource-title';
-    const isPptx = item.kind === 'pptx';
-    const primaryHref = isPptx ? toOfficeViewerUrl(item.href) : item.href;
     heading.textContent = item.name;
     content.appendChild(heading);
 
@@ -117,13 +115,13 @@
 
     const bottom = document.createElement('div');
     bottom.className = 'card-bottom';
-    if (isPptx) {
-      appendLink(bottom, 'Office 미리보기', primaryHref, true, 'text-link')
+    if (item.kind === 'pptx') {
+      appendLink(bottom, 'Office 미리보기', toOfficeViewerUrl(item.href), true)
         .setAttribute('aria-label', `${item.name} Office 미리보기`);
-      appendLink(bottom, '원본 파일', item.href, true, 'text-link')
+      appendLink(bottom, '원본 파일', item.href, true)
         .setAttribute('aria-label', `${item.name} 원본 파일`);
     } else {
-      appendLink(bottom, '자료 보러 가기', item.href, false, 'text-link')
+      appendLink(bottom, '자료 보러 가기', item.href)
         .setAttribute('aria-label', `${item.name} 자료 보러 가기`);
     }
     card.appendChild(content);
