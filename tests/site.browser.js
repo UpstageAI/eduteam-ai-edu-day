@@ -30,7 +30,7 @@ try {
   check(await js('document.querySelectorAll("#pages [data-resource-key]:not([hidden])").length===4 && document.activeElement.id==="catalog-search"'), 'reset restores cards and focuses search');
   check(await js('window.__originalCards.every(c=>c.isConnected && c.querySelector(".card-visual"))'), 'search and discovery preserve original visual card nodes');
   await js('document.querySelectorAll("img").forEach(i=>i.loading="eager")');
-  await waitFor(null,{kind:'network-idle'});
+  await js('Promise.all([...document.images].map(image => image.decode())).then(() => true)');
   check(await js('[...document.images].every(i=>i.complete && i.naturalWidth>0)'), 'source thumbnails decode without cropping substitutions');
 
   // Exercise keyboard navigation through the real input event path.

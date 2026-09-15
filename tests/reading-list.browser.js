@@ -38,7 +38,7 @@ try {
   await go('reading-list/forward-deployed-engineer/');
   check(await js('document.querySelectorAll(".source-figure img").length===3'), 'article preserves all three original images');
   await js('document.querySelector(".source-gallery").open=true;document.querySelectorAll("img").forEach(img=>img.loading="eager")');
-  await waitFor(null,{kind:'network-idle'});
+  await js('Promise.all([...document.images].map(image => image.decode())).then(() => true)');
   check(await js('[...document.images].every(img=>img.complete && img.naturalWidth>0)'), 'all original images decode successfully');
   await js('document.querySelector("[data-size=larger]").click()');
   check(await js('getComputedStyle(document.querySelector("[data-reader]")).fontSize==="20px"'), 'font-size control changes the reader text');

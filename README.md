@@ -138,7 +138,7 @@ Latent.Space 자료의 원본 이미지 3개는 `reading-list/forward-deployed-e
 
 ### 브라우저 검증
 
-Chrome과 `chromux`가 설치된 환경에서는 아래 명령으로 홈과 워크숍의 검색·필터·반응형 화면을 먼저 확인하고, 이어서 Reading List의 읽음 표시·글자 크기·리다이렉트·저장소 제한·JavaScript 비활성화·인쇄 화면을 검증할 수 있습니다. Reading List 테스트는 해당 브라우저 프로필의 읽음 표시 값만 초기화합니다.
+Chrome과 `chromux`가 설치된 환경에서는 아래 명령으로 홈과 워크숍의 검색·필터·반응형 화면을 먼저 확인하고, 이어서 Reading List의 읽음 표시·글자 크기·리다이렉트·저장소 제한·JavaScript 비활성화·인쇄 화면을 검증할 수 있습니다. Reading List 테스트는 해당 브라우저 프로필의 읽음 표시와 글자 크기 설정을 초기화합니다.
 
 ```bash
 chromux open site-test http://127.0.0.1:8000/
