@@ -34,14 +34,17 @@ test('workshop entries are semantic landing pages instead of redirects', () => {
   }
 });
 
-test('workshop headers keep the shared navigation and brand', () => {
+test('workshop headers contain only the home brand and external GitHub link', () => {
   for (const source of [gas, omc]) {
-    assert.match(source, /class="site-header"/);
-    assert.match(source, /class="brand-mark"[^>]*>e\.<\/span>/);
-    assert.match(source, /class="brand-copy">Upstage Education[\s\S]*?AI Edu Day<\/span>/);
-    assert.match(source, /href="\.\.\/#resources"[^>]*>학습 자료<\/a>/);
-    assert.match(source, /href="\.\.\/reading-list\/">Reading List<\/a>/);
-    assert.match(source, /href="https:\/\/github\.com\/UpstageAI\/eduteam-ai-edu-day"/);
+    const header=source.match(/<header class="site-header">([\s\S]*?)<\/header>/);
+    assert.ok(header);
+    const links=[...header[1].matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>/g)];
+    assert.equal(links.length,2);
+    assert.match(links[0][0],/class="brand"/);
+    assert.equal(links[0][1],'../');
+    assert.equal(links[1][1],'https://github.com/UpstageAI/eduteam-ai-edu-day');
+    assert.match(links[1][0],/target="_blank"/);
+    assert.match(links[1][0],/rel="noopener noreferrer"/);
   }
 });
 

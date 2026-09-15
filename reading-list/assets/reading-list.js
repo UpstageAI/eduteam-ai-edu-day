@@ -12,48 +12,6 @@
     catch { storageAvailable = false; return false; }
   };
   const completed = id => get('complete:' + id) === 'true';
-  const cards = [...document.querySelectorAll('[data-resource]')];
-  const refreshCards = () => cards.forEach(card => {
-    const state = card.querySelector('[data-read-state]');
-    const done = completed(card.dataset.resource);
-    state.textContent = done ? '✓ 읽음' : '아직 읽지 않음';
-    state.dataset.complete = String(done);
-    state.hidden = !storageAvailable;
-  });
-  if (cards.length) {
-    refreshCards();
-    window.addEventListener('pageshow', refreshCards);
-    window.addEventListener('storage', refreshCards);
-    const search = document.querySelector('#resource-search');
-    const filters = [...document.querySelectorAll('[data-filter]')];
-    const count = document.querySelector('#result-count');
-    const empty = document.querySelector('#empty-state');
-    let active = 'all';
-    const filterCards = () => {
-      const query = search.value.trim().normalize('NFKC').toLocaleLowerCase();
-      let visible = 0;
-      cards.forEach(card => {
-        const matches = (active === 'all' || card.dataset.topic === active)
-          && (card.dataset.search + ' ' + card.textContent).normalize('NFKC').toLocaleLowerCase().includes(query);
-        card.hidden = !matches;
-        if (matches) visible++;
-      });
-      count.textContent = `${visible}개의 읽을거리`;
-      empty.hidden = visible > 0;
-    };
-    filters.forEach(button => button.addEventListener('click', () => {
-      active = button.dataset.filter;
-      filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      filterCards();
-    }));
-    search.addEventListener('input', filterCards);
-    document.querySelector('#reset-filters').addEventListener('click', () => {
-      search.value = '';
-      filters[0].click();
-      search.focus();
-    });
-    document.querySelector('.collection-toolbar').hidden = false;
-  }
   const reader = document.querySelector('[data-reader]');
   if (!reader) return;
   const id = document.body.dataset.readingId;

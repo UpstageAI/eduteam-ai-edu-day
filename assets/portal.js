@@ -1,11 +1,10 @@
-/* Optional catalog controls and GitHub discovery. Static cards remain usable without JavaScript. */
+/* Optional GitHub discovery. Static resource rows remain usable without JavaScript. */
 (() => {
   'use strict';
 
   const owner = 'UpstageAI';
   const repo = 'eduteam-ai-edu-day';
   const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`;
-  const storagePrefix = 'edu-reading-list:v1:complete:';
   const curatedKeys = new Set([
     'gas-tutorial',
     'omc-intro',
@@ -13,10 +12,6 @@
     'reading-list/forward-deployed-engineer',
   ]);
   const excludedRootPages = new Set(['reading-list', 'externalization-llm-agents']);
-
-  function normalize(value) {
-    return String(value || '').normalize('NFKC').toLocaleLowerCase();
-  }
 
   function toRepoHref(path, isDirectory = false) {
     const encodedPath = String(path)
@@ -91,20 +86,25 @@
     card.className = 'learning-card';
     card.dataset.resourceKey = item.path;
     card.dataset.category = item.category || 'workshop';
-    card.dataset.search = `${item.name} ${item.label} ${item.path}`;
 
     const content = document.createElement('div');
     content.className = 'card-content';
 
-    const label = document.createElement('div');
-    label.className = 'card-label';
-    label.textContent = item.label;
-    content.appendChild(label);
+    const typeLabel = document.createElement('span');
+    typeLabel.className = 'type-label';
+    typeLabel.textContent = item.category === 'reading' ? '읽을거리' : '워크숍';
+    content.appendChild(typeLabel);
 
-    const heading = document.createElement('h3');
+    const formatLabel = document.createElement('span');
+    formatLabel.className = 'format-label';
+    formatLabel.textContent = item.label;
+    content.appendChild(formatLabel);
+
+    const heading = document.createElement('h2');
+    heading.className = 'resource-title';
     const isPptx = item.kind === 'pptx';
     const primaryHref = isPptx ? toOfficeViewerUrl(item.href) : item.href;
-    appendLink(heading, item.name, primaryHref, isPptx);
+    heading.textContent = item.name;
     content.appendChild(heading);
 
     const description = document.createElement('p');
@@ -115,41 +115,17 @@
     const bottom = document.createElement('div');
     bottom.className = 'card-bottom';
     if (isPptx) {
-      appendLink(bottom, 'Office 미리보기', primaryHref, true, 'text-link');
-      appendLink(bottom, '원본 파일', item.href, true, 'text-link');
+      appendLink(bottom, 'Office 미리보기', primaryHref, true, 'text-link')
+        .setAttribute('aria-label', `${item.name} Office 미리보기`);
+      appendLink(bottom, '원본 파일', item.href, true, 'text-link')
+        .setAttribute('aria-label', `${item.name} 원본 파일`);
     } else {
-      appendLink(bottom, '자료 열기 →', item.href, false, 'text-link');
+      appendLink(bottom, '자료 보러 가기', item.href, false, 'text-link')
+        .setAttribute('aria-label', `${item.name} 자료 보러 가기`);
     }
-    content.appendChild(bottom);
     card.appendChild(content);
+    card.appendChild(bottom);
     return card;
-  }
-
-  function readCompletion(resourceKey) {
-    const slug = resourceKey.startsWith('reading-list/')
-      ? resourceKey.slice('reading-list/'.length)
-      : null;
-    if (!slug) return { available: true, complete: false, applicable: false };
-    try {
-      return {
-        available: true,
-        complete: window.localStorage.getItem(storagePrefix + slug) === 'true',
-        applicable: true,
-      };
-    } catch (_) {
-      return { available: false, complete: false, applicable: true };
-    }
-  }
-
-  function refreshReadStatus(root = document) {
-    root.querySelectorAll('[data-resource-key]').forEach(card => {
-      const status = card.querySelector('[data-card-status]');
-      if (!status) return;
-      const state = readCompletion(card.dataset.resourceKey);
-      status.textContent = state.complete ? '✓ 읽음' : '아직 읽지 않음';
-      status.dataset.complete = String(state.complete);
-      status.hidden = !state.applicable || !state.available;
-    });
   }
 
   async function fetchTree(timeoutMs = 5000) {
@@ -165,76 +141,32 @@
     }
   }
 
+  let catalogInitialization;
+
   function initializeCatalog() {
     const pages = document.querySelector('#pages');
-    const controls = document.querySelector('#catalog-controls');
-    const search = document.querySelector('#catalog-search');
-    const filters = Array.from(document.querySelectorAll('[data-category-filter]'));
-    const count = document.querySelector('#catalog-count');
-    const empty = document.querySelector('#catalog-empty');
-    const reset = document.querySelector('#catalog-reset');
-    const feedback = document.querySelector('#catalog-feedback');
+    if (!pages) return Promise.resolve([]);
+    if (catalogInitialization) return catalogInitialization;
 
-    refreshReadStatus();
-    window.addEventListener('pageshow', () => refreshReadStatus());
-    window.addEventListener('storage', () => refreshReadStatus());
-
-    if (!pages || !controls || !search || !filters.length || !count || !empty || !reset) return;
-
-    let activeCategory = 'all';
-    const cards = () => Array.from(pages.querySelectorAll('[data-resource-key]'));
-    const applyFilters = () => {
-      const query = normalize(search.value.trim());
-      let visible = 0;
-      cards().forEach(card => {
-        const categoryMatches = activeCategory === 'all' || card.dataset.category === activeCategory;
-        const searchText = normalize(`${card.dataset.search || ''} ${card.textContent}`);
-        const matches = categoryMatches && searchText.includes(query);
-        card.hidden = !matches;
-        if (matches) visible += 1;
-      });
-      count.textContent = `${visible}개의 학습 자료`;
-      empty.hidden = visible !== 0;
-    };
-
-    const selectCategory = button => {
-      activeCategory = button.dataset.categoryFilter || 'all';
-      filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      applyFilters();
-    };
-
-    filters.forEach(button => button.addEventListener('click', () => selectCategory(button)));
-    search.addEventListener('input', applyFilters);
-    reset.addEventListener('click', () => {
-      search.value = '';
-      selectCategory(filters.find(button => button.dataset.categoryFilter === 'all') || filters[0]);
-      search.focus();
-    });
-
-    controls.hidden = false;
-    applyFilters();
-
-    fetchTree().then(tree => {
-      const knownKeys = new Set(cards().map(card => card.dataset.resourceKey));
+    catalogInitialization = fetchTree().then(tree => {
+      const knownKeys = new Set(
+        Array.from(pages.querySelectorAll('[data-resource-key]'), card => card.dataset.resourceKey),
+      );
       const additions = discover(tree).filter(item => !knownKeys.has(item.path));
       additions.forEach(item => pages.appendChild(createCard(item)));
-      if (feedback && additions.length) {
-        feedback.textContent = `추가 자료 ${additions.length}개를 불러왔습니다.`;
-        feedback.hidden = false;
-      }
-      applyFilters();
+      return additions;
     }).catch(() => {
-      // Static cards remain readable when GitHub is unavailable or the request times out.
+      // Static rows remain readable when GitHub is unavailable or the request times out.
+      return [];
     });
+
+    return catalogInitialization;
   }
 
   window.EduDayPortal = Object.freeze({
     createCard,
     discover,
     initializeCatalog,
-    normalize,
-    readCompletion,
-    refreshReadStatus,
     toOfficeViewerUrl,
     toRepoHref,
   });

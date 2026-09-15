@@ -14,30 +14,16 @@ const tracking = await cdp('Page.addScriptToEvaluateOnNewDocument',{source:'wind
 try {
   await viewport(1440,1100);
   await go();
-  check(await js('document.title==="AI Edu Day · Upstage Education"'), 'new portal is the repository root');
-  check(await js('document.querySelectorAll("#pages [data-resource-key]").length===4'), 'four canonical materials appear immediately');
-  check(await js('!document.querySelector("#catalog-controls").hidden'), 'catalog controls progressively enhance');
-  await js('window.__originalCards=[...document.querySelectorAll("#pages [data-resource-key]")];');
-  await js('document.querySelector("[data-category-filter=workshop]").click()');
-  check(await js('document.querySelectorAll("#pages [data-resource-key]:not([hidden])").length===2'), 'workshop filter selects both workshop entries');
-  await js('document.querySelector("[data-category-filter=reading]").click()');
-  check(await js('document.querySelectorAll("#pages [data-resource-key]:not([hidden])").length===2'), 'reading filter selects both reading resources');
-  await js('const s=document.querySelector("#catalog-search");s.value="fde";s.dispatchEvent(new Event("input",{bubbles:true}))');
-  check(await js('document.querySelectorAll("#pages [data-resource-key]:not([hidden])").length===1 && document.querySelector("#catalog-count").textContent.startsWith("1")'), 'search combines with the current category');
-  await js('document.querySelector("[data-category-filter=workshop]").click()');
-  check(await js('!document.querySelector("#catalog-empty").hidden'), 'incompatible filters show an empty state');
-  await js('document.querySelector("#catalog-reset").click()');
-  check(await js('document.querySelectorAll("#pages [data-resource-key]:not([hidden])").length===4 && document.activeElement.id==="catalog-search"'), 'reset restores cards and focuses search');
-  check(await js('window.__originalCards.every(c=>c.isConnected && c.querySelector(".card-content") && !c.querySelector(".card-visual,img"))'), 'search preserves the original text-first catalog rows');
+  check(await js('document.title==="AI Edu Day · Upstage Education"'), 'portal remains the repository root');
+  check(await js(`JSON.stringify([...document.querySelectorAll('#pages>[data-resource-key]')].slice(0,4).map(row=>row.dataset.resourceKey))===JSON.stringify(['gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer'])`), 'four canonical materials appear first');
+  check(await js(`!document.querySelector('.home-hero,#catalog-controls,#catalog-search,#catalog-count,#catalog-empty,#catalog-reset,#catalog-feedback,.site-footer')`), 'home has no hero, catalog controls, status UI, or footer');
+  check(await js(`[...document.querySelectorAll('#pages>.learning-card')].every(row => { const content=row.querySelector(':scope>.card-content'),bottom=row.querySelector(':scope>.card-bottom'),title=content&&content.querySelector('h2.resource-title'),cta=bottom&&bottom.querySelector('a.text-link'); return content&&bottom&&content.children.length===4&&content.children[0].matches('.type-label')&&content.children[1].matches('.format-label')&&title&&!title.querySelector('a')&&content.children[3].matches('.card-description')&&cta&&cta.getAttribute('aria-label').includes(title.textContent.trim()); })`), 'every material is a complete four-field row with a titled CTA');
+  check(await js(`(()=>{const links=[...document.querySelectorAll('.site-header a')];return links.length===2&&links[0].matches('.brand')&&links[1].href==='https://github.com/UpstageAI/eduteam-ai-edu-day'})()`), 'header exposes only the brand and GitHub links');
 
-  // Exercise keyboard navigation through the real input event path.
-  await go();
   for (const type of ['keyDown','keyUp']) await cdp('Input.dispatchKeyEvent',{type,key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
   check(await js('document.activeElement.classList.contains("skip-link")'), 'skip link is the first keyboard destination');
   for (const type of ['keyDown','keyUp']) await cdp('Input.dispatchKeyEvent',{type,key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
-  check(await js('document.activeElement.id==="content"'), 'skip link transfers focus to the main content');
-  await js('document.querySelector(".hero-content .button-primary").click()');
-  check(await js('location.hash==="#resources"'), 'hero primary action navigates to the actual catalog');
+  check(await js('document.activeElement.id==="content"'), 'skip link transfers focus to main content');
 
   for (const width of [1440,768,390,320]) {
     await viewport(width,width<600?844:1000);
@@ -45,11 +31,13 @@ try {
       await go(path);
       check(await js('document.documentElement.scrollWidth<=document.documentElement.clientWidth+1'), `${width}px viewport without page overflow: ${path||'home'}`);
       check(await js('!window.__siteErrors.length'), `no script errors: ${width}px ${path||'home'}`);
+      check(await js(`document.querySelectorAll('.site-header a').length===2 && [...document.querySelectorAll('.site-header a')].every(link=>{const r=link.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth+1})`), `two header links remain visible: ${width}px ${path||'home'}`);
     }
   }
+
   await viewport(1440,1000);
   await go('gas-tutorial/');
-  check(await js('getComputedStyle(document.querySelector(".workshop-layout")).display==="grid" && document.querySelectorAll(".lesson-item").length===4'), 'GAS has styled orientation and four exercise stages');
+  check(await js(`getComputedStyle(document.querySelector('.workshop-layout')).display==='grid' && getComputedStyle(document.querySelector('.workshop-layout')).gridTemplateColumns.split(' ').length===1 && getComputedStyle(document.querySelector('.workshop-aside')).position==='static' && document.querySelectorAll('.lesson-item').length===4`), 'GAS uses one vertical flow and retains four exercise stages');
   let links = await js('[...document.querySelectorAll("main a[href]")].map(a=>a.href)');
   for (const link of links) {
     if (new URL(link).origin!==base.origin) continue;
@@ -57,37 +45,36 @@ try {
   }
   await js('document.querySelector(".workshop-hero .button-primary").click()');
   await waitLoad();
-  check(await js('location.pathname.endsWith("gas-tutorial/slides-gas-tutorial/dist/presentation.html") && document.querySelectorAll("section.slide").length===36'), 'GAS start action opens the intact 36-slide presentation');
+  check(await js('location.pathname.endsWith("gas-tutorial/slides-gas-tutorial/dist/presentation.html") && document.querySelectorAll("section.slide").length===36'), 'GAS action opens the intact 36-slide presentation');
+
   await go('omc-intro/');
-  check(await js('document.querySelector("h1").textContent.includes("Oh-my-claude-code")'), 'OMC uses the actual source title');
+  check(await js('document.querySelector("h1").textContent.includes("Oh-my-claude-code")'), 'OMC retains the source title');
   const pdf = await js('[...document.links].find(a=>a.pathname.endsWith("presentation.pdf")).href');
   check(await js(`fetch(${JSON.stringify(pdf)}).then(r=>r.ok && r.headers.get('content-type').includes('pdf'))`), 'original OMC PDF is downloadable');
   await js('document.querySelector(".workshop-hero .button-primary").click()');
   await waitLoad();
-  check(await js('document.querySelectorAll("section.slide").length===20'), 'OMC start action opens all 20 original slides');
+  check(await js('document.querySelectorAll("section.slide").length===20'), 'OMC action opens all 20 original slides');
+
+  await go('reading-list/forward-deployed-engineer/');
+  check(await js(`getComputedStyle(document.querySelector('.reading-layout')).display==='grid' && getComputedStyle(document.querySelector('.reading-layout')).gridTemplateColumns.split(' ').length===1 && getComputedStyle(document.querySelector('.reading-sidebar')).position==='static' && getComputedStyle(document.querySelector('.reading-sidebar')).overflowY==='visible'`), 'reader TOC is in the single vertical document flow');
 
   const offlineScript = await cdp('Page.addScriptToEvaluateOnNewDocument',{source:'const realFetch=window.fetch;window.fetch=(u,...a)=>String(u).includes("api.github.com")?Promise.reject(new Error("offline test")):realFetch(u,...a);'});
   try {
     await go();
-    check(await js('document.querySelectorAll("#pages [data-resource-key]").length===4 && !document.querySelector("#catalog-controls").hidden'), 'API failure leaves the designed catalog and controls usable');
+    check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===4'), 'API failure leaves all four static rows readable');
   } finally { await cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:offlineScript.identifier}); }
-  const blockedStorage = await cdp('Page.addScriptToEvaluateOnNewDocument',{source:'Object.defineProperty(window,"localStorage",{get(){throw new Error("blocked")}});'});
-  try {
-    await go();
-    check(await js('[...document.querySelectorAll("[data-card-status]")].every(s=>s.hidden) && !window.__siteErrors.length'), 'blocked storage hides optional status without breaking the portal');
-  } finally { await cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:blockedStorage.identifier}); }
+
   await cdp('Emulation.setScriptExecutionDisabled',{value:true});
   try {
     await go();
-    check(await js('document.querySelectorAll("#pages [data-resource-key]").length===4 && document.querySelector("#catalog-controls").hidden'), 'no-JavaScript portal has all four resources and no dead controls');
+    check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===4 && !document.querySelector("#catalog-controls,.site-footer")'), 'no-JavaScript portal retains four rows without dead UI');
     await go('gas-tutorial/');
     check(await js('!!document.querySelector(".workshop-hero .button-primary") && document.querySelectorAll(".lesson-item").length===4'), 'no-JavaScript workshop retains primary action and materials');
   } finally { await cdp('Emulation.setScriptExecutionDisabled',{value:false}); }
-  await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
-  await go();
-  check(await js('getComputedStyle(document.documentElement).scrollBehavior==="auto"'), 'reduced-motion preference is respected');
+
   await cdp('Emulation.setEmulatedMedia',{media:'print',features:[]});
-  check(await js('getComputedStyle(document.querySelector("#catalog-controls")).display==="none" && document.querySelectorAll("#pages .learning-card").length===4'), 'print mode omits controls and retains every editorial catalog row');
+  await go();
+  check(await js('document.querySelectorAll("#pages>.learning-card").length>=4'), 'print mode retains every material row');
   return { passed:passed.length, base:base.href, checks:passed };
 } finally {
   await cdp('Emulation.setScriptExecutionDisabled',{value:false});

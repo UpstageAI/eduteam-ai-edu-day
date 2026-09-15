@@ -3,8 +3,8 @@
   <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Apple SD Gothic Neo,Malgun Gothic,sans-serif">
     <text x="100" y="94" fill="#666963" font-size="20">Upstage Education</text>
     <text x="100" y="265" fill="#292a27" font-size="64" font-weight="500" letter-spacing="-2">AI Edu Day</text>
-    <text x="100" y="333" fill="#292a27" font-size="32">AI를 배우고, 일에 연결합니다.</text>
-    <text x="100" y="405" fill="#666963" font-size="22">교육팀의 워크숍과 한국어 읽기 자료</text>
+    <text x="100" y="333" fill="#292a27" font-size="32">워크숍 · 논문 · 아티클</text>
+    <text x="100" y="405" fill="#666963" font-size="22">Upstage Education 학습 자료</text>
     <path d="M100 502H1100" stroke="#e3e5df"/>
     <text x="100" y="550" fill="#465a50" font-size="18">upstageai.github.io/eduteam-ai-edu-day</text>
   </g>

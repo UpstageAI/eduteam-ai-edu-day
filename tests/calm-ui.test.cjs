@@ -43,17 +43,12 @@ test('shared text and accent roles remain readable on the paper surface', () => 
   }
 });
 
-test('catalog filters expose selected state and keyboard focus without relying on color alone', () => {
-  const filters = [...home.matchAll(/<button[^>]*data-category-filter="[^"]+"[^>]*>/g)].map(match => match[0]);
-  assert.equal(filters.length, 3);
-  assert.equal(filters.filter(markup => /aria-pressed="true"/.test(markup)).length, 1);
-  assert.ok(filters.every(markup => /aria-pressed="(?:true|false)"/.test(markup)));
-
+test('minimal header links retain a visible keyboard focus treatment', () => {
+  const header=home.match(/<header class="site-header">([\s\S]*?)<\/header>/);
+  assert.ok(header);
+  assert.equal((header[1].match(/<a\b/g)||[]).length,2);
   const focusRules = ruleBodies(sharedCss, ':focus-visible').join('\n') + ruleBodies(siteCss, ':focus-within').join('\n');
   assert.match(focusRules, /outline\s*:\s*(?!none\b)/, 'keyboard focus needs a visible outline');
-
-  const selectedRule = ruleBodies(siteCss, '.catalog-filters button[aria-pressed=true]').join('\n');
-  assert.match(selectedRule, /(?:text-decoration|font-weight)\s*:/, 'selected filters need a non-color visual cue');
 });
 
 test('interactive hover states do not move or rotate content', () => {

@@ -1,6 +1,6 @@
 # Edu Team Day 정적 자료 사이트
 
-이 저장소는 교육팀의 워크숍과 읽기 자료를 한 GitHub Pages 사이트에서 제공합니다. 홈에서 네 개의 대표 자료를 검색하거나 유형별로 고를 수 있고, 각 워크숍은 안내 페이지에서 내용을 확인한 뒤 슬라이드와 실습 자료를 열 수 있습니다. 별도의 빌드나 패키지 설치는 필요하지 않습니다.
+이 저장소는 교육팀의 워크숍과 읽기 자료를 한 GitHub Pages 사이트에서 제공합니다. 홈에서 네 개의 대표 자료를 바로 열 수 있고, 각 워크숍은 안내 페이지에서 내용을 확인한 뒤 슬라이드와 실습 자료를 열 수 있습니다. 별도의 빌드나 패키지 설치는 필요하지 않습니다.
 
 - 사이트: `https://upstageai.github.io/eduteam-ai-edu-day/`
 - 배포 후 읽기 자료 경로: `https://upstageai.github.io/eduteam-ai-edu-day/reading-list/`
@@ -29,7 +29,7 @@ python3 -m http.server 8000
 index.html                                      # 네 개의 대표 자료를 보여 주는 홈 포털
 assets/
   site.css                                      # 홈·워크숍이 함께 쓰는 스타일
-  portal.js                                     # 검색·필터와 자료 탐색을 더하는 선택적 기능
+  portal.js                                     # 추가 자료를 찾는 선택적 GitHub 탐색 기능
 reading-list/
   index.html                                    # 읽기 자료 목록
   assets/                                       # 읽기 화면의 스타일과 기능
@@ -69,9 +69,11 @@ Reading List에는 다음 자료가 있습니다.
 - LLM 에이전트의 외재화
 - FDE의 부상과 제대로 일하는 방법
 
-검색창과 워크숍·읽을거리 필터는 `assets/portal.js`가 더하는 선택적 기능입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 네 자료와 모든 기본 링크는 그대로 사용할 수 있습니다. 스크립트는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 기존 목록 뒤에 추가합니다.
+홈과 Reading List는 상단의 `Upstage Education`·`GitHub` 링크와 자료 목록만 보여 줍니다. 각 행은 분류, 형식, 제목, 짧은 요약을 왼쪽에서 오른쪽으로 배치하고, 다음 줄 오른쪽에 자료를 여는 링크를 둡니다. 작은 화면에서는 같은 순서로 줄을 바꾸며 가로 스크롤을 만들지 않습니다.
 
-홈과 Reading List는 그림이나 홍보 배너 없이 제목·설명·자료 링크를 한 열로 보여 줍니다. 따뜻한 흰색 배경과 회색 글자를 사용하며, 링크와 버튼에만 150ms의 색상 전환을 적용합니다. 본문 등장 효과나 반복 애니메이션은 없고, 사용자의 동작 줄이기 설정도 따릅니다.
+소개 문구, 중복 메뉴, 푸터, 검색·필터·자료 수·목록의 읽음 표시는 제거했습니다. 실제 글의 글자 크기와 읽음 표시 기능은 유지합니다. 워크숍 안내와 글의 목차도 별도 스크롤 패널 없이 본문 흐름 안에 배치합니다. 링크와 버튼에는 150ms의 색상 전환만 적용하고, 사용자의 동작 줄이기 설정을 따릅니다.
+
+`assets/portal.js`는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 같은 행 형식으로 덧붙입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 네 자료와 모든 기본 링크를 사용할 수 있습니다. Reading List 목록은 JavaScript 없이 작동합니다.
 
 `gas-tutorial/`과 `omc-intro/`는 더 이상 슬라이드로 바로 보내는 리다이렉트가 아닙니다. 두 폴더의 `index.html`은 발표 내용과 자료 형식을 먼저 설명하고, 원본 슬라이드·PDF·프롬프트·참고 코드로 이동할 수 있는 워크숍 안내 페이지입니다. 공통 화면 요소는 `assets/site.css`를 사용하며 Reading List와 같은 색상과 타이포그래피를 따릅니다.
 
@@ -80,14 +82,14 @@ JavaScript를 사용할 수 있으면 GitHub의 `main` 브랜치 트리를 조�
 - 루트 바로 아래의 `<폴더>/index.html`
 - 저장소 안의 `.pptx` 파일
 
-`reading-list/` 아래의 개별 글과 기존 `externalization-llm-agents/` 호환 주소는 홈에서 별도 카드로 표시하지 않습니다. 개별 글은 Reading List에서 선택합니다.
+Reading List의 두 글은 홈 목록에서도 바로 열 수 있습니다. 자동 탐색은 이미 등록된 글과 기존 `externalization-llm-agents/` 호환 주소를 중복으로 추가하지 않습니다.
 
 ## 자료 편집
 
 ### 읽기 자료 추가
 
 1. `reading-list/<자료명>/index.html`을 만듭니다.
-2. `reading-list/index.html`에 제목, 설명, 예상 읽기 시간과 링크를 추가합니다.
+2. `reading-list/index.html`에 분류, 형식, 제목, 짧은 요약과 이동 링크를 같은 행 구조로 추가합니다.
 3. 로컬 서버에서 홈과 Reading List를 차례로 엽니다.
 4. 아래 검사 명령으로 링크와 원본 자료 보존 여부를 확인합니다.
 
@@ -140,7 +142,7 @@ Latent.Space 자료의 원본 이미지 3개는 `reading-list/forward-deployed-e
 
 ### 브라우저 검증
 
-Chrome과 `chromux`가 설치된 환경에서는 아래 명령으로 홈과 워크숍의 검색·필터·반응형 화면을 먼저 확인하고, 이어서 Reading List의 읽음 표시·글자 크기·리다이렉트·저장소 제한·JavaScript 비활성화·인쇄 화면을 검증할 수 있습니다. Reading List 테스트는 해당 브라우저 프로필의 읽음 표시와 글자 크기 설정을 초기화합니다.
+Chrome과 `chromux`가 설치된 환경에서는 아래 명령으로 홈 목록의 행 배치·이동 링크·반응형 화면을 먼저 확인하고, 이어서 Reading List의 읽음 표시·글자 크기·리다이렉트·저장소 제한·JavaScript 비활성화·인쇄 화면을 검증할 수 있습니다. Reading List 테스트는 해당 브라우저 프로필의 읽음 표시와 글자 크기 설정을 초기화합니다.
 
 ```bash
 chromux open site-test http://127.0.0.1:8000/
@@ -151,7 +153,7 @@ chromux open reading-list-test http://127.0.0.1:8000/reading-list/
 chromux run reading-list-test --file tests/reading-list.browser.js --arg base=http://127.0.0.1:8000/
 chromux close reading-list-test
 
-# 글자 대비, 단일 열 목록, 짧은 상태 전환, 장식 제거 확인
+# 글자 대비, 가로 필드 순서, 오른쪽 이동 링크, 세로 흐름 확인
 chromux open calm-ui-test http://127.0.0.1:8000/
 chromux run calm-ui-test --file tests/calm-ui.browser.js --arg base=http://127.0.0.1:8000/
 chromux close calm-ui-test

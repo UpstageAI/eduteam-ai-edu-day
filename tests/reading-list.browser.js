@@ -12,19 +12,15 @@ async function go(path) {
 const viewport = async (width,height,mobile=false) => cdp('Emulation.setDeviceMetricsOverride', { width,height,deviceScaleFactor:1,mobile });
 const noOverflow = async () => js('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1');
 const errorScript = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: 'window.__readingErrors=[];window.addEventListener("error",e=>window.__readingErrors.push(e.message));'});
+let savedReaderStorage = {};
 try {
   await viewport(1440,1000);
   await go('reading-list/');
+  savedReaderStorage = await js(`Object.fromEntries(Object.keys(localStorage).filter(k=>k.startsWith('edu-reading-list:v1:')).map(k=>[k,localStorage.getItem(k)]))`);
   await js(`Object.keys(localStorage).filter(k=>k.startsWith('edu-reading-list:v1:')).forEach(k=>localStorage.removeItem(k));`);
-  check(await js('document.querySelectorAll("[data-resource]").length===2'), 'collection has two static resource cards');
-  await js('document.querySelector("[data-filter=agents]").click()');
-  check(await js('document.querySelectorAll("[data-resource]:not([hidden])").length===1 && !document.querySelector("[data-resource=externalization-llm-agents]").hidden'), 'topic filter selects the matching resource');
-  await js('document.querySelector("[data-filter=all]").click();const s=document.querySelector("#resource-search");s.value="FDE";s.dispatchEvent(new Event("input",{bubbles:true}));');
-  check(await js('document.querySelectorAll("[data-resource]:not([hidden])").length===1 && !document.querySelector("[data-resource=forward-deployed-engineer]").hidden'), 'case-insensitive keyword search finds FDE');
-  await js('const s=document.querySelector("#resource-search");s.value="not-a-resource";s.dispatchEvent(new Event("input",{bubbles:true}));');
-  check(await js('!document.querySelector("#empty-state").hidden'), 'search has an accessible empty state');
-  await js('document.querySelector("#reset-filters").click()');
-  check(await js('document.querySelectorAll("[data-resource]:not([hidden])").length===2 && document.activeElement.id==="resource-search"'), 'reset restores all cards and focuses the search field');
+  check(await js('document.querySelectorAll("[data-resource]").length===2'), 'collection has two static resource rows');
+  check(await js(`!document.querySelector('.collection-hero,.collection-toolbar,#resource-search,#result-count,#empty-state,[data-read-state],.site-footer,script[src*="reading-list.js"]')`), 'collection has no hero, catalogue controls, status, footer, or catalogue runtime');
+  check(await js('[...document.querySelectorAll("[data-resource]")].every(row=>row.querySelectorAll(":scope>.card-content>.type-label,:scope>.card-content>.format-label,:scope>.card-content>h2.resource-title,:scope>.card-content>.card-description").length===4&&row.querySelector(":scope>.card-bottom>a.text-link"))'), 'collection rows retain category, format, title, summary, and CTA');
   check(await noOverflow(), 'desktop collection has no horizontal overflow');
   await go('reading-list/');
   await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
@@ -51,9 +47,6 @@ try {
   await js('document.querySelector("[data-complete]").click();window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"})');
   await sleep(150);
   check(await js('document.querySelector("[data-percent]").textContent==="100%"'), 'scroll progress reaches 100 percent at the end');
-  await go('reading-list/');
-  check(await js('document.querySelector("[data-resource=forward-deployed-engineer] [data-read-state]").dataset.complete==="true"'), 'collection reflects saved reading status');
-
   for (const [width,height] of [[390,844],[320,740]]) {
     await viewport(width,height,true);
     for (const path of ['reading-list/','reading-list/forward-deployed-engineer/','reading-list/externalization-llm-agents/','reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html','reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html']) {
@@ -79,11 +72,11 @@ try {
   await cdp('Emulation.setScriptExecutionDisabled',{value:true});
   try {
     await go('reading-list/');
-    check(await js('document.querySelectorAll("[data-resource]:not([hidden])").length===2 && document.querySelector(".collection-toolbar").hidden'), 'no-JavaScript collection retains both readable resources');
+    check(await js('document.querySelectorAll("[data-resource]").length===2 && !document.querySelector(".collection-toolbar,#resource-search,#empty-state")'), 'no-JavaScript collection retains both rows without dead controls');
     await go('reading-list/forward-deployed-engineer/');
     check(await js('document.querySelectorAll("[data-source-paragraph]").length===57 && document.querySelectorAll(".source-figure img").length===3 && document.querySelector(".reading-toolbar").hidden'), 'no-JavaScript article retains text, images and static navigation');
     await go('');
-    check(await js('[...document.querySelectorAll("a")].some(a=>a.getAttribute("href")==="./reading-list/")'), 'no-JavaScript portal links to Reading List');
+    check(await js(`['./reading-list/externalization-llm-agents/','./reading-list/forward-deployed-engineer/'].every(href=>[...document.querySelectorAll('#pages a.text-link')].some(link=>link.getAttribute('href')===href))`), 'no-JavaScript portal links directly to both reading materials');
   } finally { await cdp('Emulation.setScriptExecutionDisabled',{value:false}); }
 
   await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
@@ -95,5 +88,8 @@ try {
 } finally {
   await cdp('Emulation.setEmulatedMedia',{media:'',features:[]});
   await cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:errorScript.identifier});
+  await cdp('Emulation.setScriptExecutionDisabled',{value:false});
+  await go('reading-list/');
+  await js(`Object.keys(localStorage).filter(k=>k.startsWith('edu-reading-list:v1:')).forEach(k=>localStorage.removeItem(k));Object.entries(${JSON.stringify(savedReaderStorage)}).forEach(([k,v])=>localStorage.setItem(k,v))`);
   await viewport(1440,1000);
 }

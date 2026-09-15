@@ -10,7 +10,7 @@ An approachable, composed education team's working library. Quiet editorial styl
 
 ## Product goals
 
-Make the existing public website beautiful and usable, not a separate microsite. Visitors should understand the available material and choose a workshop or reading resource immediately. Keep the canonical Reading List under `reading-list/` and preserve all existing content URLs. Success: visible static catalog, working filters/search and primary actions, cohesive navigation and responsive reading, preserved source bytes and successful regression/browser checks. Non-goals: accounts, a CMS, paid services, replacing original slide decks or creating a new hosting stack.
+Make the existing public website beautiful and usable, not a separate microsite. Visitors should understand the available material and choose a workshop or reading resource immediately. Keep the canonical Reading List under `reading-list/` and preserve all existing content URLs. Success: immediately visible static material rows, consistent two-link header, real resource actions, vertical-only page flow, preserved source bytes and passing regression/browser checks. Search/filter/count/read-status UI on catalogs is intentionally removed by the latest user design, not preserved as an invariant. Non-goals: accounts, a CMS, paid services, replacing original slide decks or creating a new hosting stack.
 
 ## Personas and jobs
 
@@ -18,10 +18,10 @@ Education team members and learners on laptops or phones. They need to start a g
 
 ## Information architecture
 
-- `/`: small brand/navigation, short text-only introduction, searchable single-column list with four curated resources and a simple footer. No hero artwork, thumbnails, promotional banners or learning-process filler.
+- `/`: only a header with `Upstage Education` (home link) and `GitHub`, followed immediately by the four material rows. No introduction, promotional copy, visible page heading, toolbar, search, filters, result count, reading status, duplicate menu or footer. Keep a visually hidden h1 and skip link for accessibility.
 - `/gas-tutorial/`: workshop orientation, start-slide action, four exercise stages and actual available prompt/code/handout links.
 - `/omc-intro/`: original OMC presentation context, start-slide action, the four content themes and original PDF link. Use the actual source title (Claude Code), not Codex.
-- `/reading-list/`: collection and reading filters; consistent brand header and color tokens.
+- `/reading-list/`: preserve the existing URL as a reading-only view of the same material rows and two-link header, without extra controls or introduction. Individual article URLs remain reachable directly from the home catalog.
 - `/reading-list/externalization-llm-agents/`: orientation and the existing beginner/deep reading documents.
 - `/reading-list/forward-deployed-engineer/`: complete Korean translation of the user-supplied article: 57 body paragraphs, subtitle, 8 section headings, captions and final author bio; the supplied date is 2026-09-13. Original images precede P01 and follow P12 and P28, with no added discussion questions or editorial notes.
 - Existing legacy externalization entry/deep-document URLs redirect with query/fragment preservation; old figure URLs remain byte-identical compatibility copies.
@@ -32,25 +32,25 @@ Give people a clear next action. Explain content with human titles rather than r
 
 ## Visual language
 
-Paper `#fdfdfc`, ink `#292a27`, muted `#666963`, accent `#465a50`, borders `#e3e5df`, subtle interactive surface `#f2f3ef`. Retain existing `--green` / `--rust` token names for reader compatibility, with the secondary color neutral rather than orange. Tokens belong to `reading-list/assets/reading-list.css`; portal/workshop components belong to `assets/site.css`. Use the existing system font stack without external font loading. Home heading 32px / 550 weight, list headings 19px / 550 weight, UI descriptions 15–16px, article body 18px with comfortable line height. Home/collection outer width 840px including gutters; reader/workshop layouts may reach 1080px for a useful contents/sidebar column. Generous vertical space and fine rules separate sections; avoid nested boxes, shadows and decorative illustrations. Preserve original article figures/photos, uncropped and unfiltered.
+Paper `#fdfdfc`, ink `#292a27`, muted `#666963`, accent `#465a50`, borders `#e3e5df`, subtle interactive surface `#f2f3ef`. Retain existing `--green` / `--rust` token names for reader compatibility, with the secondary color neutral rather than orange. Tokens belong to `reading-list/assets/reading-list.css`; portal/workshop components belong to `assets/site.css`. Use the existing system font stack without external font loading. Catalog headings 16px / 550 weight, metadata 12–13px, summaries 14px, article body 18px. Catalog/header width 1080px including gutters, with enough width to read each row left to right. Each row contains category, format, title and one-sentence summary in that DOM order; a separate action line aligns right below it. At narrow widths metadata stays left-to-right, then title and summary wrap to full-width lines without truncation or horizontal scrolling. Detail pages use one content column with contents/preparation information in normal document flow, not sticky or independently scrolling side panels. Thin rules and compact spacing separate rows; avoid nested boxes, shadows and decorative illustrations. Preserve original article figures/photos, uncropped and unfiltered.
 
-Motion is feedback, not decoration: 150ms ease-out color/background/border/underline transitions only on interactive controls and links. No entry reveals, perpetual animation, transforms, scroll-driven effects or forced smooth scrolling. Filter results appear immediately. Reduced-motion preferences remove transitions.
+Motion is feedback, not decoration: 150ms ease-out color/background/border/underline transitions only on interactive controls and links. No entry reveals, perpetual animation, transforms, scroll-driven effects or forced smooth scrolling. Reduced-motion preferences remove transitions.
 
 ## Components
 
-Shared brand header and navigation, skip link, primary/secondary/text buttons, text introduction, catalog toolbar, unboxed resource row (workshop/reading/discovered download variants), breadcrumbs, workshop overview, lesson/resource rows and footer. Existing reader: sidebar contents, reading progress, font-size controls, completion toggle, inline original image figures. All actions are real links/buttons; no placeholder controls.
+Shared two-link header, skip link, visually hidden catalog heading, uniform four-field resource row and right-aligned action line. Workshop action buttons, breadcrumbs and essential exercise links remain. Reader: collapsed-by-default, in-flow contents, reading progress, font-size controls, completion toggle and original inline image figures. Footer and catalogue-only controls are removed, not merely hidden. All actions are real links/buttons; no placeholder controls.
 
 ## Accessibility
 
-Target WCAG AA: semantic landmarks, one primary heading, meaningful link names, explicit input labels, visible focus and keyboard-operable controls. Skip links move focus into main. Maintain at least 4.5:1 contrast for normal UI text despite the softer palette. Selected filters use weight and an underline as well as a tinted background; focus rings stay distinct. No motion required to understand content; respect reduced motion. Mobile target controls at least 44px where practical. Announce filter counts politely without making the full card grid a live region.
+Target WCAG AA: semantic landmarks, one primary heading, meaningful link names, explicit input labels, visible focus and keyboard-operable controls. Skip links move focus into main. Maintain at least 4.5:1 contrast for normal UI text despite the softer palette. Resource actions retain visible keyboard focus and meaningful accessible names. Catalog titles are plain headings rather than a second duplicate link; repeated action text includes the material title in its accessible name. No motion required to understand content; respect reduced motion. Mobile target controls at least 44px where practical. Do not lock scroll, force scroll positions, capture arrow keys or suppress normal keyboard/link navigation. Vertical flow describes layout, not an input restriction.
 
 ## Responsive behavior
 
-Desktop: a narrow, single-column catalog with generous negative space; structured sidebars remain useful on workshop and long article pages. Tablet: tighter gutters and reflowing sidebars. Phone: the same single-column reading order, wrapping navigation without a hidden hamburger, stacked controls and collapsed optional contents. Check at 1440, 768, 390 and 320 CSS pixels. Original wide tables scroll within their reader, never overflow the viewport. Images retain aspect ratio.
+Desktop: resource rows stack top-to-bottom; fields within a row read left-to-right, with an action on the following line at the right. Tablet/phone: allow natural field wrapping rather than sideways scrolling, with the same DOM order. The two header links stay on a single row; no hamburger or extra navigation. Detail pages remain a single vertical reading flow. Check at 1440, 768, 390 and 320 CSS pixels. Original wide tables and code wrap within the reader; avoid horizontal page or nested-panel scrolling. Images retain aspect ratio.
 
 ## Interaction states
 
-Static catalog and links work with JavaScript disabled. Search/category/reset have visible counts and an empty state. GitHub discovery adds only unknown root-level collections/PPTX, never replaces designed static cards. API errors/timeouts leave known content usable; optional feedback is non-blocking. Reading settings degrade safely when storage is blocked. Completion is reversible and scoped to this browser, not a cloud account.
+All static rows and links work with JavaScript disabled. GitHub discovery may append unknown root-level collections/PPTX in the same row format but never replaces static resources. No search or filter controls, counts or read-state labels are rendered on catalogs. API errors/timeouts leave known content usable. Reading settings degrade safely when storage is blocked. Completion is reversible and scoped to this browser, not a cloud account.
 
 ## Content voice
 
@@ -60,13 +60,13 @@ Korean-first, direct, welcoming and specific. English for familiar technical nam
 
 Static HTML/CSS/JavaScript; no new dependencies, font CDN, tracking, framework or hosting migration. Relative internal paths must work locally and under `/eduteam-ai-edu-day/`. Preserve user untracked files and original slide/article/image/PDF bytes. Existing regression tests lock source content. Before delivery run Node tests, JS syntax, internal-link/fragment checks, Korean copy checks and Chrome desktop/mobile/no-JS/storage/offline/keyboard checks; inspect screenshots. Publish only to the existing main/root GitHub Pages configuration after user approval and passing verification; check previous deployment before a single push.
 
-### Editorial implementation and release plan (2026-09-15)
+### Minimal row-layout implementation and release plan
 
-1. Preserve behavior with the existing 36 passing Node tests and original source checksum fixtures. Keep the earlier local-change patch and screenshot baselines under `.omx/artifacts/`.
-2. Remove home decorative sections and catalog artwork; reduce both catalogs to a single typographic list. Replace obsolete portal decoration CSS instead of adding an override theme. Unify shared color, type and interaction tokens; keep routes, source material and JavaScript behavior.
-3. Update only obsolete visual test contracts, retaining search/filter/reset, keyboard, offline/no-JS, source-image, reading-settings and redirect assertions. Verify contrast, motion limits, single-column layout and 1440/768/390/320px screenshots. Review the diff independently before release.
-4. Commit explicit intended paths only, push once to existing `main` / root GitHub Pages configuration after checking the previous build, wait for the deployment commit to be built, and verify actual production HTML/CSS and navigation in Chrome.
+1. Lock existing source/reader/discovery behavior with the current regression tests. Latest user wireframe is the layout contract and overrides previous catalog search/filter/intro features.
+2. Replace both catalog markups with the same four-field row plus action line; simplify all shared headers and delete footers. Remove obsolete filtering/read-status catalog JavaScript and CSS while preserving discovery, source documents and actual reader controls.
+3. Verify desktop field order/alignment and right-below action position, mobile wrapping, absent nonessential UI, vertical detail flow, keyboard access, no-JS/offline behavior, original content checksums and brief color-only motion. Review independently.
+4. Update versioned assets, commit only intended paths, push once after the previous Pages build is complete, wait for the matching deployment commit, and verify production files and browser flows.
 
 ## Open questions
 
-No blocking questions. The user approved this reference-led implementation and GitHub Pages publication in the current conversation on 2026-09-15.
+No blocking questions. This is a refinement of the already-authorized GitHub Pages implementation/deployment. The latest user wireframe removes presentation and catalog controls in favor of a directly scannable list; original learning resources are not deleted.
