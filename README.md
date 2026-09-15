@@ -62,14 +62,16 @@ Reading List에는 다음 자료가 있습니다.
 
 ## 홈 포털과 워크숍 안내
 
-루트 `index.html`에는 아래 네 자료가 정적 카드로 들어 있습니다.
+루트 `index.html`에는 아래 네 자료가 정적 목록으로 들어 있습니다.
 
 - Google Apps Script로 시작하는 업무 자동화
 - Oh-my-claude-code 사용기
 - LLM 에이전트의 외재화
 - FDE의 부상과 제대로 일하는 방법
 
-검색창과 워크숍·읽을거리 필터는 `assets/portal.js`가 더하는 선택적 기능입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 네 카드와 모든 기본 링크는 그대로 사용할 수 있습니다. 스크립트는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 기존 목록 뒤에 추가합니다.
+검색창과 워크숍·읽을거리 필터는 `assets/portal.js`가 더하는 선택적 기능입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 네 자료와 모든 기본 링크는 그대로 사용할 수 있습니다. 스크립트는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 기존 목록 뒤에 추가합니다.
+
+홈과 Reading List는 그림이나 홍보 배너 없이 제목·설명·자료 링크를 한 열로 보여 줍니다. 따뜻한 흰색 배경과 회색 글자를 사용하며, 링크와 버튼에만 150ms의 색상 전환을 적용합니다. 본문 등장 효과나 반복 애니메이션은 없고, 사용자의 동작 줄이기 설정도 따릅니다.
 
 `gas-tutorial/`과 `omc-intro/`는 더 이상 슬라이드로 바로 보내는 리다이렉트가 아닙니다. 두 폴더의 `index.html`은 발표 내용과 자료 형식을 먼저 설명하고, 원본 슬라이드·PDF·프롬프트·참고 코드로 이동할 수 있는 워크숍 안내 페이지입니다. 공통 화면 요소는 `assets/site.css`를 사용하며 Reading List와 같은 색상과 타이포그래피를 따릅니다.
 
@@ -148,6 +150,11 @@ chromux close site-test
 chromux open reading-list-test http://127.0.0.1:8000/reading-list/
 chromux run reading-list-test --file tests/reading-list.browser.js --arg base=http://127.0.0.1:8000/
 chromux close reading-list-test
+
+# 글자 대비, 단일 열 목록, 짧은 상태 전환, 장식 제거 확인
+chromux open calm-ui-test http://127.0.0.1:8000/
+chromux run calm-ui-test --file tests/calm-ui.browser.js --arg base=http://127.0.0.1:8000/
+chromux close calm-ui-test
 ```
 
 이전 주소로 연결된 그림도 깨지지 않도록 기존 `externalization-llm-agents/` 경로에 원본 그림의 호환용 사본을 유지합니다. 새 콘텐츠를 추가할 때는 `reading-list/` 아래를 사용합니다.

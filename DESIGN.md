@@ -2,11 +2,11 @@
 
 ## Source of truth
 
-Status: Active. Updated: 2026-09-15. Surfaces: the existing AI Edu Day GitHub Pages home, workshop entry pages, Reading List and reading shells. Evidence reviewed: live root page, root HTML/README, GAS README and 60-minute handout, 36-slide GAS presentation, 20-slide **Oh-my-claude-code 사용기** presentation and PDF, existing reader HTML/CSS, original image manifests and passing regression tests. No separate brand manual or user-provided visual reference is available.
+Status: Active. Updated: 2026-09-15. Surfaces: the existing AI Edu Day GitHub Pages home, workshop entry pages, Reading List and reading shells. Evidence reviewed: live root page, root HTML/README, GAS README and 60-minute handout, 36-slide GAS presentation, 20-slide **Oh-my-claude-code 사용기** presentation and PDF, existing reader HTML/CSS, original image manifests and passing regression tests. User references reviewed in Chrome: https://shedsgns.me/taste and https://emilkowal.ski/ui/developing-taste. Emil supplies the narrow, text-first reading model; Shed supplies spacing restraint, not its repeating decorative animation. No separate brand manual is available.
 
 ## Brand
 
-An approachable, confident education team's working library. Editorial rather than corporate-dashboard styling: warm paper, deep forest green, expressive type and a restrained orange accent. Trust comes from real materials, original source images and clear source/type labels. Avoid invented testimonials, activity counts, exaggerated outcome claims, generic gradient hero blobs and fake UI affordances.
+An approachable, composed education team's working library. Quiet editorial styling: warm off-white paper, charcoal text, restrained sage links and unboxed material lists. The page should feel like a useful reading room rather than a promotional landing page. Trust comes from real materials, original source images and clear source/type labels. Avoid saturated orange/forest-green blocks, oversized heavy headings, tilted decorations, invented testimonials, exaggerated outcome claims and fake UI affordances.
 
 ## Product goals
 
@@ -18,7 +18,7 @@ Education team members and learners on laptops or phones. They need to start a g
 
 ## Information architecture
 
-- `/`: brand/navigation, editorial learning hero, searchable catalog with four curated resources, a Reading List collection callout, a concise learning-process section and footer.
+- `/`: small brand/navigation, short text-only introduction, searchable single-column list with four curated resources and a simple footer. No hero artwork, thumbnails, promotional banners or learning-process filler.
 - `/gas-tutorial/`: workshop orientation, start-slide action, four exercise stages and actual available prompt/code/handout links.
 - `/omc-intro/`: original OMC presentation context, start-slide action, the four content themes and original PDF link. Use the actual source title (Claude Code), not Codex.
 - `/reading-list/`: collection and reading filters; consistent brand header and color tokens.
@@ -32,19 +32,21 @@ Give people a clear next action. Explain content with human titles rather than r
 
 ## Visual language
 
-Paper `#f7f6f2`, ink `#232b28`, forest `#245c46`, muted `#606b65`, orange `#a54d2e`. Existing reader variables remain authoritative; the new `assets/site.css` consumes them and owns portal/workshop components. System font stack includes Apple SD Gothic Neo/Malgun Gothic. Large tightly tracked hero headings, comfortable 18px reading text, small uppercase English editorial labels. Max width 1200px, 20–36px mobile/desktop gutters, 8px spacing increments, thin borders, mostly 12–18px corner radii. Subtle hover elevation; no required scroll animations or autoplay. Decorative workbook/terminal illustrations are code-native. Source figures/photos are always original local files, uncropped, with attribution in the reading pages.
+Paper `#fdfdfc`, ink `#292a27`, muted `#666963`, accent `#465a50`, borders `#e3e5df`, subtle interactive surface `#f2f3ef`. Retain existing `--green` / `--rust` token names for reader compatibility, with the secondary color neutral rather than orange. Tokens belong to `reading-list/assets/reading-list.css`; portal/workshop components belong to `assets/site.css`. Use the existing system font stack without external font loading. Home heading 32px / 550 weight, list headings 19px / 550 weight, UI descriptions 15–16px, article body 18px with comfortable line height. Home/collection outer width 840px including gutters; reader/workshop layouts may reach 1080px for a useful contents/sidebar column. Generous vertical space and fine rules separate sections; avoid nested boxes, shadows and decorative illustrations. Preserve original article figures/photos, uncropped and unfiltered.
+
+Motion is feedback, not decoration: 150ms ease-out color/background/border/underline transitions only on interactive controls and links. No entry reveals, perpetual animation, transforms, scroll-driven effects or forced smooth scrolling. Filter results appear immediately. Reduced-motion preferences remove transitions.
 
 ## Components
 
-Shared brand header and navigation, skip link, primary/secondary/text buttons, learning hero, catalog toolbar, learning card (workshop/reading/discovered download variants), collection callout, process steps, breadcrumbs, workshop overview, lesson/resource rows and footer. Existing reader: sidebar contents, reading progress, font-size controls, completion toggle, inline original image figures. All actions are real links/buttons; no placeholder controls.
+Shared brand header and navigation, skip link, primary/secondary/text buttons, text introduction, catalog toolbar, unboxed resource row (workshop/reading/discovered download variants), breadcrumbs, workshop overview, lesson/resource rows and footer. Existing reader: sidebar contents, reading progress, font-size controls, completion toggle, inline original image figures. All actions are real links/buttons; no placeholder controls.
 
 ## Accessibility
 
-Target WCAG AA: semantic landmarks, one primary heading, meaningful link names, explicit input labels, visible focus and keyboard-operable controls. Skip links move focus into main. Use adequate contrast and descriptive source-image alt text. No motion required to understand content; respect reduced motion. Mobile target controls at least 44px where practical. Announce filter counts politely without making the full card grid a live region.
+Target WCAG AA: semantic landmarks, one primary heading, meaningful link names, explicit input labels, visible focus and keyboard-operable controls. Skip links move focus into main. Maintain at least 4.5:1 contrast for normal UI text despite the softer palette. Selected filters use weight and an underline as well as a tinted background; focus rings stay distinct. No motion required to understand content; respect reduced motion. Mobile target controls at least 44px where practical. Announce filter counts politely without making the full card grid a live region.
 
 ## Responsive behavior
 
-Desktop: split hero, generous negative space, two-column catalog, structured workshop sidebars. Tablet: tighter gutters and reflowed hero. Phone: one-column catalog, wrapping navigation without a hidden hamburger, stacked calls to action and collapsed optional contents. Check at 1440, 768, 390 and 320 CSS pixels. Original wide tables scroll within their reader, never overflow the viewport. Images retain aspect ratio.
+Desktop: a narrow, single-column catalog with generous negative space; structured sidebars remain useful on workshop and long article pages. Tablet: tighter gutters and reflowing sidebars. Phone: the same single-column reading order, wrapping navigation without a hidden hamburger, stacked controls and collapsed optional contents. Check at 1440, 768, 390 and 320 CSS pixels. Original wide tables scroll within their reader, never overflow the viewport. Images retain aspect ratio.
 
 ## Interaction states
 
@@ -58,6 +60,13 @@ Korean-first, direct, welcoming and specific. English for familiar technical nam
 
 Static HTML/CSS/JavaScript; no new dependencies, font CDN, tracking, framework or hosting migration. Relative internal paths must work locally and under `/eduteam-ai-edu-day/`. Preserve user untracked files and original slide/article/image/PDF bytes. Existing regression tests lock source content. Before delivery run Node tests, JS syntax, internal-link/fragment checks, Korean copy checks and Chrome desktop/mobile/no-JS/storage/offline/keyboard checks; inspect screenshots. Publish only to the existing main/root GitHub Pages configuration after user approval and passing verification; check previous deployment before a single push.
 
+### Editorial implementation and release plan (2026-09-15)
+
+1. Preserve behavior with the existing 36 passing Node tests and original source checksum fixtures. Keep the earlier local-change patch and screenshot baselines under `.omx/artifacts/`.
+2. Remove home decorative sections and catalog artwork; reduce both catalogs to a single typographic list. Replace obsolete portal decoration CSS instead of adding an override theme. Unify shared color, type and interaction tokens; keep routes, source material and JavaScript behavior.
+3. Update only obsolete visual test contracts, retaining search/filter/reset, keyboard, offline/no-JS, source-image, reading-settings and redirect assertions. Verify contrast, motion limits, single-column layout and 1440/768/390/320px screenshots. Review the diff independently before release.
+4. Commit explicit intended paths only, push once to existing `main` / root GitHub Pages configuration after checking the previous build, wait for the deployment commit to be built, and verify actual production HTML/CSS and navigation in Chrome.
+
 ## Open questions
 
-No blocking questions. User approved publishing the verified redesign to the existing GitHub Pages site on 2026-09-15.
+No blocking questions. The user approved this reference-led implementation and GitHub Pages publication in the current conversation on 2026-09-15.

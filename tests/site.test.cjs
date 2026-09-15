@@ -14,7 +14,25 @@ test('actual home markup matches the progressive catalog contract', () => {
   assert.match(home,/data-category-filter="all" aria-pressed="true"/);
   assert.equal((home.match(/data-category="workshop"/g)||[]).length,2);
   assert.equal((home.match(/data-category="reading"/g)||[]).length,2);
+  for (const selector of ['hero-art','card-visual','collection-feature','learning-principle','intro-strip']) {
+    assert.doesNotMatch(home,new RegExp(`class="[^"]*\\b${selector}\\b`),`${selector} should not return to the editorial home`);
+  }
+  assert.equal((home.match(/<img\b/g)||[]).length,0,'the home catalog should not add decorative or thumbnail images');
   assert.doesNotMatch(home,/<script>/);
+});
+
+test('catalog rows retain complete editorial content without visual cards', () => {
+  const cards=[...home.matchAll(/<article class="learning-card"[\s\S]*?<\/article>/g)].map(match=>match[0]);
+  assert.equal(cards.length,4);
+  for (const card of cards) {
+    for (const className of ['card-content','card-label','type-label','card-description','card-bottom']) {
+      assert.match(card,new RegExp(`class="[^"]*\\b${className}\\b`));
+    }
+    assert.match(card,/<h3><a href="[^"]+">/);
+  }
+  const readingHome=fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
+  assert.doesNotMatch(readingHome,/class="[^"]*\bcard-art\b/);
+  assert.equal((readingHome.match(/data-resource="/g)||[]).length,2);
 });
 
 test('all portal and landing links/assets/fragments resolve under the repo root', () => {
@@ -47,12 +65,11 @@ test('the public page family shares branding, keyboard entry and responsive styl
   }
 });
 
-test('shared stylesheet includes workshop, responsive and reduced-motion contracts', () => {
+test('shared stylesheet includes workshop, editorial responsive and print contracts', () => {
   const css=fs.readFileSync(path.join(root,'assets/site.css'),'utf8');
-  for (const selector of ['.workshop-layout','.lesson-item','.source-thumbnail','.hero-art','.catalog-controls']) assert.ok(css.includes(selector),selector);
+  for (const selector of ['.workshop-layout','.lesson-item','.home-hero','.catalog-controls','.learning-card']) assert.ok(css.includes(selector),selector);
   assert.match(css,/@media\s*\(max-width:\s*760px\)/);
   assert.match(css,/@media\s*\(max-width:\s*370px\)/);
-  assert.match(css,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
   assert.match(css,/@media print/);
   assert.doesNotMatch(css,/@import/);
 });

@@ -28,10 +28,7 @@ try {
   check(await js('!document.querySelector("#catalog-empty").hidden'), 'incompatible filters show an empty state');
   await js('document.querySelector("#catalog-reset").click()');
   check(await js('document.querySelectorAll("#pages [data-resource-key]:not([hidden])").length===4 && document.activeElement.id==="catalog-search"'), 'reset restores cards and focuses search');
-  check(await js('window.__originalCards.every(c=>c.isConnected && c.querySelector(".card-visual"))'), 'search and discovery preserve original visual card nodes');
-  await js('document.querySelectorAll("img").forEach(i=>i.loading="eager")');
-  await js('Promise.all([...document.images].map(image => image.decode())).then(() => true)');
-  check(await js('[...document.images].every(i=>i.complete && i.naturalWidth>0)'), 'source thumbnails decode without cropping substitutions');
+  check(await js('window.__originalCards.every(c=>c.isConnected && c.querySelector(".card-content") && !c.querySelector(".card-visual,img"))'), 'search preserves the original text-first catalog rows');
 
   // Exercise keyboard navigation through the real input event path.
   await go();
@@ -90,7 +87,7 @@ try {
   await go();
   check(await js('getComputedStyle(document.documentElement).scrollBehavior==="auto"'), 'reduced-motion preference is respected');
   await cdp('Emulation.setEmulatedMedia',{media:'print',features:[]});
-  check(await js('getComputedStyle(document.querySelector(".hero-art")).display==="none"'), 'print mode omits decorative hero art');
+  check(await js('getComputedStyle(document.querySelector("#catalog-controls")).display==="none" && document.querySelectorAll("#pages .learning-card").length===4'), 'print mode omits controls and retains every editorial catalog row');
   return { passed:passed.length, base:base.href, checks:passed };
 } finally {
   await cdp('Emulation.setScriptExecutionDisabled',{value:false});
