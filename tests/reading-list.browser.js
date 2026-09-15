@@ -37,7 +37,8 @@ try {
 
   await go('reading-list/forward-deployed-engineer/');
   check(await js('document.querySelectorAll(".source-figure img").length===3'), 'article preserves all three original images');
-  await js('document.querySelector(".source-gallery").open=true;document.querySelectorAll("img").forEach(img=>img.loading="eager")');
+  check(await js('!document.querySelector("#discussion, .editorial-note, .source-gallery")'), 'FDE article has no added questions or detached image gallery');
+  await js('document.querySelectorAll("img").forEach(img=>img.loading="eager")');
   await js('Promise.all([...document.images].map(image => image.decode())).then(() => true)');
   check(await js('[...document.images].every(img=>img.complete && img.naturalWidth>0)'), 'all original images decode successfully');
   await js('document.querySelector("[data-size=larger]").click()');

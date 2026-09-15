@@ -56,7 +56,7 @@ omc-intro/
 Reading List에는 다음 자료가 있습니다.
 
 - **LLM 에이전트 외재화**: 기존 `externalization-llm-agents` 자료를 Reading List 안에서 읽을 수 있도록 정리했습니다.
-- **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 핵심 내용을 한국어로 요약하고, 업무에 적용할 때 살펴볼 질문을 읽기 가이드로 덧붙였습니다. 원문 전체 번역본은 아닙니다.
+- **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 한국어 요약과 원문 이미지를 제공합니다. 이미지는 본문에 배치하며, 별도의 토론 질문이나 편집 안내는 넣지 않습니다. 원문 전체 번역본은 아닙니다.
 
 기존에 공유된 `/externalization-llm-agents/` 주소는 삭제하지 않고 새 위치로 연결합니다. 북마크와 문서에 남은 링크를 그대로 사용할 수 있습니다.
 

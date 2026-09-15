@@ -23,7 +23,7 @@ Education team members and learners on laptops or phones. They need to start a g
 - `/omc-intro/`: original OMC presentation context, start-slide action, the four content themes and original PDF link. Use the actual source title (Claude Code), not Codex.
 - `/reading-list/`: collection and reading filters; consistent brand header and color tokens.
 - `/reading-list/externalization-llm-agents/`: orientation and the existing beginner/deep reading documents.
-- `/reading-list/forward-deployed-engineer/`: attributed Korean summary (not a full translation), original images and editorial questions.
+- `/reading-list/forward-deployed-engineer/`: attributed Korean summary (not a full translation), original images placed inline in source order, without added discussion questions or editorial notes.
 - Existing legacy externalization entry/deep-document URLs redirect with query/fragment preservation; old figure URLs remain byte-identical compatibility copies.
 
 ## Design principles
@@ -36,7 +36,7 @@ Paper `#f7f6f2`, ink `#232b28`, forest `#245c46`, muted `#606b65`, orange `#a54d
 
 ## Components
 
-Shared brand header and navigation, skip link, primary/secondary/text buttons, learning hero, catalog toolbar, learning card (workshop/reading/discovered download variants), collection callout, process steps, breadcrumbs, workshop overview, lesson/resource rows and footer. Existing reader: sidebar contents, reading progress, font-size controls, completion toggle, original image figure and expandable gallery. All actions are real links/buttons; no placeholder controls.
+Shared brand header and navigation, skip link, primary/secondary/text buttons, learning hero, catalog toolbar, learning card (workshop/reading/discovered download variants), collection callout, process steps, breadcrumbs, workshop overview, lesson/resource rows and footer. Existing reader: sidebar contents, reading progress, font-size controls, completion toggle, inline original image figures. All actions are real links/buttons; no placeholder controls.
 
 ## Accessibility
 
@@ -52,7 +52,7 @@ Static catalog and links work with JavaScript disabled. Search/category/reset ha
 
 ## Content voice
 
-Korean-first, direct, welcoming and specific. English for familiar technical names and understated visual labels. State real formats and grounded durations: GAS handout says 60 minutes; OMC has 20 slides. No invented completion promises. Distinguish original content, summaries and editorial questions. Follow better-writing for newly written Korean; do not rewrite preserved source articles.
+Korean-first, direct, welcoming and specific. English for familiar technical names and understated visual labels. State real formats and grounded durations: GAS handout says 60 minutes; OMC has 20 slides. No invented completion promises. Distinguish original content from summaries. Do not add discussion questions or editorial filler to the FDE page. Follow better-writing for newly written Korean; do not rewrite preserved source articles.
 
 ## Implementation constraints
 
