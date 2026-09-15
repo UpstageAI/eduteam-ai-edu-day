@@ -19,6 +19,9 @@ try {
   await go();
   const ratios=await js(`(${contrast})(['body','.type-label','.format-label','.resource-title','.card-description','.text-link'])`);
   check(ratios.every(item=>item.ratio>=4.5),`catalog text meets 4.5:1 contrast (${ratios.map(item=>`${item.selector} ${item.ratio.toFixed(2)}`).join(', ')})`);
+  check(await js(`[...document.querySelectorAll('.learning-card')].every(row=>{const s=getComputedStyle(row);return ['Top','Right','Bottom','Left'].every(side=>parseFloat(s['border'+side+'Width'])>0&&parseFloat(s['border'+side+'Width'])<=1)&&parseFloat(s.borderRadius)<=8})`),'each material has a hairline box without a heavy frame');
+  check(await js(`[...document.querySelectorAll('.learning-card')].every(row=>{const s=getComputedStyle(row),stops=[...s.backgroundImage.matchAll(/rgba\\(91,\\s*95,\\s*233,\\s*([\\d.]+)\\)/g)];return stops.length>=2&&stops.every(stop=>Number(stop[1])>0&&Number(stop[1])<=.2)})`),'glass-like edges use the requested violet at faint transparency');
+  check(await js(`parseFloat(getComputedStyle(document.querySelector('.learning-grid')).rowGap)<=6&&[...document.querySelectorAll('.learning-card')].every(row=>parseFloat(getComputedStyle(row).paddingTop)<=16&&parseFloat(getComputedStyle(row.querySelector('.text-link')).minHeight)>=44)`),'tighter card spacing preserves the 44px action target');
   check(await js(`!document.querySelector('.home-hero,#catalog-controls,#catalog-search,#catalog-count,#catalog-empty,#catalog-feedback,.site-footer')`),'removed homepage UI is absent rather than hidden');
   check(await js(`[document.querySelector('#resources'),...document.querySelectorAll('#pages>.learning-card')].every(element=>{const s=getComputedStyle(element),r=element.getBoundingClientRect();return s.visibility==='visible'&&parseFloat(s.opacity)===1&&s.transform==='none'&&r.width>0&&r.height>0})`),'all catalog content is immediately visible');
 
@@ -38,7 +41,7 @@ try {
   }
 
   check(await js(`(()=>{const rows=[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>[...row.querySelector('.card-content').children].map(node=>node.getBoundingClientRect()));return rows.every(fields=>fields.every((field,index)=>index===0||(field.left>=fields[index-1].right-1&&field.top<fields[0].bottom&&fields[0].top<field.bottom)))&&rows.slice(1).every(fields=>fields.every((field,index)=>Math.abs(field.left-rows[0][index].left)<3))})()`),'desktop rows align category, format, title and summary in four baseline-aligned columns');
-  check(await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).every(row=>{const content=row.querySelector('.card-content').getBoundingClientRect(),bottom=row.querySelector('.card-bottom').getBoundingClientRect(),cta=row.querySelector('.text-link').getBoundingClientRect(),box=row.getBoundingClientRect();return bottom.top>=content.bottom-1&&Math.abs(cta.right-box.right)<3})`),'each desktop CTA sits beneath its row and aligns right');
+  check(await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).every(row=>{const content=row.querySelector('.card-content').getBoundingClientRect(),bottom=row.querySelector('.card-bottom').getBoundingClientRect(),cta=row.querySelector('.text-link').getBoundingClientRect(),box=row.getBoundingClientRect();return bottom.top>=content.bottom-1&&Math.abs(cta.right-bottom.right)<3&&cta.right<=box.right})`),'each desktop CTA sits beneath its row and aligns right');
 
   for (const width of [1440,768,390,320]) {
     await viewport(width,width<600?844:1000);

@@ -6,7 +6,7 @@ Status: Active. Updated: 2026-09-15. Surfaces: the existing AI Edu Day GitHub Pa
 
 ## Brand
 
-An approachable, composed education team's working library. Quiet editorial styling: warm off-white paper, charcoal text, restrained sage links and unboxed material lists. The page should feel like a useful reading room rather than a promotional landing page. Trust comes from real materials, original source images and clear source/type labels. Avoid saturated orange/forest-green blocks, oversized heavy headings, tilted decorations, invented testimonials, exaggerated outcome claims and fake UI affordances.
+An approachable, composed education team's working library. Quiet editorial styling: warm off-white paper, charcoal text, restrained sage links and lightly outlined material lists. The page should feel like a useful reading room rather than a promotional landing page. Trust comes from real materials, original source images and clear source/type labels. Avoid saturated orange/forest-green blocks, oversized heavy headings, tilted decorations, invented testimonials, exaggerated outcome claims and fake UI affordances.
 
 ## Product goals
 
@@ -32,7 +32,7 @@ Give people a clear next action. Explain content with human titles rather than r
 
 ## Visual language
 
-Paper `#fdfdfc`, ink `#292a27`, muted `#666963`, accent `#465a50`, borders `#e3e5df`, subtle interactive surface `#f2f3ef`. Retain existing `--green` / `--rust` token names for reader compatibility, with the secondary color neutral rather than orange. Tokens belong to `reading-list/assets/reading-list.css`; portal/workshop components belong to `assets/site.css`. Use the existing system font stack without external font loading. Catalog headings 16px / 550 weight, metadata 12–13px, summaries 14px, article body 18px. Catalog/header width 1080px including gutters, with enough width to read each row left to right. Each row contains category, format, title and one-sentence summary in that DOM order; a separate action line aligns right below it. At narrow widths metadata stays left-to-right, then title and summary wrap to full-width lines without truncation or horizontal scrolling. Detail pages use one content column with contents/preparation information in normal document flow, not sticky or independently scrolling side panels. Thin rules and compact spacing separate rows; avoid nested boxes, shadows and decorative illustrations. Preserve original article figures/photos, uncropped and unfiltered.
+Paper `#fdfdfc`, ink `#292a27`, muted `#666963`, accent `#465a50`, borders `#e3e5df`, subtle interactive surface `#f2f3ef`. Retain existing `--green` / `--rust` token names for reader compatibility, with the secondary color neutral rather than orange. Tokens belong to `reading-list/assets/reading-list.css`; portal/workshop components belong to `assets/site.css`. Use the existing system font stack without external font loading. Catalog headings 16px / 550 weight, metadata 12–13px, summaries 14px, article body 18px. Catalog/header width 1080px including gutters, with enough width to read each row left to right. Each row contains category, format, title and one-sentence summary in that DOM order; a separate action line aligns right below it. At narrow widths metadata stays left-to-right, then title and summary wrap to full-width lines without truncation or horizontal scrolling. Detail pages use one content column with contents/preparation information in normal document flow, not sticky or independently scrolling side panels. Material rows have a single 1px hairline frame with 6px corners, tinted #5b5fe9 at 6.5–16% opacity in a static gradient for a barely visible glass-like edge. Use 4px between boxes, 14px top padding on desktop / 12px on mobile, and 4px before the right-aligned action while retaining its 44px target. No nested panels, shadows, blur filters or animated shimmer; content and order are unchanged. Preserve original article figures/photos, uncropped and unfiltered.
 
 Motion is feedback, not decoration: 150ms ease-out color/background/border/underline transitions only on interactive controls and links. No entry reveals, perpetual animation, transforms, scroll-driven effects or forced smooth scrolling. Reduced-motion preferences remove transitions.
 
@@ -59,6 +59,10 @@ Korean-first, direct, welcoming and specific. English for familiar technical nam
 ## Implementation constraints
 
 Static HTML/CSS/JavaScript; no new dependencies, font CDN, tracking, framework or hosting migration. Relative internal paths must work locally and under `/eduteam-ai-edu-day/`. Preserve user untracked files and original slide/article/image/PDF bytes. Existing regression tests lock source content. Before delivery run Node tests, JS syntax, internal-link/fragment checks, Korean copy checks and Chrome desktop/mobile/no-JS/storage/offline/keyboard checks; inspect screenshots. Publish only to the existing main/root GitHub Pages configuration after user approval and passing verification; check previous deployment before a single push.
+
+### Compact glass-edge refinement plan
+
+The current 36-test baseline passes. Add focused browser checks for four-sided hairline borders, faint requested violet, compact spacing and preserved 44px actions; adjust CTA alignment to the box’s inner right edge. Modify only shared row styling, then check desktop/mobile screenshots and existing flows before the normal single-push release.
 
 ### Minimal row-layout implementation and release plan
 
