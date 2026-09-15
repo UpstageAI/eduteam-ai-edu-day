@@ -36,7 +36,7 @@ reading-list/
   externalization-llm-agents/                   # LLM 에이전트 외재화 자료
     index.html
   forward-deployed-engineer/
-    index.html                                  # Latent Space 글의 한국어 요약·읽기 가이드
+    index.html                                  # Latent Space 글의 한국어 전문 번역
 externalization-llm-agents/
   index.html                                    # 기존 공유 URL을 위한 호환 리다이렉트
 gas-tutorial/
@@ -56,7 +56,7 @@ omc-intro/
 Reading List에는 다음 자료가 있습니다.
 
 - **LLM 에이전트 외재화**: 기존 `externalization-llm-agents` 자료를 Reading List 안에서 읽을 수 있도록 정리했습니다.
-- **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 한국어 요약과 원문 이미지를 제공합니다. 이미지는 본문에 배치하며, 별도의 토론 질문이나 편집 안내는 넣지 않습니다. 원문 전체 번역본은 아닙니다.
+- **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 한국어 전문 번역과 원문 이미지를 제공합니다. 원문의 57개 본문 문단과 8개 소제목, 부제와 이미지 설명을 순서대로 옮겼습니다. 이미지는 원문에서 첫 문단 앞, 12번째 문단 뒤, 28번째 문단 뒤에 나온 위치에 배치했습니다.
 
 기존에 공유된 `/externalization-llm-agents/` 주소는 삭제하지 않고 새 위치로 연결합니다. 북마크와 문서에 남은 링크를 그대로 사용할 수 있습니다.
 
@@ -67,7 +67,7 @@ Reading List에는 다음 자료가 있습니다.
 - Google Apps Script로 시작하는 업무 자동화
 - Oh-my-claude-code 사용기
 - LLM 에이전트의 외재화
-- FDE: 고객 현장과 제품 개발
+- FDE의 부상과 제대로 일하는 방법
 
 검색창과 워크숍·읽을거리 필터는 `assets/portal.js`가 더하는 선택적 기능입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 네 카드와 모든 기본 링크는 그대로 사용할 수 있습니다. 스크립트는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 기존 목록 뒤에 추가합니다.
 

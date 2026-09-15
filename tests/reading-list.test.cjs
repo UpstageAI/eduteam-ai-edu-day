@@ -89,7 +89,7 @@ test('all three article images are local unmodified originals with source proven
     assert.ok(html.includes(`src="./${asset.file}"`));
     assert.ok(html.includes(`width="${asset.width}" height="${asset.height}"`));
   }
-  assert.match(html,/<span>한국어 요약<\/span>/);
+  assert.match(html,/<span>한국어 전문 번역<\/span>/);
 });
 
 test('reader HTML has progressive controls, accessible navigation and no added remote runtime', () => {
@@ -123,12 +123,13 @@ test('legacy reader styles begin with a valid root rule after removing font impo
 test('FDE page contains no added discussion or editorial filler and keeps images inline in source order', () => {
   const html = fs.readFileSync(path.join(root,'reading-list/forward-deployed-engineer/index.html'),'utf8');
   assert.doesNotMatch(html,/팀 토론을 위한 질문|id="discussion"|class="editorial-note"|class="sidebar-note"|class="source-gallery"|짧은 읽기 가이드|원문 이미지 2개 더 보기/);
-  const figures = [...html.matchAll(/<figure class="source-figure">[\s\S]*?<\/figure>/g)].map(match => match[0]);
+  const figures = [...html.matchAll(/<figure class="source-figure"[^>]*>[\s\S]*?<\/figure>/g)].map(match => match[0]);
   assert.equal(figures.length,3);
   for (const [index,name] of ['fde-and-consulting.png','author-in-the-field.jpeg','operating-model.png'].entries()) {
     assert.ok(figures[index].includes(`src="./images/${name}"`));
   }
-  const summary = html.match(/<section aria-labelledby="summary">([\s\S]*?)<\/section>/)[1];
-  assert.match(summary,/author-in-the-field\.jpeg/);
-  assert.match(summary,/operating-model\.png/);
+  const history = html.match(/<section id="project-frontline"[^>]*>([\s\S]*?)<\/section>/)[1];
+  const nouns = html.match(/<section id="nouns-and-verbs"[^>]*>([\s\S]*?)<\/section>/)[1];
+  assert.match(history,/author-in-the-field\.jpeg/);
+  assert.match(nouns,/operating-model\.png/);
 });

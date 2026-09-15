@@ -23,7 +23,7 @@ Education team members and learners on laptops or phones. They need to start a g
 - `/omc-intro/`: original OMC presentation context, start-slide action, the four content themes and original PDF link. Use the actual source title (Claude Code), not Codex.
 - `/reading-list/`: collection and reading filters; consistent brand header and color tokens.
 - `/reading-list/externalization-llm-agents/`: orientation and the existing beginner/deep reading documents.
-- `/reading-list/forward-deployed-engineer/`: attributed Korean summary (not a full translation), original images placed inline in source order, without added discussion questions or editorial notes.
+- `/reading-list/forward-deployed-engineer/`: complete Korean translation of the user-supplied article: 57 body paragraphs, subtitle, 8 section headings, captions and final author bio; the supplied date is 2026-09-13. Original images precede P01 and follow P12 and P28, with no added discussion questions or editorial notes.
 - Existing legacy externalization entry/deep-document URLs redirect with query/fragment preservation; old figure URLs remain byte-identical compatibility copies.
 
 ## Design principles

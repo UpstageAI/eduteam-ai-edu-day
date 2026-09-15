@@ -81,7 +81,7 @@ try {
     await go('reading-list/');
     check(await js('document.querySelectorAll("[data-resource]:not([hidden])").length===2 && document.querySelector(".collection-toolbar").hidden'), 'no-JavaScript collection retains both readable resources');
     await go('reading-list/forward-deployed-engineer/');
-    check(await js('!!document.querySelector("#summary") && document.querySelectorAll(".source-figure img").length===3 && document.querySelector(".reading-toolbar").hidden'), 'no-JavaScript article retains text, images and static navigation');
+    check(await js('document.querySelectorAll("[data-source-paragraph]").length===57 && document.querySelectorAll(".source-figure img").length===3 && document.querySelector(".reading-toolbar").hidden'), 'no-JavaScript article retains text, images and static navigation');
     await go('');
     check(await js('[...document.querySelectorAll("a")].some(a=>a.getAttribute("href")==="./reading-list/")'), 'no-JavaScript portal links to Reading List');
   } finally { await cdp('Emulation.setScriptExecutionDisabled',{value:false}); }
