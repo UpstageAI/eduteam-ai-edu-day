@@ -31,6 +31,8 @@ assets/
   site.css                                      # 홈·워크숍이 함께 쓰는 스타일
   portal.js                                     # 추가 자료를 찾는 선택적 GitHub 탐색 기능
   drawer.js                                     # 목록을 훑을 때 문서를 부드럽게 올리는 스크립트
+  notes.js                                      # notes.md를 읽어 메모 쪽지를 붙이는 스크립트
+notes.md                                        # 짧은 말과 링크 메모
 reading-list/
   index.html                                    # 읽기 자료 목록
   assets/                                       # 읽기 화면의 스타일과 기능
@@ -38,6 +40,8 @@ reading-list/
     index.html
   forward-deployed-engineer/
     index.html                                  # Latent Space 글의 한국어 전문 번역
+  what-is-a-harness/
+    index.html                                  # Earendil 글의 한국어 전문 번역
 externalization-llm-agents/
   index.html                                    # 기존 공유 URL을 위한 호환 리다이렉트
 gas-tutorial/
@@ -58,6 +62,7 @@ Reading List에는 다음 자료가 있습니다.
 
 - **LLM 에이전트 외재화**: 기존 `externalization-llm-agents` 자료를 Reading List 안에서 읽을 수 있도록 정리했습니다.
 - **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 한국어 전문 번역과 원문 이미지를 제공합니다. 원문의 57개 본문 문단과 8개 소제목, 부제와 이미지 설명을 순서대로 옮겼습니다. 이미지는 원문에서 첫 문단 앞, 12번째 문단 뒤, 28번째 문단 뒤에 나온 위치에 배치했습니다.
+- **하네스란 무엇인가**: [Earendil 원문](https://earendil.com/posts/what-is-a-harness/)의 한국어 전문 번역입니다. 저자에게 직접 허락을 받아 실었고, 본문 끝에서 원문으로 연결합니다. 원문에 실린 등반 사진은 저자가 아니라 Tom Frost가 찍은 것으로, 저자가 사진까지 함께 써도 된다고 알려와 그대로 실었습니다. 촬영자 표기와 링크는 원문과 같이 사진 설명에 남겼고, `images/sources.json`에 원본 URL과 체크섬, 허락 경위와 날짜를 기록했습니다.
 
 기존에 공유된 `/externalization-llm-agents/` 주소는 삭제하지 않고 새 위치로 연결합니다. 북마크와 문서에 남은 링크를 그대로 사용할 수 있습니다.
 
@@ -84,6 +89,26 @@ JavaScript를 사용할 수 있으면 GitHub의 `main` 브랜치 트리를 조�
 - 저장소 안의 `.pptx` 파일
 
 Reading List의 두 글은 홈 목록에서도 바로 열 수 있습니다. 자동 탐색은 이미 등록된 글과 기존 `externalization-llm-agents/` 호환 주소를 중복으로 추가하지 않습니다.
+
+## 메모 추가
+
+짧은 말이나 나중에 볼 링크는 `notes.md`에 적습니다. 홈 목록 아래에 정사각형 쪽지로 붙습니다.
+
+쪽지는 `## 말` 다음 줄에 `kind:`로 갈래를 밝힙니다. `repo`는 저장소, `link`는 찾아갈 곳, `term`은 알아 둘 말이고, 적지 않으면 `term`으로 봅니다. 저장소와 링크는 초록 모서리, 말은 빨간 모서리로 표시됩니다.
+
+## 자료 메타데이터
+
+자료는 각자 자기 폴더에 문서와 이미지를 함께 담고 있으므로, 그 문서가 자기 정보를 직접 선언합니다. 각 `index.html`의 head에 `resource:key`, `resource:kind`, `resource:format`, `resource:category`, `resource:title`, `resource:summary` 여섯 개를 적습니다.
+
+홈과 Reading List의 카드는 이 선언을 되풀이하는 목록일 뿐입니다. 둘이 어긋나면 `tests/site.test.cjs`가 실패하므로, 자료를 추가하거나 제목을 고칠 때는 문서의 선언을 먼저 바꾸고 카드를 맞추면 됩니다.
+
+```text
+## meat proxy
+사람이 AI 대신 몸으로 실행해 주는 자리
+https://github.com/cathrynlavery/diagram-design
+```
+
+쪽지는 모두 같은 크기의 정사각형이고, 마우스를 올리면 벽에서 살짝 떠오릅니다. `## `로 시작하는 줄이 말이 되고, 다음 줄의 글은 설명, `http`로 시작하는 줄은 링크가 됩니다. 링크는 여러 줄 적어도 됩니다. 맨 아래에 새로 적으면 목록 맨 앞에 나옵니다. 설명이나 링크는 없어도 됩니다.
 
 ## 자료 편집
 
@@ -136,7 +161,7 @@ GitHub Pages는 `main` 브랜치와 저장소 루트를 사용합니다. 배포�
 
 ### 원본 자료와 이미지 보존
 
-기존 워크숍의 슬라이드 HTML과 OMC PDF는 안내 페이지에서 연결만 하며 파일 내용은 수정하지 않습니다. 회귀 테스트는 해당 파일의 SHA-256 체크섬을 확인합니다. 읽기 자료의 원문 그림, 기존 외재화 자료 URL과 그림 URL도 그대로 유지합니다.
+기존 워크숍의 슬라이드 HTML과 OMC PDF는 안내 페이지에서 연결만 하며 파일 내용은 수정하지 않습니다. 회귀 테스트는 해당 파일의 SHA-256 체크섬을 확인합니다. 외재화 읽기 자료 두 편은 글과 그림은 그대로 두고, 자체 스타일만 배치 용도로 줄여 사이트와 같은 글꼴·색·단 너비를 따르게 했습니다. 카드와 표는 얇은 테두리로만 그리고 이모지는 뺐습니다. 읽기 자료의 원문 그림, 기존 외재화 자료 URL과 그림 URL도 그대로 유지합니다.
 
 Latent.Space 자료의 원본 이미지 3개는 `reading-list/forward-deployed-engineer/images/`에 있습니다. `images/sources.json`에는 원문 URL, 원본 이미지 URL, 크기, SHA-256 체크섬을 기록했습니다. 이미지는 자르거나 다시 그리지 않았으며, 본문에서 출처와 원본 크기 링크를 제공합니다. 출처 표시는 별도의 이용 허가를 뜻하지 않습니다. 이미지 저작권은 해당 권리자에게 있습니다.
 

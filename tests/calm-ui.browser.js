@@ -31,6 +31,15 @@ try {
   const target='.learning-card:nth-child(2)';
   const until=async(expression,timeout=4000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await js(expression))return true;await sleep(50);}return false;};
   const atRest=()=>until(`[...document.querySelectorAll('#pages>.learning-card')].every(row=>!row.style.getPropertyValue('--sheet-y'))`);
+
+  // Scraps: same-size squares on their own wall, each lifting a corner when pointed at.
+  const wall=await js(`(()=>{const notes=[...document.querySelectorAll('#note-wall .note')];if(!notes.length)return null;const boxes=notes.map(note=>note.getBoundingClientRect());const first=notes[0].getBoundingClientRect();return {count:notes.length,square:boxes.every(box=>Math.abs(box.width-box.height)<1.5),same:boxes.every(box=>Math.abs(box.width-boxes[0].width)<1.5&&Math.abs(box.height-boxes[0].height)<1.5),paper:getComputedStyle(notes[0]).backgroundColor,sheet:getComputedStyle(document.querySelector('#pages>.learning-card'),'::before').backgroundColor,x:first.x+first.width/2,y:first.y+first.height/2,external:[...document.querySelectorAll('#note-wall a')].every(link=>link.target==='_blank'&&link.rel.includes('noopener'))}})()`);
+  check(wall&&wall.count>0&&wall.square&&wall.same&&wall.paper!==wall.sheet&&wall.external,`scraps are ${wall&&wall.count} same-size squares of their own paper, linking out in a new tab`);
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:wall.x,y:wall.y});
+  check(await until(`(()=>{const note=document.querySelector('#note-wall .note'),style=getComputedStyle(note),y=Number(style.transform.match(/matrix\\(1, 0, 0, 1, 0, (-?[\\d.]+)\\)/)?.[1]);return y<=-9&&style.boxShadow!=='none'})()`),'pointing at a scrap lifts it off the wall, shadow and all');
+  await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
+  check(await until(`getComputedStyle(document.querySelector('#note-wall .note')).transform==='none'`),'the scrap settles flat again');
+
   const layerY=String.raw`row=>[getComputedStyle(row,'::before'),getComputedStyle(row.querySelector('.card-content')),getComputedStyle(row.querySelector('.action-label'))].map(style=>style.translate==='none'?0:parseFloat(style.translate.split(' ')[1]||'0'))`;
   await js(`document.querySelector('${target}').scrollIntoView({block:'center',behavior:'instant'})`);
   const ownerRectsBefore=await js(`[...document.querySelectorAll('#pages>.learning-card')].slice(0,4).map(row=>{const r=row.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})`);
@@ -235,7 +244,7 @@ try {
 
   await viewport(1440,1000);
   await go('reading-list/');
-  check(await js(`document.querySelectorAll('[data-resource]').length===2&&!document.querySelector('.collection-hero,.collection-toolbar,#result-count,#empty-state,.site-footer,script[src*="reading-list.js"]')`),'Reading List is a static two-row catalog without catalogue UI or runtime');
+  check(await js(`document.querySelectorAll('[data-resource]').length===3&&!document.querySelector('.collection-hero,.collection-toolbar,#result-count,#empty-state,.site-footer,script[src*="reading-list.js"]')`),'Reading List is a static catalog without catalogue UI or runtime');
 
   await go('reading-list/forward-deployed-engineer/');
   check(await js(`document.querySelector('main.reader-body[data-reader] h1') && !document.querySelector('.reading-progress,.reading-toolbar,.reading-sidebar,.article-end,.breadcrumb,[data-reader-control]')`),'reader keeps article content without auxiliary chrome');

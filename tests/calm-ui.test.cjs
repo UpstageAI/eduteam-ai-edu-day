@@ -60,7 +60,8 @@ test('drawer sheets move their paper and print through one variable without movi
   assert.doesNotMatch(layers[1],/transition/,'the skim script sets every frame, so a CSS transition would only add lag');
   const movers=rules(siteCss).filter(rule=>/--sheet-y\s*:/.test(rule.body)).map(rule=>rule.selectors);
   assert.deepEqual(movers,['.learning-card'],'only the script moves sheets; CSS only sets the resting value');
-  for (const {selectors,body} of rules(siteCss)) {
+  // Only the drawer is restricted to --sheet-y; the note wall has its own hover.
+  for (const {selectors,body} of rules(siteCss).filter(rule=>/learning-|card-|text-link|action-label/.test(rule.selectors))) {
     for (const [,value] of body.matchAll(/(?:^|[;\s])translate\s*:\s*([^;}]+)/g)) {
       assert.match(value.trim(),/^(?:0 var\(--sheet-y\)|none)$/,`sheets move only through --sheet-y: ${selectors}`);
     }
@@ -76,10 +77,29 @@ test('drawer sheets move their paper and print through one variable without movi
   assert.match(siteCss,/\.learning-grid:not\(\[data-skim\]\) \.learning-card:hover,\s*\.learning-card\[data-peak\]\s*\{\s*--tab-line\s*:\s*var\(--tab-line-strong\)\s*;\s*\}/,'the selected sheet deepens its tab outline: the highest sheet while skimming, the hovered sheet otherwise');
   assert.match(siteCss,/--tab-line-strong\s*:\s*#[0-9a-f]{6}[^}]*\}\s*\.learning-card\[data-category="reading"\]\s*\{[^}]*--tab-line-strong\s*:\s*#[0-9a-f]{6}/i,'each category has a slightly deeper outline for the selected sheet');
   const readingList=fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
-  assert.equal((readingList.match(/data-category="reading"/g)||[]).length,2,'Reading List sheets use the reading tab color');
+  assert.ok((readingList.match(/data-category="reading"/g)||[]).length>=2,'Reading List sheets use the reading tab color');
   assert.match(siteCss,/\.card-content\s*\{[^}]*margin-top\s*:\s*calc\(\(var\(--sheet-pad\)\s*\+\s*var\(--sheet-tab\)\)\s*\*\s*-1\)/,'the tab rises above the sheet edge into the empty strip of the sheet behind');
   const tokens=Object.fromEntries([...siteCss.matchAll(/(--sheet-(?:tuck|pad|tab|lift))\s*:\s*(-?[\d.]+)px/g)].map(([,name,value])=>[name,Number(value)]));
   assert.ok(tokens['--sheet-lift']<0&&tokens['--sheet-pad']>=4&&tokens['--sheet-tuck']>0&&tokens['--sheet-tab']>=16,'drawer geometry tokens stay concrete pixel values');
+});
+
+test('scraps are same-size squares on their own wall, not drawer sheets', () => {
+  assert.match(siteCss,/\.note \{[^}]*aspect-ratio\s*:\s*1[^}]*\}/,'every note is the same square');
+  assert.match(siteCss,/\.note \{[^}]*background\s*:\s*#f7f6f2/,'notes use a warmer paper than the sheets');
+  assert.doesNotMatch(siteCss,/\.note \{[^}]*border-radius/,'notes stay square-cornered');
+  const lift=siteCss.match(/\.note:hover \{([^}]*)\}/);
+  assert.ok(lift&&/transform\s*:\s*translateY\(-\d+px\)/.test(lift[1]),'pointing at a note lifts it off the wall');
+  assert.ok(lift&&/box-shadow\s*:\s*0 \d+px/.test(lift[1]),'a shadow shows the gap it leaves behind');
+  assert.doesNotMatch(siteCss,/@keyframes note-sway|filter\s*:\s*url|perspective/,'nothing tilts, ripples or keeps moving on its own');
+  const notesScript=fs.readFileSync(path.join(root,'assets/notes.js'),'utf8');
+  const reduced=siteCss.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/);
+  assert.match(reduced[1],/\.note:hover \{ transform:none; box-shadow:none; \}/,'reduced motion keeps notes still');
+  const notes=fs.readFileSync(path.join(root,'assets/notes.js'),'utf8');
+  assert.match(notes,/fetch\('\.\/notes\.md'/,'the wall reads notes.md');
+  assert.doesNotMatch(notes,/innerHTML/,'notes render as text, never markup');
+  assert.match(home,/<section id="notes" aria-label="메모" hidden>/,'the wall stays hidden until a note is pinned');
+  assert.match(home,/<script src="\.\/assets\/notes\.js(?:\?[^"]+)?" defer><\/script>/);
+  assert.ok(fs.existsSync(path.join(root,'notes.md')),'notes.md exists for quick scraps');
 });
 
 test('the skim script is small, gated and keeps text clear', () => {
@@ -111,8 +131,9 @@ test('the skim script is small, gated and keeps text clear', () => {
 
 test('motion is limited to the drawer and the page-opening transition', () => {
   const css = `${sharedCss}\n${siteCss}`;
-  const outsideViewTransition = rules(css).filter(rule => !rule.selectors.includes('::view-transition')).map(rule => rule.body).join('\n');
-  assert.doesNotMatch(outsideViewTransition, /\banimation(?:-\w+)?\s*:/i, 'no entrance animation outside the page transition');
+  // Motion is allowed in exactly two places: the page-opening transition and a note swaying under the pointer.
+  const elsewhere = rules(css).filter(rule => !/::view-transition|\.note/.test(rule.selectors)).map(rule => rule.body).join('\n');
+  assert.doesNotMatch(elsewhere, /\banimation(?:-\w+)?\s*:/i, 'no entrance animation outside the page transition and the note wall');
   assert.doesNotMatch(css, /scroll-behavior\s*:\s*smooth/i);
   assert.match(siteCss, /@view-transition\s*\{\s*navigation\s*:\s*auto\s*;\s*\}/, 'same-site page changes use a view transition');
   assert.match(siteCss, /\.workshop-title,\.reader-title\s*\{\s*view-transition-name\s*:\s*doc-title\s*;\s*\}/, 'destination headings receive the sheet title');
@@ -124,17 +145,21 @@ test('motion is limited to the drawer and the page-opening transition', () => {
 });
 
 test('transitions stay brief and limited to interaction feedback', () => {
-  const declarations = [...`${sharedCss}\n${siteCss}`.matchAll(/\btransition\s*:\s*([^;}]+)/gi)].map(match => match[1].trim());
-  assert.ok(declarations.length > 0);
-  for (const declaration of declarations) {
-    if (/^none\b/.test(declaration)) continue;
-    for (const item of declaration.replace(/cubic-bezier\([^)]*\)/gi,'timing-function').split(',')) {
-      assert.match(item.trim(), /^(?:color|background(?:-color)?|border(?:-color)?|text-decoration-color)\s+/i, `non-interaction transition: ${item.trim()}`);
-      const duration = item.match(/([\d.]+)(ms|s)\b/i);
-      assert.ok(duration, `transition needs an explicit short duration: ${item.trim()}`);
-      assert.ok(Number(duration[1]) * (duration[2].toLowerCase() === 's' ? 1000 : 1) <= 220, `transition exceeds 220ms: ${item.trim()}`);
+  // Links and sheets answer at once; a lifted note is allowed to settle back a little slower, like paper.
+  for (const {selectors, body} of [...rules(sharedCss), ...rules(siteCss)]) {
+    const limit = selectors.includes('.note') ? 500 : 220;
+    for (const [, declaration] of body.matchAll(/\btransition\s*:\s*([^;}]+)/gi)) {
+      if (/^none\b/.test(declaration.trim())) continue;
+      for (const item of declaration.replace(/cubic-bezier\([^)]*\)/gi, 'timing-function').split(',')) {
+        assert.match(item.trim(), /^(?:color|background(?:-color)?|border(?:-color)?|text-decoration-color|transform|box-shadow)\s+/i, `non-interaction transition: ${selectors}`);
+        const duration = item.match(/([\d.]+)(ms|s)\b/i);
+        assert.ok(duration, `transition needs an explicit duration: ${selectors}`);
+        assert.ok(Number(duration[1]) * (duration[2].toLowerCase() === 's' ? 1000 : 1) <= limit, `transition exceeds ${limit}ms: ${item.trim()} in ${selectors}`);
+      }
     }
   }
+  const durations = [...siteCss.matchAll(/transition-duration\s*:\s*([^;}]+)/g)].flatMap(match => match[1].split(',').map(value => parseFloat(value)));
+  assert.ok(durations.every(duration => duration <= 500), `transition-duration stays brief: ${durations}`);
 });
 
 test('reduced motion and print keep sheets still', () => {

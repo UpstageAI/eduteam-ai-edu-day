@@ -11,6 +11,7 @@ const shellEntries = [
   'reading-list/index.html',
   'reading-list/externalization-llm-agents/index.html',
   'reading-list/forward-deployed-engineer/index.html',
+  'reading-list/what-is-a-harness/index.html',
   'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html',
   'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html',
 ];
@@ -42,13 +43,13 @@ test('home is a minimal progressively discovered four-row catalog', () => {
   assert.match(home,/id="resources"/);
   assert.match(home,/<h1[^>]*class="visually-hidden"/);
   assert.deepEqual([...home.matchAll(/data-resource-key="([^"]+)"/g)].map(match=>match[1]),[
-    'gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer'
+    'gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer','reading-list/what-is-a-harness'
   ]);
   for (const removed of ['catalog-controls','catalog-search','catalog-count','catalog-empty','catalog-reset','catalog-feedback','home-hero','hero-content','home-lede']) {
     assert.doesNotMatch(home,new RegExp(`(?:id|class)="[^"]*\\b${removed}\\b`),`${removed} must stay removed`);
   }
   const rows=cards(home,'data-resource-key');
-  assert.equal(rows.length,4);
+  assert.equal(rows.length,5);
   rows.forEach(assertRowContract);
   assert.doesNotMatch(home,/<img\b/);
   assert.doesNotMatch(home,/<script>/);
@@ -57,7 +58,7 @@ test('home is a minimal progressively discovered four-row catalog', () => {
 test('Reading List is the same minimal two-row catalog without catalogue runtime', () => {
   const html=fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
   assert.deepEqual([...html.matchAll(/data-resource="([^"]+)"/g)].map(match=>match[1]),[
-    'externalization-llm-agents','forward-deployed-engineer'
+    'externalization-llm-agents','forward-deployed-engineer','what-is-a-harness'
   ]);
   assert.match(html,/<h1[^>]*class="visually-hidden"/);
   for (const removed of ['collection-hero','collection-toolbar','resource-search','result-count','empty-state','reset-filters','read-state']) {
@@ -65,7 +66,7 @@ test('Reading List is the same minimal two-row catalog without catalogue runtime
   }
   assert.doesNotMatch(html,/reading-list\.js/);
   const rows=cards(html,'data-resource');
-  assert.equal(rows.length,2);
+  assert.equal(rows.length,3);
   rows.forEach(assertRowContract);
 });
 
@@ -111,6 +112,7 @@ test('every detail page opens with one back link and no breadcrumb', () => {
     'omc-intro/index.html': '../',
     'reading-list/externalization-llm-agents/index.html': '../../',
     'reading-list/forward-deployed-engineer/index.html': '../../',
+    'reading-list/what-is-a-harness/index.html': '../../',
     'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html': '../../',
     'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html': '../../',
   };
@@ -134,4 +136,43 @@ test('shared stylesheet retains minimal rows, vertical detail layouts and respon
   assert.match(css,/@media\s*\(max-width:\s*760px\)/);
   assert.match(css,/@media print/);
   assert.doesNotMatch(css,/@import/);
+});
+
+// Each resource folder holds the document itself, so the document declares its own metadata and
+// the cards that point at it are only an index. This fails the moment the two drift apart.
+function frontmatter(html) {
+  const fields = {};
+  for (const [, name, value] of html.matchAll(/<meta name="resource:([a-z]+)" content="([^"]*)">/g)) {
+    fields[name] = value.replace(/&quot;/g,'"').replace(/&#x27;/g,"'").replace(/&amp;/g,'&');
+  }
+  return fields;
+}
+
+test('every resource document declares itself and both catalogs repeat it exactly', () => {
+  const documents = shellEntries.filter(entry => /^(gas-tutorial|omc-intro|reading-list\/[a-z-]+)\/index\.html$/.test(entry));
+  assert.equal(documents.length, 5, 'every resource document is covered');
+  const collection = fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
+
+  for (const entry of documents) {
+    const meta = frontmatter(fs.readFileSync(path.join(root, entry),'utf8'));
+    for (const field of ['key','kind','format','category','title','summary']) {
+      assert.ok(meta[field], `${entry} declares resource:${field}`);
+    }
+    assert.equal(meta.key, path.dirname(entry), `${entry} keys itself by its own folder`);
+    assert.ok(['workshop','reading'].includes(meta.category), `${entry} uses a known category`);
+
+    const check = (html, attribute, value, where) => {
+      const card = html.match(new RegExp(`<article class="learning-card"[^>]*${attribute}="${value}"[\\s\\S]*?<\\/article>`));
+      assert.ok(card, `${where} carries a card for ${meta.key}`);
+      const row = card[0];
+      const text = name => (row.match(new RegExp(`class="${name}"[^>]*>([\\s\\S]*?)<`)) || [,''])[1].trim();
+      assert.match(row, new RegExp(`data-category="${meta.category}"`), `${where} ${meta.key} category`);
+      assert.equal(text('type-label'), meta.kind, `${where} ${meta.key} kind`);
+      assert.equal(text('format-label'), meta.format, `${where} ${meta.key} format`);
+      assert.equal(text('resource-title'), meta.title, `${where} ${meta.key} title`);
+      assert.equal(text('card-description'), meta.summary, `${where} ${meta.key} summary`);
+    };
+    check(home, 'data-resource-key', meta.key, 'home');
+    if (meta.category === 'reading') check(collection, 'data-resource', path.basename(meta.key), 'Reading List');
+  }
 });

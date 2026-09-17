@@ -15,7 +15,7 @@ const errorScript = await cdp('Page.addScriptToEvaluateOnNewDocument', { source:
 try {
   await viewport(1440, 1000);
   await go('reading-list/');
-  check(await js('document.querySelectorAll("[data-resource]").length===2'), 'collection retains two static resource rows');
+  check(await js('document.querySelectorAll("[data-resource]").length===3'), 'collection retains its static resource rows');
   check(await js('document.querySelectorAll(".site-header a").length===2'), 'collection keeps only brand and GitHub links');
   check(await js('!document.querySelector(".collection-hero,.collection-toolbar,#resource-search,#result-count,#empty-state,.read-state")'), 'collection has no auxiliary catalogue UI or runtime');
   check(await noOverflow(), 'desktop collection has no horizontal overflow');
@@ -32,9 +32,10 @@ try {
 
   await go('reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html');
   check(await js('document.querySelector(".legacy-body article .toc") && getComputedStyle(document.querySelector(".legacy-body article .toc")).display==="none"'), 'legacy presentation hides its embedded contents block');
-  check(await js(`document.querySelector('.legacy-body article.paper > div[style*="display:flex"]') && getComputedStyle(document.querySelector('.legacy-body article.paper > div[style*="display:flex"]')).display==='none'`), 'legacy deep article hides its auxiliary intro panel');
+  check(await js(`(()=>{const link=document.querySelector('.doc-cross a[href="eli5.html"]'),style=link&&getComputedStyle(link),box=link&&link.getBoundingClientRect();return !!link&&style.display!=='none'&&box.width>0&&style.color!==getComputedStyle(document.body).backgroundColor})()`), 'the deep summary links to the short version in plain, visible text');
   await go('reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html');
   check(await js('document.querySelector(".legacy-body article .nav-bar") && getComputedStyle(document.querySelector(".legacy-body article .nav-bar")).display==="none"'), 'legacy short article hides its auxiliary jump bar');
+  check(await js(`(()=>{const link=document.querySelector('.doc-cross a[href="presentation.html"]'),box=link&&link.getBoundingClientRect();return !!link&&box.width>0&&box.height>0&&getComputedStyle(link).color!==getComputedStyle(document.body).backgroundColor})()`), 'the short version links to the deep summary in plain, visible text');
 
   for (const [width, height] of [[390, 844], [320, 740]]) {
     await viewport(width, height, true);
@@ -56,7 +57,7 @@ try {
   await cdp('Emulation.setScriptExecutionDisabled', { value: true });
   try {
     await go('reading-list/');
-    check(await js('document.querySelectorAll("[data-resource]").length===2 && !document.querySelector(".collection-toolbar")'), 'no-JavaScript collection retains rows without dead UI');
+    check(await js('document.querySelectorAll("[data-resource]").length===3 && !document.querySelector(".collection-toolbar")'), 'no-JavaScript collection retains rows without dead UI');
     await go('reading-list/forward-deployed-engineer/');
     check(await js('document.querySelectorAll("[data-source-paragraph]").length===57 && document.querySelectorAll(".source-figure img").length===3'), 'no-JavaScript article retains text and images');
   } finally { await cdp('Emulation.setScriptExecutionDisabled', { value: false }); }

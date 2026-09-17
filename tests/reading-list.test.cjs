@@ -24,7 +24,7 @@ function filesBelow(folder) {
 }
 const readingFiles = () => filesBelow(path.join(root, 'reading-list')).filter(file => file.endsWith('.html'));
 test('collection and both resources exist as static, Korean-first HTML', () => {
-  for (const name of ['index.html','externalization-llm-agents/index.html','forward-deployed-engineer/index.html']) {
+  for (const name of ['index.html','externalization-llm-agents/index.html','forward-deployed-engineer/index.html','what-is-a-harness/index.html']) {
     const html = fs.readFileSync(path.join(root, 'reading-list', name), 'utf8');
     assert.match(html, /<html lang="ko">/);
     assert.equal((html.match(/<h1\b/g) || []).length, 1, name);
@@ -115,11 +115,17 @@ test('legacy embedded figure URLs retain the same original image bytes', () => {
   }
 });
 
-test('legacy reader styles begin with a valid root rule after removing font imports', () => {
+test('legacy readers keep their words but inherit the site look', () => {
   for (const name of ['eli5.html','presentation.html']) {
     const html=fs.readFileSync(path.join(root,'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist',name),'utf8');
-    assert.match(html,/<style>\s*:root\s*\{/);
     assert.doesNotMatch(html,/fonts\.googleapis\.com/);
+    const style=html.match(/<style>([\s\S]*?)<\/style>/)[1];
+    assert.doesNotMatch(style,/:root|--c-[a-z]/,`${name} keeps no private color tokens`);
+    const colors=[...new Set([...style.matchAll(/#[0-9a-f]{3,8}/gi)].map(match=>match[0].toLowerCase()))];
+    assert.deepEqual(colors,['#e6e7f5'],`${name} draws only the shared hairline`);
+    assert.doesNotMatch(style,/border-radius|box-shadow/,`${name} stays square and flat`);
+    const article=html.match(/<article\b[\s\S]*?<\/article>/)[0];
+    assert.doesNotMatch(article,/[\u{1F000}-\u{1FAFF}]/u,`${name} carries no emoji`);
   }
 });
 

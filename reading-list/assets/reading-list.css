@@ -199,23 +199,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   box-shadow:none;
   font-family:var(--sans);
   font-size:var(--reader-size);
-  line-height:1.95;
-}
-.legacy-body h1 {
-  font-size:32px;
-  line-height:1.5;
-}
-.legacy-body article h2 {
-  font-size:1.35em;
-}
-.legacy-body article h3 {
-  font-size:1.1em;
-}
-.legacy-body article p,.legacy-body article li {
-  font-size:1em;
-}
-.legacy-body article .header {
-  text-align:left;
+  line-height:1.8;
 }
 .legacy-body .authors,.legacy-body .affil,.legacy-body .meta-line {
   overflow-wrap:anywhere;
@@ -240,24 +224,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   overflow-wrap:anywhere;
   word-break:normal;
   white-space:normal;
-}
-.legacy-body .paper>div[style*="display:flex"] {
-  flex-wrap:wrap;
-}
-.legacy-body article .title {
-  font-size:30px;
-}
-.legacy-body article .title span {
-  display:inline-block;
-}
-.legacy-body article .card-grid,.legacy-body article .vs {
-  grid-template-columns:1fr 1fr;
-}
-.legacy-body article .vs-col {
-  min-width:0;
-}
-.legacy-body article .toc {
-  font-size:.82em;
 }
 body.legacy-reader {
   font-family:var(--sans);
@@ -303,19 +269,6 @@ body.legacy-reader {
   .byline {
     font-size:11px;
   }
-  .legacy-body article .card-grid,.legacy-body article .vs {
-    display:grid;
-    grid-template-columns:1fr;
-  }
-  .legacy-body article .title,.legacy-body h1 {
-    font-size:26px;
-  }
-  .legacy-body article .header {
-    padding:0;
-  }
-  .legacy-body article .step {
-    gap:10px;
-  }
 }
 @media(prefers-reduced-motion:reduce) {
   * {
@@ -358,10 +311,22 @@ body.legacy-reader {
 }
 .source-figure img {
   display:block;
-  width:100%;
+  /* Tall portrait originals would otherwise run past a screen and orphan a printed page. */
+  width:auto;
   max-width:100%;
+  max-height:76vh;
   height:auto;
+  margin-inline:auto;
   border:1px solid var(--line);
+}
+@media print {
+  .source-figure {
+    break-inside:avoid;
+  }
+  .source-figure img {
+    /* Low enough that a tall portrait still fits beside the text it belongs to. */
+    max-height:56vh;
+  }
 }
 .source-figure figcaption {
   font-size:11px;
@@ -372,6 +337,5 @@ body.legacy-reader {
 
 /* Reader pages intentionally contain only the article itself. Legacy source bytes remain intact; auxiliary contents and jump bars are not part of the UI. */
 .legacy-body article .toc,
-.legacy-body article .nav-bar,
-.legacy-body article.paper > div[style*="display:flex"] { display:none !important; }
+.legacy-body article .nav-bar { display:none !important; }
 .legacy-body article > .attribution { color:var(--muted); }
