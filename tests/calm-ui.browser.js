@@ -33,6 +33,8 @@ try {
   const atRest=()=>until(`[...document.querySelectorAll('#pages>.learning-card')].every(row=>!row.style.getPropertyValue('--sheet-y'))`);
 
   // Scraps: same-size squares on their own wall, each lifting a corner when pointed at.
+  // The wall is filled from notes.md, so wait for that fetch rather than racing it over a real network.
+  check(await until(`document.querySelectorAll('#note-wall .note').length>0`),'the wall fills itself from notes.md');
   const wall=await js(`(()=>{const notes=[...document.querySelectorAll('#note-wall .note')];if(!notes.length)return null;const boxes=notes.map(note=>note.getBoundingClientRect());const first=notes[0].getBoundingClientRect();return {count:notes.length,square:boxes.every(box=>Math.abs(box.width-box.height)<1.5),same:boxes.every(box=>Math.abs(box.width-boxes[0].width)<1.5&&Math.abs(box.height-boxes[0].height)<1.5),paper:getComputedStyle(notes[0]).backgroundColor,sheet:getComputedStyle(document.querySelector('#pages>.learning-card'),'::before').backgroundColor,x:first.x+first.width/2,y:first.y+first.height/2,external:[...document.querySelectorAll('#note-wall a')].every(link=>link.target==='_blank'&&link.rel.includes('noopener'))}})()`);
   check(wall&&wall.count>0&&wall.square&&wall.same&&wall.paper!==wall.sheet&&wall.external,`scraps are ${wall&&wall.count} same-size squares of their own paper, linking out in a new tab`);
   await cdp('Input.dispatchMouseEvent',{type:'mouseMoved',x:wall.x,y:wall.y});
