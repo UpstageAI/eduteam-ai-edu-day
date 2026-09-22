@@ -24,7 +24,7 @@ function filesBelow(folder) {
 }
 const readingFiles = () => filesBelow(path.join(root, 'reading-list')).filter(file => file.endsWith('.html'));
 test('collection and both resources exist as static, Korean-first HTML', () => {
-  for (const name of ['index.html','externalization-llm-agents/index.html','forward-deployed-engineer/index.html','what-is-a-harness/index.html']) {
+  for (const name of ['index.html','externalization-llm-agents/index.html','forward-deployed-engineer/index.html','what-is-a-harness/index.html','what-is-jev/index.html']) {
     const html = fs.readFileSync(path.join(root, 'reading-list', name), 'utf8');
     assert.match(html, /<html lang="ko">/);
     assert.equal((html.match(/<h1\b/g) || []).length, 1, name);

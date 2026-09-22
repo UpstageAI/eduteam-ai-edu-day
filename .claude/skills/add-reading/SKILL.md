@@ -59,7 +59,7 @@ head에 여섯 줄을 넣는다. 카드는 이 선언을 되풀이할 뿐이고,
 <meta name="resource:summary"  content="<한 문장>">
 ```
 
-`resource:key`는 자기 폴더 경로와 같아야 한다. `format`은 아티클·논문·슬라이드·실습 중 하나를 쓴다.
+`resource:key`는 자기 폴더 경로와 같아야 한다. `format`은 아티클·논문·리서치·슬라이드·실습 중 하나를 쓴다.
 
 ## 6. 등록할 곳 일곱 군데
 

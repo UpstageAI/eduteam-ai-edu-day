@@ -15,7 +15,7 @@ const errorScript = await cdp('Page.addScriptToEvaluateOnNewDocument', { source:
 try {
   await viewport(1440, 1000);
   await go('reading-list/');
-  check(await js('document.querySelectorAll("[data-resource]").length===3'), 'collection retains its static resource rows');
+  check(await js('document.querySelectorAll("[data-resource]").length===4'), 'collection retains its static resource rows');
   check(await js('document.querySelectorAll(".site-header a").length===2'), 'collection keeps only brand and GitHub links');
   check(await js('!document.querySelector(".collection-hero,.collection-toolbar,#resource-search,#result-count,#empty-state,.read-state")'), 'collection has no auxiliary catalogue UI or runtime');
   check(await noOverflow(), 'desktop collection has no horizontal overflow');
@@ -57,7 +57,7 @@ try {
   await cdp('Emulation.setScriptExecutionDisabled', { value: true });
   try {
     await go('reading-list/');
-    check(await js('document.querySelectorAll("[data-resource]").length===3 && !document.querySelector(".collection-toolbar")'), 'no-JavaScript collection retains rows without dead UI');
+    check(await js('document.querySelectorAll("[data-resource]").length===4 && !document.querySelector(".collection-toolbar")'), 'no-JavaScript collection retains rows without dead UI');
     await go('reading-list/forward-deployed-engineer/');
     check(await js('document.querySelectorAll("[data-source-paragraph]").length===57 && document.querySelectorAll(".source-figure img").length===3'), 'no-JavaScript article retains text and images');
   } finally { await cdp('Emulation.setScriptExecutionDisabled', { value: false }); }

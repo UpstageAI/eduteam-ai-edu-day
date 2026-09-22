@@ -246,7 +246,7 @@ try {
 
   await viewport(1440,1000);
   await go('reading-list/');
-  check(await js(`document.querySelectorAll('[data-resource]').length===3&&!document.querySelector('.collection-hero,.collection-toolbar,#result-count,#empty-state,.site-footer,script[src*="reading-list.js"]')`),'Reading List is a static catalog without catalogue UI or runtime');
+  check(await js(`document.querySelectorAll('[data-resource]').length===4&&!document.querySelector('.collection-hero,.collection-toolbar,#result-count,#empty-state,.site-footer,script[src*="reading-list.js"]')`),'Reading List is a static catalog without catalogue UI or runtime');
 
   await go('reading-list/forward-deployed-engineer/');
   check(await js(`document.querySelector('main.reader-body[data-reader] h1') && !document.querySelector('.reading-progress,.reading-toolbar,.reading-sidebar,.article-end,.breadcrumb,[data-reader-control]')`),'reader keeps article content without auxiliary chrome');

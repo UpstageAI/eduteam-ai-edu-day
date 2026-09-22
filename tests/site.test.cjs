@@ -12,6 +12,7 @@ const shellEntries = [
   'reading-list/externalization-llm-agents/index.html',
   'reading-list/forward-deployed-engineer/index.html',
   'reading-list/what-is-a-harness/index.html',
+  'reading-list/what-is-jev/index.html',
   'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html',
   'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html',
 ];
@@ -43,13 +44,13 @@ test('home is a minimal progressively discovered four-row catalog', () => {
   assert.match(home,/id="resources"/);
   assert.match(home,/<h1[^>]*class="visually-hidden"/);
   assert.deepEqual([...home.matchAll(/data-resource-key="([^"]+)"/g)].map(match=>match[1]),[
-    'gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer','reading-list/what-is-a-harness'
+    'gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer','reading-list/what-is-a-harness','reading-list/what-is-jev'
   ]);
   for (const removed of ['catalog-controls','catalog-search','catalog-count','catalog-empty','catalog-reset','catalog-feedback','home-hero','hero-content','home-lede']) {
     assert.doesNotMatch(home,new RegExp(`(?:id|class)="[^"]*\\b${removed}\\b`),`${removed} must stay removed`);
   }
   const rows=cards(home,'data-resource-key');
-  assert.equal(rows.length,5);
+  assert.equal(rows.length,6);
   rows.forEach(assertRowContract);
   assert.doesNotMatch(home,/<img\b/);
   assert.doesNotMatch(home,/<script>/);
@@ -58,7 +59,7 @@ test('home is a minimal progressively discovered four-row catalog', () => {
 test('Reading List is the same minimal two-row catalog without catalogue runtime', () => {
   const html=fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
   assert.deepEqual([...html.matchAll(/data-resource="([^"]+)"/g)].map(match=>match[1]),[
-    'externalization-llm-agents','forward-deployed-engineer','what-is-a-harness'
+    'externalization-llm-agents','forward-deployed-engineer','what-is-a-harness','what-is-jev'
   ]);
   assert.match(html,/<h1[^>]*class="visually-hidden"/);
   for (const removed of ['collection-hero','collection-toolbar','resource-search','result-count','empty-state','reset-filters','read-state']) {
@@ -66,7 +67,7 @@ test('Reading List is the same minimal two-row catalog without catalogue runtime
   }
   assert.doesNotMatch(html,/reading-list\.js/);
   const rows=cards(html,'data-resource');
-  assert.equal(rows.length,3);
+  assert.equal(rows.length,4);
   rows.forEach(assertRowContract);
 });
 
@@ -113,6 +114,7 @@ test('every detail page opens with one back link and no breadcrumb', () => {
     'reading-list/externalization-llm-agents/index.html': '../../',
     'reading-list/forward-deployed-engineer/index.html': '../../',
     'reading-list/what-is-a-harness/index.html': '../../',
+    'reading-list/what-is-jev/index.html': '../../',
     'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html': '../../',
     'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html': '../../',
   };
@@ -150,7 +152,7 @@ function frontmatter(html) {
 
 test('every resource document declares itself and both catalogs repeat it exactly', () => {
   const documents = shellEntries.filter(entry => /^(gas-tutorial|omc-intro|reading-list\/[a-z-]+)\/index\.html$/.test(entry));
-  assert.equal(documents.length, 5, 'every resource document is covered');
+  assert.equal(documents.length, 6, 'every resource document is covered');
   const collection = fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
 
   for (const entry of documents) {
@@ -174,5 +176,20 @@ test('every resource document declares itself and both catalogs repeat it exactl
     };
     check(home, 'data-resource-key', meta.key, 'home');
     if (meta.category === 'reading') check(collection, 'data-resource', path.basename(meta.key), 'Reading List');
+  }
+});
+
+// Videos and other outside material are linked, never embedded: an iframe or a third-party
+// script would hand the reader to someone else's tracking on a page that otherwise loads
+// nothing from outside. Preserved original slide decks keep whatever they shipped with.
+test('the pages we author load nothing from outside and embed no one', () => {
+  for (const filename of shellEntries) {
+    const html = fs.readFileSync(path.join(root, filename), 'utf8');
+    assert.doesNotMatch(html, /<iframe\b/i, `${filename} embeds a frame`);
+    assert.doesNotMatch(html, /<(?:script|link)\b[^>]*(?:src|href)="https?:\/\//i, `${filename} loads an outside asset`);
+    // A new tab shares an opener with the page that launched it unless this says otherwise.
+    for (const [tag] of html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/gi)) {
+      assert.match(tag, /rel="noopener noreferrer"/, `${filename} opens a tab without rel="noopener noreferrer"`);
+    }
   }
 });

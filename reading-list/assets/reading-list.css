@@ -189,6 +189,30 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 .source-link {
   font-size:13px;
 }
+/* Reader tables get the same hairline box as everything else, and scroll inside their own
+   container on a narrow screen rather than pushing the page sideways. */
+.table-scroll {
+  overflow-x:auto;
+  margin:24px 0;
+}
+.table-scroll table {
+  border-collapse:collapse;
+  width:100%;
+  min-width:520px;
+  font-size:14px;
+  line-height:1.6;
+}
+.table-scroll th,
+.table-scroll td {
+  border:1px solid var(--line);
+  padding:9px 12px;
+  text-align:left;
+  vertical-align:top;
+}
+.table-scroll th {
+  font-weight:600;
+  background:var(--green-soft);
+}
 .legacy-body article {
   width:100%;
   max-width:none;

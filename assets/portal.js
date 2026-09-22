@@ -11,6 +11,7 @@
     'reading-list/externalization-llm-agents',
     'reading-list/forward-deployed-engineer',
     'reading-list/what-is-a-harness',
+    'reading-list/what-is-jev',
   ]);
   const excludedRootPages = new Set(['reading-list', 'externalization-llm-agents']);
 

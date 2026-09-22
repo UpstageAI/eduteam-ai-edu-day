@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="TypeSafe AI가 공개한 판정 모델 Jev가 무엇이고, 성능 주장이 어디까지 검증되었으며, 지금 도입할 값어치가 있는지 정리했습니다."><title>Jev는 무엇이고 지금 써야 하는가 · Reading List</title>
+<!-- This document describes itself; the home and Reading List cards must match. -->
+<meta name="resource:key" content="reading-list/what-is-jev">
+<meta name="resource:kind" content="읽을거리">
+<meta name="resource:format" content="리서치">
+<meta name="resource:category" content="reading">
+<meta name="resource:title" content="Jev는 무엇이고 지금 써야 하는가">
+<meta name="resource:summary" content="타입이 있는 판정만 돌려주는 새 모델을 뜯어보고 도입 판단 기준을 정리했습니다.">
+<link rel="stylesheet" href="../assets/reading-list.css?v=20260922-jev">
+<link rel="stylesheet" href="../../assets/site.css?v=20260922-jev">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg?v=20260922-jev">
+<script src="../../assets/drawer.js?v=20260922-jev" defer></script>
+</head>
+<body><a class="skip-link" href="#content">본문으로 건너뛰기</a>
+<header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../../" aria-label="Upstage Education 홈">Upstage Education</a>
+      <nav class="header-nav" aria-label="사이트 메뉴"><a class="nav-github" href="https://github.com/UpstageAI/eduteam-ai-edu-day" target="_blank" rel="noopener noreferrer" aria-label="GitHub 저장소 (새 탭)">GitHub</a></nav>
+    </div>
+  </header>
+<div class="container">
+<p class="back"><a href="../../"><span aria-hidden="true">←</span> 돌아가기</a></p>
+<main id="content" tabindex="-1" class="reader-body" data-reader>
+<header>
+<h1 class="reader-title">Jev는 무엇이고 지금 써야 하는가</h1>
+</header>
+<div class="byline"><span>교육팀 조사</span><time datetime="2026-09-22">2026. 09. 22.</time><span>공개 7일 차 기준</span></div>
+
+<section aria-label="요약">
+<p>TypeSafe AI가 2026년 9월 15일 얼리액세스로 공개한 Jev는 글을 쓰지 않고 타입이 정해진 판정만 돌려주는 모델입니다. 회사는 홈페이지에 193.6배 빠르고 444.6배 저렴하다고 내걸었지만 이는 전부 자사 평가에서 나온 값이고, 일주일 사이에 나온 독립 측정은 같은 방향을 가리키되 크기가 한 자릿수 작습니다. 그리고 제품을 정당화하는 유일한 속성인 확률 보정이 독립 측정에서 가장 나쁘게 나왔습니다.</p>
+<p>먼저 결론부터 적습니다. <strong>라벨이 있으면 작은 분류기를 학습시키는 쪽이 모든 면에서 낫고, 이미 LLM을 부르고 있으면 지금 쓰는 구조화 출력을 그대로 두는 편이 낫습니다.</strong> Jev는 라벨이 없고, 질문이 실행 중에 바뀌고, 한 건에 독립 질문이 여러 개 붙고, 지연 상한이 실재하는 네 조건이 동시에 맞을 때만 값어치가 있습니다.</p>
+</section>
+
+<section aria-label="쉬운 설명">
+<h2>쉬운 설명</h2>
+<p>보통 쓰는 LLM은 물어보면 글로 답하는 상대입니다. Jev는 글을 아예 못 씁니다. 대신 세 가지로만 답합니다. 예인지 아니오인지, 주어진 목록에서 무엇을 고를지, 몇 점인지입니다. 근거도 설명도 돌려주지 않습니다.</p>
+<p>그 대가로 빠르고 쌉니다. 그리고 답할 때마다 "저는 이만큼 확신합니다"라는 숫자를 같이 줍니다. 이 숫자가 Jev를 특별하게 만들어 줄 유일한 부분이었는데, 밖에서 재 보니 부풀려져 있었습니다. 90% 확신한다고 말한 답이 실제로는 80%만 맞는 식입니다.</p>
+<p>이것이 왜 문제인지는 회사가 권하는 사용법을 보면 바로 드러납니다. "확신이 높으면 사람 확인 없이 자동 처리"가 권장 패턴인데, 모델이 실제보다 확신을 부풀린다면 <strong>사람이 봤어야 할 건을 정확히 골라서 자동으로 통과시키게 됩니다.</strong></p>
+</section>
+
+<section aria-label="결정 규칙">
+<h2>쓸 자리와 쓰지 말 자리</h2>
+<p>기계적으로 Jev는 엔드포인트 하나입니다. 평가할 대상인 상태와 이름 붙인 질문 목록을 보내면, 예/아니오 확률(Noul), 선택지별 확률(Choice), 루브릭 점수(Score) 셋 중 하나로 답이 옵니다. 이미지도 소리도 받지 않고, 파인튜닝도 없습니다. 도메인에 맞추는 수단은 질문에 적는 기준 문장이 전부입니다.</p>
+<ul>
+<li><strong>라벨 1,000건을 모을 수 있고 분류 체계가 고정되어 있다면</strong> 작은 인코더를 직접 학습시키십시오. Banking77 독립 측정에서 파라미터 2,200만 개짜리 인코더와 로지스틱 회귀 조합이 정확도 93.2%에 CPU 8ms였고, 같은 과제에서 Jev는 80.1%에 약 150ms였습니다. 13퍼센트포인트 차이에 19배 지연 차이, 거기에 호출당 요금까지 붙습니다.</li>
+<li><strong>입력이 금액이나 날짜나 개수 같은 숫자라면</strong> 그래디언트 부스팅 트리 영역입니다. TypeSafe 자사 문서도 Jev가 계산기가 아니고 날짜를 순서 있는 수량이 아니라 텍스트로 읽는다고 적어 두었습니다. 다만 사전 등록 방식으로 5,721회를 호출한 한 독립 시험은 숫자 비교와 날짜 정렬에서 99.6%를 측정하고 자사 문서가 오히려 모델을 과소평가한다고 결론지었습니다. 이 불일치는 아직 해소되지 않았습니다.</li>
+<li><strong>물량이 적고 이미 LLM 호출 흐름 안이라면</strong> 그대로 두십시오. 가장 싼 구조화 출력 LLM 대비 비용 우위가 2.7배뿐이라, 벤더 하나와 SDK 하나와 감사 불가 지점 하나를 새로 떠안을 값어치가 나오지 않습니다.</li>
+</ul>
+<p>Jev가 이기는 자리는 하나입니다. 상태를 한 번만 보내고 질문을 여러 개 붙이는 팬아웃 구조입니다. 질문 30개를 묶은 호출의 벽시계 시간이 질문 1개와 같은 약 150ms였고, 선택지가 2개에서 255개로 늘어도 지연이 평평하게 유지되는 것이 독립 확인되었습니다. 반대로 호출당 질문 하나 패턴을 쓰면 고정 지연만 부담하고 이득은 하나도 얻지 못합니다.</p>
+<p>제약도 미리 알아야 합니다. 선택지는 255개가 상한이고 256개부터는 오류로 끊깁니다. 컨텍스트 한도는 출처마다 다르게 적혀 있습니다. 그리고 보안상 중요한 것 하나. <strong>TypeSafe는 Jev가 주입된 지시문에 조종될 수 있고 입력을 기본적으로 적대적인 것으로 취급하지 않는다고 문서에 적어 두었습니다.</strong> 그러면서 공개한 예제 목록에는 "LLM 가드레일"이 들어 있습니다. Jev로 만든 가드레일은 그 자체가 프롬프트 주입 대상이므로 단독 보안 경계로 쓰면 안 됩니다.</p>
+</section>
+
+<section aria-label="성능 주장 검증">
+<h2>자사 수치와 독립 측정의 거리</h2>
+<p>TypeSafe의 모든 배수는 자사가 만든 워크플로 평가 네 종에서 나옵니다. 이 평가에서 "정확도"로 표기된 값은 정답과의 일치가 아니라 GPT-6 Astra와 Claude Fable 5.1의 응답을 평균낸 것과 얼마나 합치하는가입니다. 정답지가 아니라 다른 모델의 의견입니다. TypeSafe도 이 기준이 두 회사 쪽으로 답을 편향시킨다고 인정했습니다. 구조상 Jev가 기준 모델보다 더 맞혀서 점수를 올리는 일은 불가능하고, 더 많이 동의해야만 점수가 오릅니다.</p>
+<p>그 표 안에서도 Jev는 최상위가 아닙니다. 합치도 67.8%로 Claude Opus 5의 73.1%와 Sol의 74.1%보다 낮습니다. 지연 측정 환경 공개는 한 문장이 전부입니다. "우리 평가는 대체로 서부 해안에 있는 우리 노트북에서 실행한다."</p>
+<div class="table-scroll">
+<table>
+<caption class="visually-hidden">Jev 성능 수치와 측정 주체</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">수치</th><th scope="col">측정 주체</th><th scope="col">성격</th></tr></thead>
+<tbody>
+<tr><td>배수 주장</td><td>193.6배 빠름 / 444.6배 저렴</td><td>TypeSafe</td><td>벤더 자체 측정</td></tr>
+<tr><td>동급 모델 기준 재계산</td><td>약 25배 빠름 / 76배 저렴</td><td>pearpages</td><td>독립 분석</td></tr>
+<tr><td>라우팅 분류 지연</td><td>중앙값 126.81ms 대 Haiku 4.5 688.40ms</td><td>LiteLLM</td><td>독립 측정, 240회</td></tr>
+<tr><td>구조화 출력 LLM 대비 비용</td><td>1,000건당 0.07달러 대 최저가 LLM 0.19달러</td><td>nibzard</td><td>독립·재현 가능</td></tr>
+<tr><td>구조화 출력 LLM 대비 정확도</td><td>gpt-oss-120b 81.3%, Jev 76.3%</td><td>nibzard</td><td>LLM 2종이 Jev보다 높음</td></tr>
+<tr><td>지연 하한</td><td>고정 약 430ms</td><td>priorbench</td><td>독립·사전 등록</td></tr>
+<tr><td>지연 반대 측정</td><td>종단 약 1.5초</td><td>jev-lab</td><td>독립 측정, 단일 환경</td></tr>
+<tr><td>현업 개발자 체감</td><td>5~18배 빠름</td><td>TechCrunch 취재</td><td>독립 보도</td></tr>
+</tbody>
+</table>
+</div>
+<p>정리하면 <strong>주장의 방향은 외부 검증을 통과했고 크기는 통과하지 못했습니다.</strong> 기준선을 함께 돌린 독립 시험은 모두 Jev가 더 싸고 빠르다고 보고했지만, 193.6배 근처를 재현한 곳은 한 곳도 없습니다. 헤드라인 배수가 자사 표에서 가장 느리고 가장 비싼 구성을 상대로 뽑은 값이니 당연한 결과입니다. 지연은 측정 환경에 따라 10배까지 벌어져 있으므로, 70ms를 최선의 경우로 보고 약 400ms를 현실적 하한으로 잡은 뒤 자기 환경에서 직접 재야 합니다.</p>
+<p>비용 주장은 속도 주장보다 훨씬 잘 버팁니다. 출력 토큰이 무료라 예산이 결정론적으로 잡히는 것도 실제 장점입니다. 다만 "효율적"이라는 말이 정가 기준 달러만 뜻한다는 점은 분명히 해야 합니다. 에너지나 연산량 측정은 자사 자료에도 독립 출처에도 없습니다.</p>
+</section>
+
+<section aria-label="질문 분해">
+<h2>모델이 아니라 질문 분해의 몫</h2>
+<p>출시 후 나온 독립 측정 가운데 가장 날카로운 결과가 여기 있습니다. 피싱 메일 2,000건을 놓고 "이것은 피싱인가"라는 질문 하나로 물었을 때 Jev는 62.6%, Claude Haiku 4.5는 81.3%였습니다. Jev가 크게 졌습니다.</p>
+<p>그다음 같은 판정을 타입이 붙은 질문 다섯 개로 쪼개자 Jev가 95.0%로 올라 Haiku의 93.2%를 넘었습니다. 그런데 여기에 단서가 둘 붙습니다. 95.0%는 라벨 1,000건으로 학습한 로지스틱 회귀를 위에 얹어야 나온 값이고, 두 모델의 격차는 통계적으로 유의하지 않습니다.</p>
+<p>이 효과는 TypeSafe 자사 평가 표 안에서도 그대로 보입니다. 같은 모델을 단일 프롬프트로 물었을 때와 분해된 질문으로 물었을 때를 나란히 실어 두었는데, 분해만으로 생기는 점프가 Jev와 기준선 사이의 격차보다 큽니다.</p>
+<div class="table-scroll">
+<table>
+<caption class="visually-hidden">단일 프롬프트와 분해 질문의 합치도 비교</caption>
+<thead><tr><th scope="col">모델</th><th scope="col">단일 프롬프트</th><th scope="col">분해된 질문</th><th scope="col">분해 효과</th></tr></thead>
+<tbody>
+<tr><td>Claude Haiku 4.5</td><td>18.1%</td><td>53.6%</td><td>+35.5%p</td></tr>
+<tr><td>Luna</td><td>51.9%</td><td>66.8%</td><td>+14.9%p</td></tr>
+<tr><td>GPT-5.6 Terra</td><td>61.6%</td><td>67.9%</td><td>+6.3%p</td></tr>
+<tr><td>Claude Opus 5</td><td>64.8%</td><td>73.1%</td><td>+8.3%p</td></tr>
+<tr><td>Jev</td><td>해당 없음</td><td>67.8%</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<p>Haiku 4.5는 질문을 쪼개는 것만으로 35.5퍼센트포인트가 올랐습니다. 그리고 분해를 적용한 뒤의 Jev 67.8%는 Terra의 67.9%와 사실상 동률입니다. TypeSafe가 기준선의 분해 결과까지 함께 공개한 것은 공정한 처사이고 그 점은 인정해야 합니다. 다만 그 공정한 표가 말해 주는 내용도 함께 읽어야 합니다. <strong>분해는 어느 모델에나 듣는 기법이고, 그것을 적용하고 나면 Jev의 지능 우위는 사라지고 비용과 지연 우위만 남습니다.</strong></p>
+<p>교육팀에게 이것은 오히려 좋은 소식입니다. 벤더를 바꾸지 않고 당장 적용할 개선이 있다는 뜻이기 때문입니다. 지금 쓰는 LLM에 "이 티켓의 심각도를 판단해" 같은 넓은 질문 하나를 던지는 대신, 판단을 잘 정의된 작은 질문 여러 개로 쪼개고 결과를 코드에서 합치면 됩니다. 비용 0으로 얻는 가장 큰 개선이고, 해 두면 나중에 Jev로 옮기기도 쉬워집니다. 질문 집합이 이미 타입 형태로 존재하기 때문입니다.</p>
+</section>
+
+<section aria-label="캘리브레이션">
+<h2>확률 보정이라는 약한 고리</h2>
+<p>타입 안전성은 제약 디코딩이 이미 제공하는 속성이고, 병렬 팬아웃은 좋은 공학이지만 새 범주를 만들 근거는 아닙니다. 남는 것은 확률 보정입니다. 90% 확신이라고 표시한 답이 실제로 90% 맞는다면 Jev는 JSON 모드 LLM 호출과 종류가 다른 도구이고, 아니라면 인터페이스가 잘 만들어진 빠르고 싼 제로샷 분류기로 축소됩니다.</p>
+<p>문제는 TypeSafe가 신뢰도 곡선도 보정 오차도 단 하나 공개하지 않았다는 점입니다. 그래서 증거가 전적으로 외부 측정에 달려 있는데, 그 결과가 나쁩니다. 구조화 출력 LLM 8종과 함께 측정한 독립 벤치마크에서 Jev의 기대 보정 오차는 0.246으로 측정된 모든 시스템 중 최악이었고, LLM들은 0.039~0.122 범위였습니다. 불확실할 수밖에 없도록 설계된 문항에서 LLM들이 97.3~100% 비율로 "모르겠다"를 인정한 반면 Jev는 49.7%만 인정했습니다.</p>
+<p>다른 측정도 같은 방향입니다. Banking77에서 평균 표시 신뢰도 88%에 실제 정확도 약 80%로 체계적 과신이 관측되었고, 사후 온도 보정으로 오차를 3분의 2까지 줄일 수 있었습니다. 분포 밖 입력을 다룬 연구에서는 예/아니오 답은 오히려 과소 확신인 반면 선택과 점수 답이 강하게 과신했고, 답이 원리적으로 불가능한 과제에서도 평균 확률 0.74를 부여했습니다.</p>
+<p>반대 증거도 있습니다. 좁은 과제 집합에서는 틀린 답이 모두 낮은 신뢰도로 나왔다는 보고가 있고, 0.99 임계값 위에서는 정확도가 100%로 올라가며 그 구간이 트래픽의 60%를 덮는다는 측정도 있습니다. 종합하면 그림은 이렇습니다. 분포 안에서는 보정이 대체로 작동하고 분포 밖에서 무너집니다. 그리고 분포 밖이야말로 엔지니어가 신뢰도에 기대고 싶은 바로 그 구간입니다.</p>
+<p>실무 지침은 하나로 모입니다. <strong>신뢰도 값을 가공 없이 그대로 쓰지 마십시오.</strong> 자동 동작을 걸기 전에 자기 데이터로 라벨 샘플을 만들어 온도 보정을 하십시오. 직관과 반대되는 관측도 하나 있습니다. 지시문을 더 정교하게 다듬었더니 보정 오차가 0.040에서 0.116으로 오히려 나빠졌다는 보고가 있으므로, 기준 문장을 고칠 때마다 보정을 다시 재야 합니다.</p>
+<p>마지막으로 "환각 0%"는 위험 평가에 넣을 문장이 아닙니다. TypeSafe 스스로 이를 스키마 보장에 근거한 비경험적 수치라고 밝혔습니다. 스키마 밖 출력이 0이라는 뜻이지 오판이 0이라는 뜻이 아닙니다. 실제 정확도는 독립 측정 기준 76~80%대이고, Jev는 근거를 전혀 돌려주지 않으므로 오답이 나왔을 때 손에 쥐는 단서는 확률 분포 하나뿐입니다. 평가 장치를 첫날부터 예산에 넣어야 합니다.</p>
+</section>
+
+<section aria-label="출처 신뢰도">
+<h2>인용하기 전에 알아야 할 것</h2>
+<p><strong>창업자 이력은 과장되어 있습니다.</strong> 창업자 Diogo Almeida는 RLHF를 명령 수행 언어 모델에 적용해 ChatGPT의 기술 토대가 된 InstructGPT 논문의 주 저자 아홉 명 중 한 명이고 GPT-4 기술 보고서 공저자입니다. 그러나 RLHF 기법 자체를 제안한 2017년 논문의 저자는 아닙니다. 그는 RLHF를 언어 모델에 실용화하는 데 기여했지 기법을 창안하지 않았습니다. "ChatGPT 발명자"라는 헤드라인은 수십 명에게 똑같이 붙일 수 있는 표현입니다. 이 과장에는 구조가 있습니다. 회사의 핵심 주장이 "RLHF가 망가졌다"는 것이라, 그가 RLHF를 만든 사람이라는 설명이 클수록 그 부정이 권위 있게 들립니다.</p>
+<p><strong>LangChain을 독립 검증으로 인용하면 안 됩니다.</strong> "LangChain이 Jev가 LLM 판정자보다 싸고 일관적임을 확인했다"는 식으로 널리 인용되지만, 해당 글을 실제로 확인하면 자체 평가를 전혀 수행하지 않았습니다. TypeSafe 자사 수치를 그대로 옮긴 공지 겸 안내 글이고, LangChain 본인도 소개된 사례를 "시연이지 검증된 벤치마크가 아니다"라고 밝히고 있습니다.</p>
+<p><strong>제품은 공개 7일 차입니다.</strong> 논문도 기술 보고서도 공개 가중치도 없습니다. 학습법에 붙은 이름은 있지만 손실 함수도 데이터 생성 절차도 공개된 것이 없어 기술적 장점을 평가할 방법 자체가 없습니다. 자체 호스팅도 파인튜닝도 없습니다. 4,000만 달러 시드를 받았는데 조사한 여섯 개 출처 어디에도 공동 투자자 이름이 하나도 나오지 않고, 보도된 기업가치는 회사가 확인해 주지 않았습니다.</p>
+<p><strong>실제 트래픽 위에서 Jev를 운영한다고 밝힌 이름 있는 기업은 아직 없습니다.</strong> 여러 플랫폼에 Jev 경로가 있지만 그것은 닿을 수 있게 만든 벤더이지 써 보니 되더라고 보고한 고객이 아닙니다. 커뮤니티 목록에 일주일 만에 150개 넘는 프로젝트가 올라왔지만 수치는 전부 저자 자기 보고이고 주말 실험과 실배포를 구분하지 않습니다.</p>
+<p>한편 벤더 잠김 위험은 생각보다 작습니다. 인터페이스가 단순해서 일주일 만에 오픈소스 클론이 여럿 나왔고 일부는 드롭인 대체로 동작합니다. 진짜 잠김은 API가 아니라 보정입니다. Jev의 확률 분포에 맞춰 임계값을 정해 두면 다른 모델로 옮길 때 그 임계값이 전부 틀어지므로, 이전 계획에는 재보정 비용을 반드시 넣어야 합니다.</p>
+</section>
+
+<section aria-label="결론">
+<h2>결론</h2>
+<p>이번 조사에서 가장 값어치 있는 결과는 Jev에 대한 판정이 아니라 Jev가 우연히 드러낸 사실입니다. <strong>판단을 타입 있는 질문으로 쪼개는 것은 모델과 무관하게 듣는 기법이고, TypeSafe 자신의 평가 표가 그 증거를 담고 있습니다.</strong> 지금 사내에서 LLM에 넓은 질문 하나를 던지고 있다면, 벤더를 바꾸기 전에 질문부터 쪼개는 것이 비용 없이 얻는 가장 큰 개선입니다.</p>
+<p>Jev 자체에 대한 정직한 요약은 이렇습니다. 좋은 제품이지만 새로운 패러다임은 아니며, 범주를 정당화했을 유일한 속성인 확률 보정이 가장 나쁘게 측정됩니다. 남는 것은 팬아웃 경제성과 선택지 수와 무관한 평평한 지연이고, 이 둘은 진짜 공학적 성취입니다. 다만 앞서 적은 좁은 조건 안에서만 값어치가 있습니다.</p>
+<p>도입한다면 그림자 모드로 먼저 돌리고, 자기 데이터로 신뢰도를 보정한 뒤에야 자동 동작을 걸고, 신뢰도 임계값을 안전 경계로 쓰지 말고 결정론적 검사와 나란히 두십시오. 지금 여러 기업이 프로덕션에서 쓰고 있다고 말하는 사람은 기록보다 앞서 있는 것입니다. 일주일은 무엇도 증명하기에 짧고, 이 문서의 거의 모든 수치는 여섯 달 뒤 다시 확인해야 합니다.</p>
+</section>
+
+<p id="original" class="source-link">주요 출처: <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener noreferrer">TypeSafe 런칭 블로그 ↗</a> · <a href="https://evals.typesafe.ai/" target="_blank" rel="noopener noreferrer">자사 평가 표 ↗</a> · <a href="https://github.com/nibzard/decision-model-benchmark" target="_blank" rel="noopener noreferrer">nibzard 독립 벤치마크 ↗</a> · <a href="https://github.com/priorbench/jev" target="_blank" rel="noopener noreferrer">priorbench 사전 등록 시험 ↗</a> · <a href="https://www.beri.net/article/typesafe-jev-typed-decision-model-calibration-decomposition-shadow-eval" target="_blank" rel="noopener noreferrer">beri.net 분해·보정 연구 ↗</a> · <a href="https://techcrunch.com/2026/09/18/a-new-kind-of-ai-model-from-a-chatgpt-inventor-is-thrilling-developers/" target="_blank" rel="noopener noreferrer">TechCrunch ↗</a> · <a href="https://www.theregister.com/ai-and-ml/2026/09/16/typesafe-ai-debuts-model-for-machines-that-plays-doom/5296711" target="_blank" rel="noopener noreferrer">The Register ↗</a></p>
+</main>
+</div>
+</body>
+</html>

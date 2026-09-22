@@ -1,6 +1,6 @@
 # Edu Team Day 정적 자료 사이트
 
-이 저장소는 교육팀의 워크숍과 읽기 자료를 한 GitHub Pages 사이트에서 제공합니다. 홈에서 다섯 개의 대표 자료를 바로 열 수 있고, 각 워크숍은 안내 페이지에서 내용을 확인한 뒤 슬라이드와 실습 자료를 열 수 있습니다. 별도의 빌드나 패키지 설치는 필요하지 않습니다.
+이 저장소는 교육팀의 워크숍과 읽기 자료를 한 GitHub Pages 사이트에서 제공합니다. 홈에서 여섯 개의 대표 자료를 바로 열 수 있고, 각 워크숍은 안내 페이지에서 내용을 확인한 뒤 슬라이드와 실습 자료를 열 수 있습니다. 별도의 빌드나 패키지 설치는 필요하지 않습니다.
 
 - 사이트: `https://upstageai.github.io/eduteam-ai-edu-day/`
 - 배포 후 읽기 자료 경로: `https://upstageai.github.io/eduteam-ai-edu-day/reading-list/`
@@ -56,7 +56,7 @@ python3 -m http.server 8000
 ## 자료 구조
 
 ```text
-index.html                                      # 다섯 개의 대표 자료를 보여 주는 홈 포털
+index.html                                      # 여섯 개의 대표 자료를 보여 주는 홈 포털
 assets/
   site.css                                      # 홈·워크숍이 함께 쓰는 스타일
   portal.js                                     # 추가 자료를 찾는 선택적 GitHub 탐색 기능
@@ -72,6 +72,8 @@ reading-list/
     index.html                                  # Latent Space 글의 한국어 전문 번역
   what-is-a-harness/
     index.html                                  # Earendil 글의 한국어 전문 번역
+  what-is-jev/
+    index.html                                  # Jev 모델 조사 보고
 externalization-llm-agents/
   index.html                                    # 기존 공유 URL을 위한 호환 리다이렉트
 gas-tutorial/
@@ -93,24 +95,26 @@ Reading List에는 다음 자료가 있습니다.
 - **LLM 에이전트 외재화**: 기존 `externalization-llm-agents` 자료를 Reading List 안에서 읽을 수 있도록 정리했습니다.
 - **Forward-Deployed Engineer 실무 가이드**: [Latent Space 원문](https://www.latent.space/p/forward-deployed-engineer-best-practices)의 한국어 전문 번역과 원문 이미지를 제공합니다. 원문의 57개 본문 문단과 8개 소제목, 부제와 이미지 설명을 순서대로 옮겼습니다. 이미지는 원문에서 첫 문단 앞, 12번째 문단 뒤, 28번째 문단 뒤에 나온 위치에 배치했습니다.
 - **하네스란 무엇인가**: [Earendil 원문](https://earendil.com/posts/what-is-a-harness/)의 한국어 전문 번역입니다. 저자에게 직접 허락을 받아 실었고, 본문 끝에서 원문으로 연결합니다. 원문에 실린 등반 사진은 저자가 아니라 Tom Frost가 찍은 것으로, 저자가 사진까지 함께 써도 된다고 알려와 그대로 실었습니다. 촬영자 표기와 링크는 원문과 같이 사진 설명에 남겼고, `images/sources.json`에 원본 URL과 체크섬, 허락 경위와 날짜를 기록했습니다.
+- **Jev는 무엇이고 지금 써야 하는가**: 교육팀이 직접 조사해 쓴 글입니다. TypeSafe AI가 공개한 판정 모델을 놓고 자사 수치와 독립 측정을 갈라 정리하고 도입 판단 기준을 적었습니다. 바깥 글 번역이 아니라 사내 조사 결과라 형식을 `리서치`로 둡니다.
 
 기존에 공유된 `/externalization-llm-agents/` 주소는 삭제하지 않고 새 위치로 연결합니다. 북마크와 문서에 남은 링크를 그대로 사용할 수 있습니다.
 
 ## 홈 포털과 워크숍 안내
 
-루트 `index.html`에는 아래 다섯 자료가 정적 목록으로 들어 있습니다.
+루트 `index.html`에는 아래 여섯 자료가 정적 목록으로 들어 있습니다.
 
 - Google Apps Script로 시작하는 업무 자동화
 - Oh-my-claude-code 사용기
 - LLM 에이전트의 외재화
 - FDE의 부상과 제대로 일하는 방법
 - 하네스란 무엇인가
+- Jev는 무엇이고 지금 써야 하는가
 
 홈과 Reading List는 상단의 `Upstage Education`·`GitHub` 링크와 자료 목록만 보여 줍니다. 각 항목은 제목, 짧은 요약과 이동 링크를 담은 네모난 문서이고, 분류와 형식은 문서 위쪽에 붙은 파일 탭(예: 워크숍 · 실습)에 적고, 탭 테두리만 워크숍은 연한 초록, 읽을거리는 연한 보라로 칠합니다. 문서는 서랍 속 서류철처럼 16px씩 뒤로 겹쳐 쌓이고, 이동 링크는 오른쪽에 있습니다. 작은 화면에서는 같은 순서로 줄을 바꾸며 가로 스크롤을 만들지 않습니다.
 
 소개 문구, 중복 메뉴, 푸터, 검색·필터·자료 수·목록의 읽음 표시는 두지 않습니다. 워크숍 안내와 글은 별도 스크롤 패널 없이 본문 흐름으로 읽습니다. 링크와 버튼에는 150ms의 색상 전환을 적용합니다. 마우스로 목록을 훑으면 `assets/drawer.js`가 포인터 위치를 부드럽게 따라가며, 가까운 문서일수록 최대 12px까지 조금 더 올라옵니다. 키보드로 링크를 선택해도 같은 방식으로 움직입니다. 문서의 어느 곳을 눌러도 해당 자료가 열리고, 지원하는 브라우저에서는 문서 제목이 새 페이지의 제목 자리로 자연스럽게 옮겨 갑니다. 문서의 쌓임 순서와 클릭 영역은 바뀌지 않습니다. 터치 화면, 동작 줄이기 설정, JavaScript를 끈 환경에서는 움직이지 않고 모든 내용과 링크를 그대로 쓸 수 있습니다.
 
-`assets/portal.js`는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 같은 행 형식으로 덧붙입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 다섯 자료와 모든 기본 링크를 사용할 수 있습니다. Reading List 목록은 JavaScript 없이 작동합니다.
+`assets/portal.js`는 저장소에서 아직 목록에 없는 루트 자료와 PPTX 파일을 찾아 같은 행 형식으로 덧붙입니다. JavaScript를 끄거나 GitHub API 호출에 실패해도 여섯 자료와 모든 기본 링크를 사용할 수 있습니다. Reading List 목록은 JavaScript 없이 작동합니다.
 
 `gas-tutorial/`과 `omc-intro/`는 더 이상 슬라이드로 바로 보내는 리다이렉트가 아닙니다. 두 폴더의 `index.html`은 발표 내용과 자료 형식을 먼저 설명하고, 원본 슬라이드·PDF·프롬프트·참고 코드로 이동할 수 있는 워크숍 안내 페이지입니다. 공통 화면 요소는 `assets/site.css`를 사용하며 Reading List와 같은 색상과 타이포그래피를 따릅니다.
 
@@ -119,7 +123,7 @@ JavaScript를 사용할 수 있으면 GitHub의 `main` 브랜치 트리를 조�
 - 루트 바로 아래의 `<폴더>/index.html`
 - 저장소 안의 `.pptx` 파일
 
-Reading List의 세 글은 홈 목록에서도 바로 열 수 있습니다. 자동 탐색은 이미 등록된 글과 기존 `externalization-llm-agents/` 호환 주소를 중복으로 추가하지 않습니다.
+Reading List의 네 글은 홈 목록에서도 바로 열 수 있습니다. 자동 탐색은 이미 등록된 글과 기존 `externalization-llm-agents/` 호환 주소를 중복으로 추가하지 않습니다.
 
 ## 자료 메타데이터
 
