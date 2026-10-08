@@ -170,6 +170,7 @@ git diff -- index.html README.md tests/portal.test.cjs
 - 홈, Reading List, 수정한 자료를 로컬 서버에서 엽니다.
 - 이미지와 링크가 상대 경로를 사용하는지 살펴봅니다.
 - `node --test tests/*.test.cjs`가 통과하는지 검사합니다.
+- **CSS나 JS를 고쳤으면 모든 HTML의 `?v=` 문자열을 함께 올립니다.** 파일만 바꾸고 주소를 그대로 두면 서버에는 새 파일이 올라가지만 이미 방문한 브라우저는 캐시에 있는 예전 파일을 계속 씁니다. 바뀐 것이 없어 보이는 가장 흔한 원인입니다.
 - `.omc/`, `.omx/`, `node_modules/`, `.DS_Store`를 커밋하지 않습니다.
 - `git status --short`로 의도한 파일만 포함됐는지 점검합니다.
 
