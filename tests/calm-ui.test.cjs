@@ -36,7 +36,7 @@ function contrast(foreground, background) {
 
 test('shared text and accent roles remain readable on the paper surface', () => {
   const paper = customProperty('--paper');
-  for (const token of ['--ink', '--muted', '--green']) {
+  for (const token of ['--ink', '--muted', '--key', '--key-fill']) {
     assert.ok(contrast(customProperty(token), paper) >= 4.5, `${token} must meet WCAG AA for normal text on --paper`);
   }
 });

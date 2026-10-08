@@ -4,8 +4,11 @@
   --ink:#292a27;
   --muted:#666963;
   --line:#e3e5df;
-  --green:#465a50;
-  --green-soft:#f2f3ef;
+  /* Upstage brand, from Lift Website: --cc-key / --cc-key-hover / --colors--purple-50.
+     Links take the hover value because it clears AA on every surface here with room to spare. */
+  --key:#4840e0;
+  --key-fill:#5b52ff;
+  --key-soft:#ecf0ff;
   --reader-size:18px;
   /* Hairlines and papers that implementation code must not spell out again (Lift W-4). */
   --line-card:#e6e7f5;
@@ -36,7 +39,7 @@ body {
   overflow-wrap:anywhere;
 }
 a {
-  color:var(--green);
+  color:var(--key);
   text-underline-offset:4px;
 }
 button,input {
@@ -58,7 +61,7 @@ button:disabled {
   opacity:.4;
 }
 a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
-  outline:2px solid var(--green);
+  outline:2px solid var(--key);
   outline-offset:5px;
 }
 [hidden] {
@@ -91,12 +94,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 .brand {
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:8px;
   text-decoration:none;
   font-weight:600;
   font-size:14px;
   color:var(--ink);
   letter-spacing:-.3px;
+}
+.brand img {
+  display:block;
+  height:17px;
+  width:auto;
 }
 .header-nav {
   display:flex;
@@ -190,7 +198,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   margin-top:5px;
 }
 .reading-option:hover {
-  border-color:var(--green);
+  border-color:var(--key);
 }
 .source-link {
   font-size:13px;
@@ -217,7 +225,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
 }
 .table-scroll th {
   font-weight:600;
-  background:var(--green-soft);
+  background:var(--key-soft);
 }
 /* Code samples scroll inside their own box, like tables, and stay off the legacy readers. */
 .code-block {
@@ -225,7 +233,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   margin:20px 0;
   padding:16px 18px;
   border:1px solid var(--line);
-  background:var(--green-soft);
+  background:var(--key-soft);
 }
 .code-block pre {
   margin:0;

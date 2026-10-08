@@ -52,7 +52,11 @@ test('home is a minimal progressively discovered four-row catalog', () => {
   const rows=cards(home,'data-resource-key');
   assert.equal(rows.length,6);
   rows.forEach(assertRowContract);
-  assert.doesNotMatch(home,/<img\b/);
+  // The header lockup is the one image on the home page; the catalog itself stays text.
+  const homeImages=[...home.matchAll(/<img\b[^>]*>/g)].map(match=>match[0]);
+  assert.equal(homeImages.length,1,'the home page carries no imagery beyond the brand lockup');
+  assert.match(homeImages[0],/src="\.\/assets\/brand\/upstage_lockup_black\.svg"/);
+  assert.match(homeImages[0],/alt=""/,'the lockup is decorative; the link carries the name');
   assert.doesNotMatch(home,/<script>/);
 });
 

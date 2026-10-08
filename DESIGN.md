@@ -36,9 +36,12 @@ Education team members and learners on laptops or phones. They need to start a g
 
 The site follows Upstage's Lift design system where Lift is right for it, and records where it is not. Adopted: colour and shadow literals live in the token block rather than in implementation code, `var()` carries no fallback hex, Korean body text sits at or above Lift's 12px floor with 1.7 leading, Windows High Contrast Mode keeps the hairlines the drawer depends on, and a note's link row clears the 24px touch minimum on a coarse pointer.
 
+Adopted since: the palette is Upstage's. Links, focus and the primary action use `--cc-key` `#5b52ff` and `--cc-key-hover` `#4840e0`; tinted surfaces use `--colors--purple-50` `#ecf0ff`; the header carries `upstage_lockup_black.svg` rather than the wordmark set as type. Categories read branded-against-neutral — reading and repo scraps take the purple, workshop and term scraps take Lift's greys `#cdd0d5` / `#70757f`.
+
+That last choice fixed an accessibility defect rather than only matching the brand. The scrap edges used to be sage green against terracotta, which a protanope sees as a colour distance of 4.7 out of 255 — the same colour. Purple against neutral grey stays 111 or more apart under every simulated deficiency.
+
 These deviate on purpose:
 
-- **Links, focus ring and primary action stay green (`#465a50`), not Lift's `--cc-key` `#5b52ff`.** Lift Website has no mid-green, so this is the site's largest brand divergence rather than an oversight. The focus ring is the measurable part: green reaches 7.27:1 on our paper against 4.46:1 for Lift's `--focus-ring-web-color` `#4d65ff`. Adopting Lift's would weaken a passing contrast.
 - **`data-ds-focus` is not used.** Lift's `a11y.css` removes the outline from everything and restores it only on that attribute, so a hand-written element that forgets it gets no focus ring at all. A global `:focus-visible` fails safe, which matters more here than matching the mechanism.
 - **Ink stays warm (`#292a27`), not Lift's `--cc-ink` `#0d0d12`.** Both clear AA comfortably; Lift's is cooler and about a third darker in luminance, which would recolour every page.
 - **The font stack stays system-only.** Lift's `KO-8` wants `Geist, "Noto Sans KR"` at the front. Naming them downloads nothing, but it would render differently for viewers who happen to have them installed, and the letter-spacing here was tuned against the system stack.
