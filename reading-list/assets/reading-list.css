@@ -4,12 +4,18 @@
   --ink:#292a27;
   --muted:#666963;
   --line:#e3e5df;
-  /* Retain reader token names for compatibility across existing documents. */
   --green:#465a50;
   --green-soft:#f2f3ef;
-  --rust:#666963;
-  --rust-soft:#f2f3ef;
   --reader-size:18px;
+  /* Hairlines and papers that implementation code must not spell out again (Lift W-4). */
+  --line-card:#e6e7f5;
+  --note-paper:#f7f6f2;
+  --note-line:#e3e1da;
+  --note-line-strong:#c9c5b8;
+  --note-lift-shadow:0 14px 18px -14px rgba(41,42,39,.5);
+  --print-paper:#fff;
+  --print-ink:#000;
+  --print-line:#777;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
 }
 * {
@@ -64,7 +70,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   left:16px;
   z-index:100;
   background:var(--ink);
-  color:white;
+  color:var(--white);
   padding:12px 20px;
 }
 .skip-link:focus {
@@ -169,7 +175,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   display:block;
   padding:20px 24px;
   border:1px solid var(--line);
-  background:#fff;
+  background:var(--white);
   text-decoration:none;
 }
 .reading-option strong {
@@ -200,7 +206,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible {
   width:100%;
   min-width:520px;
   font-size:14px;
-  line-height:1.6;
+  line-height:1.7;
 }
 .table-scroll th,
 .table-scroll td {
@@ -320,8 +326,8 @@ body.legacy-reader {
 }
 @media print {
   body {
-    background:#fff;
-    color:#000;
+    background:var(--print-paper);
+    color:var(--print-ink);
   }
   .site-header,.back,.skip-link {
     display:none!important;
@@ -341,7 +347,7 @@ body.legacy-reader {
     break-after:avoid;
   }
   .reader-body a {
-    color:#000;
+    color:var(--print-ink);
     text-decoration:underline;
   }
   .legacy-body article table {

@@ -32,6 +32,19 @@ Education team members and learners on laptops or phones. They need to start a g
 
 - Outside material is linked, never embedded. A video gets a short page of its own that says why it is worth watching and links out; an iframe or a third-party script would hand the reader to someone else's tracking on pages that currently load nothing from outside. Outward links open in a new tab with `rel="noopener noreferrer"`, and a test holds both rules for every page we author. Preserved original slide decks keep whatever they shipped with.
 
+## Lift conformance
+
+The site follows Upstage's Lift design system where Lift is right for it, and records where it is not. Adopted: colour and shadow literals live in the token block rather than in implementation code, `var()` carries no fallback hex, Korean body text sits at or above Lift's 12px floor with 1.7 leading, Windows High Contrast Mode keeps the hairlines the drawer depends on, and a note's link row clears the 24px touch minimum on a coarse pointer.
+
+These deviate on purpose:
+
+- **Links, focus ring and primary action stay green (`#465a50`), not Lift's `--cc-key` `#5b52ff`.** Lift Website has no mid-green, so this is the site's largest brand divergence rather than an oversight. The focus ring is the measurable part: green reaches 7.27:1 on our paper against 4.46:1 for Lift's `--focus-ring-web-color` `#4d65ff`. Adopting Lift's would weaken a passing contrast.
+- **`data-ds-focus` is not used.** Lift's `a11y.css` removes the outline from everything and restores it only on that attribute, so a hand-written element that forgets it gets no focus ring at all. A global `:focus-visible` fails safe, which matters more here than matching the mechanism.
+- **Ink stays warm (`#292a27`), not Lift's `--cc-ink` `#0d0d12`.** Both clear AA comfortably; Lift's is cooler and about a third darker in luminance, which would recolour every page.
+- **The font stack stays system-only.** Lift's `KO-8` wants `Geist, "Noto Sans KR"` at the front. Naming them downloads nothing, but it would render differently for viewers who happen to have them installed, and the letter-spacing here was tuned against the system stack.
+- **The header wordmark stays as text.** Lift's `ALL-4` wants `assets/brand/upstage_lockup_*.svg`. "Upstage Education" is a team name rather than the `upstage.` wordmark, and a lockup changes the header's weight. This is Lift's one error-severity rule the site does not meet; it is a brand decision, not a technical one.
+- **`.button` collides with a Lift canonical class.** Lift's version is `#5b52ff` with an 8px radius. The site's square, quiet button only stays square because Lift's CSS is never loaded here. Do not add it.
+
 ## Design principles
 
 Give people a clear next action. Explain content with human titles rather than repository paths. Keep the navigation consistent while letting original articles retain their content. Static content first; enhancement must not blank the page or depend on an API. Favor a small, durable shared stylesheet over a framework.

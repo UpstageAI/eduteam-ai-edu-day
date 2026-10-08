@@ -85,11 +85,15 @@ test('drawer sheets move their paper and print through one variable without movi
 
 test('scraps are same-size squares on their own wall, not drawer sheets', () => {
   assert.match(siteCss,/\.note \{[^}]*aspect-ratio\s*:\s*1[^}]*\}/,'every note is the same square');
-  assert.match(siteCss,/\.note \{[^}]*background\s*:\s*#f7f6f2/,'notes use a warmer paper than the sheets');
+  assert.match(siteCss,/\.note \{[^}]*background\s*:\s*var\(--note-paper\)/,'notes take their paper from a token, not a literal');
+  const notePaper=customProperty('--note-paper'), sheetPaper=customProperty('--paper');
+  assert.notEqual(notePaper,sheetPaper,'notes use a warmer paper than the sheets');
+  assert.ok(rgb(notePaper).every((channel,index)=>channel<=rgb(sheetPaper)[index]),'note paper is no lighter than the sheet paper in any channel');
   assert.doesNotMatch(siteCss,/\.note \{[^}]*border-radius/,'notes stay square-cornered');
   const lift=siteCss.match(/\.note:hover \{([^}]*)\}/);
   assert.ok(lift&&/transform\s*:\s*translateY\(-\d+px\)/.test(lift[1]),'pointing at a note lifts it off the wall');
-  assert.ok(lift&&/box-shadow\s*:\s*0 \d+px/.test(lift[1]),'a shadow shows the gap it leaves behind');
+  assert.ok(lift&&/box-shadow\s*:\s*var\(--note-lift-shadow\)/.test(lift[1]),'the lift shadow comes from a token');
+  assert.match(sharedCss,/--note-lift-shadow\s*:\s*0 \d+px \d+px -\d+px rgba\(/,'a shadow shows the gap it leaves behind');
   assert.doesNotMatch(siteCss,/@keyframes note-sway|filter\s*:\s*url|perspective/,'nothing tilts, ripples or keeps moving on its own');
   const notesScript=fs.readFileSync(path.join(root,'assets/notes.js'),'utf8');
   const reduced=siteCss.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/);
