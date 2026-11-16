@@ -61,13 +61,13 @@ try {
   const offlineScript = await cdp('Page.addScriptToEvaluateOnNewDocument',{source:'const realFetch=window.fetch;window.fetch=(u,...a)=>String(u).includes("api.github.com")?Promise.reject(new Error("offline test")):realFetch(u,...a);'});
   try {
     await go();
-    check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===6'), 'API failure leaves all six static rows readable');
+    check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===7'), 'API failure leaves all seven static rows readable');
   } finally { await cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:offlineScript.identifier}); }
 
   await cdp('Emulation.setScriptExecutionDisabled',{value:true});
   try {
     await go();
-    check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===6 && !document.querySelector("#catalog-controls,.site-footer")'), 'no-JavaScript portal retains six rows without dead UI');
+    check(await js('document.querySelectorAll("#pages>[data-resource-key]").length===7 && !document.querySelector("#catalog-controls,.site-footer")'), 'no-JavaScript portal retains seven rows without dead UI');
     await go('gas-tutorial/');
     check(await js('!!document.querySelector(".workshop-main>.button-row .button-primary") && document.querySelectorAll(".lesson-item").length===4'), 'no-JavaScript workshop retains primary action and materials');
   } finally { await cdp('Emulation.setScriptExecutionDisabled',{value:false}); }

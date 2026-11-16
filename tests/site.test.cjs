@@ -13,6 +13,7 @@ const shellEntries = [
   'reading-list/forward-deployed-engineer/index.html',
   'reading-list/what-is-a-harness/index.html',
   'reading-list/what-is-jev/index.html',
+  'reading-list/mit-ai-and-education/index.html',
   'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html',
   'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html',
 ];
@@ -44,13 +45,13 @@ test('home is a minimal progressively discovered four-row catalog', () => {
   assert.match(home,/id="resources"/);
   assert.match(home,/<h1[^>]*class="visually-hidden"/);
   assert.deepEqual([...home.matchAll(/data-resource-key="([^"]+)"/g)].map(match=>match[1]),[
-    'gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer','reading-list/what-is-a-harness','reading-list/what-is-jev'
+    'gas-tutorial','omc-intro','reading-list/externalization-llm-agents','reading-list/forward-deployed-engineer','reading-list/what-is-a-harness','reading-list/what-is-jev','reading-list/mit-ai-and-education'
   ]);
   for (const removed of ['catalog-controls','catalog-search','catalog-count','catalog-empty','catalog-reset','catalog-feedback','home-hero','hero-content','home-lede']) {
     assert.doesNotMatch(home,new RegExp(`(?:id|class)="[^"]*\\b${removed}\\b`),`${removed} must stay removed`);
   }
   const rows=cards(home,'data-resource-key');
-  assert.equal(rows.length,6);
+  assert.equal(rows.length,7);
   rows.forEach(assertRowContract);
   // The header lockup is the one image on the home page; the catalog itself stays text.
   const homeImages=[...home.matchAll(/<img\b[^>]*>/g)].map(match=>match[0]);
@@ -63,7 +64,7 @@ test('home is a minimal progressively discovered four-row catalog', () => {
 test('Reading List is the same minimal two-row catalog without catalogue runtime', () => {
   const html=fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
   assert.deepEqual([...html.matchAll(/data-resource="([^"]+)"/g)].map(match=>match[1]),[
-    'externalization-llm-agents','forward-deployed-engineer','what-is-a-harness','what-is-jev'
+    'externalization-llm-agents','forward-deployed-engineer','what-is-a-harness','what-is-jev','mit-ai-and-education'
   ]);
   assert.match(html,/<h1[^>]*class="visually-hidden"/);
   for (const removed of ['collection-hero','collection-toolbar','resource-search','result-count','empty-state','reset-filters','read-state']) {
@@ -71,7 +72,7 @@ test('Reading List is the same minimal two-row catalog without catalogue runtime
   }
   assert.doesNotMatch(html,/reading-list\.js/);
   const rows=cards(html,'data-resource');
-  assert.equal(rows.length,4);
+  assert.equal(rows.length,5);
   rows.forEach(assertRowContract);
 });
 
@@ -119,6 +120,7 @@ test('every detail page opens with one back link and no breadcrumb', () => {
     'reading-list/forward-deployed-engineer/index.html': '../../',
     'reading-list/what-is-a-harness/index.html': '../../',
     'reading-list/what-is-jev/index.html': '../../',
+    'reading-list/mit-ai-and-education/index.html': '../../',
     'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/eli5.html': '../../',
     'reading-list/externalization-llm-agents/slides-externalization-llm-agents/dist/presentation.html': '../../',
   };
@@ -156,7 +158,7 @@ function frontmatter(html) {
 
 test('every resource document declares itself and both catalogs repeat it exactly', () => {
   const documents = shellEntries.filter(entry => /^(gas-tutorial|omc-intro|reading-list\/[a-z-]+)\/index\.html$/.test(entry));
-  assert.equal(documents.length, 6, 'every resource document is covered');
+  assert.equal(documents.length, 7, 'every resource document is covered');
   const collection = fs.readFileSync(path.join(root,'reading-list/index.html'),'utf8');
 
   for (const entry of documents) {
